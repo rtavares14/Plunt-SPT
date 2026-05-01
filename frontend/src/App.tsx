@@ -44,10 +44,50 @@ function App() {
                 </Box>
               }
             />
-            <Route path="/auth" element={<AuthPage />} />
-            <Route path="/verify-email" element={<VerifyEmailPage />} />
-            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-            <Route path="/reset-password" element={<ResetPasswordPage />} />
+            <Route
+              path="/auth"
+              element={
+                <Box className="min-h-screen flex flex-col">
+                  <Navbar />
+                  <Box className="pt-16 flex-1 flex flex-col">
+                    <AuthPage />
+                  </Box>
+                </Box>
+              }
+            />
+            <Route
+              path="/verify-email"
+              element={
+                <Box className="min-h-screen flex flex-col">
+                  <Navbar />
+                  <Box className="pt-16 flex-1 flex flex-col">
+                    <VerifyEmailPage />
+                  </Box>
+                </Box>
+              }
+            />
+            <Route
+              path="/forgot-password"
+              element={
+                <Box className="min-h-screen flex flex-col">
+                  <Navbar />
+                  <Box className="pt-16 flex-1 flex flex-col">
+                    <ForgotPasswordPage />
+                  </Box>
+                </Box>
+              }
+            />
+            <Route
+              path="/reset-password"
+              element={
+                <Box className="min-h-screen flex flex-col">
+                  <Navbar />
+                  <Box className="pt-16 flex-1 flex flex-col">
+                    <ResetPasswordPage />
+                  </Box>
+                </Box>
+              }
+            />
             <Route
               path="/profile"
               element={

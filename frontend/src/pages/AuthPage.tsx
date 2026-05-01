@@ -117,7 +117,7 @@ function AuthPage() {
       >
         {/* Branding */}
         <Box className="text-center mb-6">
-          <YardIcon sx={{ fontSize: 48 }} className="text-plunt-600 mb-2" />
+          <YardIcon sx={{ fontSize: 48 }} className="!text-green-main mb-2" />
           <Typography variant="h4" className="!font-bold !text-plunt-900">
             {mode === 'login' ? 'Welcome back' : 'Join Plunt'}
           </Typography>
@@ -254,8 +254,8 @@ function AuthPage() {
               textTransform: 'none',
               fontWeight: 600,
               fontSize: '0.95rem',
-              backgroundColor: '#16a34a',
-              '&:hover': { backgroundColor: '#15803d' },
+              backgroundColor: '#0f7033',
+              '&:hover': { backgroundColor: '#14532d' },
             }}
           >
             {loading ? (

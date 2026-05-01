@@ -10,6 +10,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/useAuth';
 import SessionsSection from '../components/SessionsSection';
+import GardenSection from '../components/garden/GardenSection';
 
 function ProfilePage() {
   const { user, logout, authFetch } = useAuth();
@@ -48,7 +49,7 @@ function ProfilePage() {
     <Box className="flex-1 bg-gradient-to-br from-plunt-50 via-white to-plunt-100 flex items-center justify-center px-4 py-8">
       <Paper
         elevation={0}
-        className="w-full max-w-[480px] p-8 rounded-2xl border border-plunt-200"
+        className="w-full max-w-[560px] p-8 rounded-2xl border border-plunt-200"
       >
         <Box className="text-center">
           <Avatar
@@ -97,6 +98,13 @@ function ProfilePage() {
                 : "Your email isn't verified yet. Check your inbox for the verification link."}
           </Alert>
         )}
+
+        <Divider className="!my-6" />
+
+        <Typography variant="subtitle2" className="!font-bold !text-gray-700 !mb-3">
+          My garden
+        </Typography>
+        <GardenSection />
 
         <Divider className="!my-6" />
 

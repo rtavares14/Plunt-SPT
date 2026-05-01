@@ -43,8 +43,8 @@ function LandingPage() {
                 px: 4,
                 py: 1.5,
                 fontSize: '1.1rem',
-                backgroundColor: '#16a34a',
-                '&:hover': { backgroundColor: '#15803d' },
+                backgroundColor: '#0f7033',
+                '&:hover': { backgroundColor: '#14532d' },
               }}
             >
               Get Started
