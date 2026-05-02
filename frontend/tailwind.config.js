@@ -18,8 +18,8 @@ export default {
         bark:           '#5a4a36',
       },
       fontFamily: {
-        display: ['"Fraunces"', 'ui-serif', 'Georgia', 'serif'],
-        body: ['"Manrope"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        display: ['"Playfair Display"'],
+        body: ['"Playfair Display"'],
       },
       boxShadow: {
         atelier:

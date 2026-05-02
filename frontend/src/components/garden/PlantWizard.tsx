@@ -25,7 +25,11 @@ import ThermostatIcon from '@mui/icons-material/Thermostat';
 import CloseIcon from '@mui/icons-material/Close';
 import CheckIcon from '@mui/icons-material/Check';
 import SpaIcon from '@mui/icons-material/Spa';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import InputAdornment from '@mui/material/InputAdornment';
+import Tooltip from '@mui/material/Tooltip';
 import { useAuth } from '../../context/useAuth';
+import plantNames from '../../data/plantNames.json';
 import {
   createPlant,
   getSpeciesDetail,
@@ -111,9 +115,8 @@ function StepTrack({ active }: { active: number }) {
               </Box>
               <span
                 style={{
-                  fontFamily: '"Fraunces", ui-serif, serif',
-                  fontVariationSettings: '"opsz" 24, "wght" 500',
                   fontSize: 13,
+                  fontWeight: 500,
                   lineHeight: 1,
                   color: state === 'todo' ? 'rgba(20,83,45,0.35)' : '#14532d',
                   transition: 'color 300ms',
@@ -160,8 +163,7 @@ function CareCard({ icon, label, hint, children }: CareCardProps) {
             {icon}
           </Box>
           <span
-            className="font-display text-lg text-green-main"
-            style={{ fontVariationSettings: '"opsz" 24, "wght" 500' }}
+            className="font-display text-lg text-green-main font-medium"
           >
             {label}
           </span>
@@ -200,7 +202,7 @@ function PlanterTile({
       onClick={onClick}
       className={[
         'relative group flex items-center gap-4 p-4 rounded-2xl text-left transition-all duration-200',
-        'bg-cream-mist focus:outline-none focus:ring-2 focus:ring-green-light/40',
+        'bg-white focus:outline-none focus:ring-2 focus:ring-green-light/40',
         dashed
           ? 'border-2 border-dashed border-green-main/30 hover:border-green-second'
           : selected
@@ -220,8 +222,7 @@ function PlanterTile({
       </Box>
       <Box className="flex-1 min-w-0">
         <div
-          className="font-display text-[1.05rem] text-green-main truncate leading-tight"
-          style={{ fontVariationSettings: '"opsz" 24, "wght" 500' }}
+          className="font-display text-[1.05rem] text-green-main truncate leading-tight font-medium"
         >
           {title}
         </div>
@@ -366,18 +367,15 @@ function PlantWizard({ open, onClose, onCreated, planters, onPlanterCreated }: P
     '& .MuiOutlinedInput-root': {
       backgroundColor: '#ffffff',
       borderRadius: '14px',
-      fontFamily: '"Manrope", system-ui, sans-serif',
       '& fieldset': { borderColor: 'rgba(20,83,45,0.18)' },
       '&:hover fieldset': { borderColor: 'rgba(20,83,45,0.45)' },
       '&.Mui-focused fieldset': { borderColor: '#14532d', borderWidth: '1.5px' },
     },
     '& .MuiInputLabel-root': {
-      fontFamily: '"Manrope", system-ui, sans-serif',
       color: 'rgba(20,83,45,0.7)',
       '&.Mui-focused': { color: '#14532d' },
     },
     '& .MuiFormHelperText-root': {
-      fontFamily: '"Manrope", system-ui, sans-serif',
       color: 'rgba(90,74,54,0.85)',
       marginLeft: '4px',
     },
@@ -410,8 +408,7 @@ function PlantWizard({ open, onClose, onCreated, planters, onPlanterCreated }: P
           <Box className="flex items-start justify-between gap-4">
             <Box>
               <h2
-                className="font-display text-[2rem] leading-[1.05] text-green-main"
-                style={{ fontVariationSettings: '"opsz" 144, "wght" 500, "SOFT" 50' }}
+                className="font-display text-[2rem] leading-[1.05] text-green-main font-medium"
               >
                 A new plant
               </h2>
@@ -450,7 +447,7 @@ function PlantWizard({ open, onClose, onCreated, planters, onPlanterCreated }: P
             <Alert
               severity="error"
               className="!mb-4 !rounded-xl"
-              sx={{ fontFamily: '"Manrope", system-ui, sans-serif' }}
+              sx={{}}
             >
               {error}
             </Alert>
@@ -467,7 +464,30 @@ function PlantWizard({ open, onClose, onCreated, planters, onPlanterCreated }: P
                   onChange={(e) => setName(e.target.value)}
                   fullWidth
                   autoFocus
-                  slotProps={{ htmlInput: { maxLength: 80 } }}
+                  slotProps={{
+                    htmlInput: { maxLength: 80 },
+                    input: {
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <Tooltip title="Generate a name" placement="top">
+                            <IconButton
+                              size="small"
+                              onClick={() => {
+                                const pick = plantNames[Math.floor(Math.random() * plantNames.length)];
+                                setName(pick);
+                              }}
+                              sx={{
+                                color: 'rgba(20,83,45,0.5)',
+                                '&:hover': { color: '#14532d', backgroundColor: 'rgba(20,83,45,0.06)' },
+                              }}
+                            >
+                              <AutoAwesomeIcon sx={{ fontSize: 18 }} />
+                            </IconButton>
+                          </Tooltip>
+                        </InputAdornment>
+                      ),
+                    },
+                  }}
                   sx={fieldSx}
                 />
 
@@ -499,8 +519,7 @@ function PlantWizard({ open, onClose, onCreated, planters, onPlanterCreated }: P
             <Box key="step-1" className="flex flex-col gap-5 animate-fade-up">
               <Box className="flex flex-col gap-1">
                 <h3
-                  className="font-display text-2xl text-green-main leading-tight"
-                  style={{ fontVariationSettings: '"opsz" 24, "wght" 500' }}
+                  className="font-display text-2xl text-green-main leading-tight font-medium"
                 >
                   Where does {name.trim() || 'this plant'} live?
                 </h3>
@@ -550,7 +569,6 @@ function PlantWizard({ open, onClose, onCreated, planters, onPlanterCreated }: P
                   icon={<LocalFloristIcon fontSize="small" />}
                   className="!rounded-xl !mt-1"
                   sx={{
-                    fontFamily: '"Manrope", system-ui, sans-serif',
                     backgroundColor: 'rgba(231, 243, 236, 0.7)',
                     color: '#14532d',
                     border: '1px solid rgba(20,83,45,0.12)',
@@ -613,7 +631,6 @@ function PlantWizard({ open, onClose, onCreated, planters, onPlanterCreated }: P
                         transform: 'translate(-50%, -50%)',
                       },
                       '& .MuiSlider-markLabel': {
-                        fontFamily: '"Manrope", system-ui, sans-serif',
                         fontSize: 12,
                         color: 'rgba(20,83,45,0.7)',
                       },
@@ -636,7 +653,6 @@ function PlantWizard({ open, onClose, onCreated, planters, onPlanterCreated }: P
                     '& .MuiToggleButtonGroup-grouped': {
                       border: '1px solid rgba(20,83,45,0.18) !important',
                       borderRadius: '12px !important',
-                      fontFamily: '"Manrope", system-ui, sans-serif',
                       textTransform: 'none',
                       fontWeight: 500,
                       color: '#14532d',
@@ -700,8 +716,7 @@ function PlantWizard({ open, onClose, onCreated, planters, onPlanterCreated }: P
                     </Box>
                     <Box>
                       <div
-                        className="font-display text-lg text-green-main leading-none"
-                        style={{ fontVariationSettings: '"opsz" 24, "wght" 500' }}
+                        className="font-display text-lg text-green-main leading-none font-medium"
                       >
                         Weather alerts
                       </div>
@@ -762,7 +777,6 @@ function PlantWizard({ open, onClose, onCreated, planters, onPlanterCreated }: P
             onClick={handleClose}
             disabled={submitting}
             sx={{
-              fontFamily: '"Manrope", system-ui, sans-serif',
               textTransform: 'none',
               color: 'rgba(20,83,45,0.7)',
               fontWeight: 500,
@@ -777,7 +791,6 @@ function PlantWizard({ open, onClose, onCreated, planters, onPlanterCreated }: P
                 onClick={() => setStep(step - 1)}
                 disabled={submitting}
                 sx={{
-                  fontFamily: '"Manrope", system-ui, sans-serif',
                   textTransform: 'none',
                   color: '#14532d',
                   fontWeight: 500,
@@ -793,14 +806,12 @@ function PlantWizard({ open, onClose, onCreated, planters, onPlanterCreated }: P
                 onClick={() => setStep(step + 1)}
                 disabled={step === 0 && !canAdvanceFromStep0}
                 sx={{
-                  fontFamily: '"Manrope", system-ui, sans-serif',
                   textTransform: 'none',
                   fontWeight: 600,
                   px: 3,
                   py: 1,
                   borderRadius: '12px',
                   backgroundColor: '#14532d',
-                  boxShadow: '0 6px 18px -6px rgba(20,83,45,0.5)',
                   '&:hover': { backgroundColor: '#0f3d20' },
                   '&.Mui-disabled': {
                     backgroundColor: 'rgba(20,83,45,0.18)',
@@ -816,14 +827,12 @@ function PlantWizard({ open, onClose, onCreated, planters, onPlanterCreated }: P
                 onClick={handleSubmit}
                 disabled={submitting || !name.trim()}
                 sx={{
-                  fontFamily: '"Manrope", system-ui, sans-serif',
                   textTransform: 'none',
                   fontWeight: 600,
                   px: 3,
                   py: 1,
                   borderRadius: '12px',
                   backgroundColor: '#14532d',
-                  boxShadow: '0 6px 18px -6px rgba(20,83,45,0.5)',
                   '&:hover': { backgroundColor: '#0f3d20' },
                 }}
               >

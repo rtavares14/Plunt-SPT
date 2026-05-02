@@ -17,12 +17,25 @@ const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
 // Mirror of green-main / green-second in tailwind.config.js
 const theme = createTheme({
   palette: {
-    primary:    { main: '#14532d' },
-    secondary:  { main: '#0f7033' },
+    primary: { main: '#14532d' },
+    secondary: { main: '#0f7033' },
     background: { default: '#ebe1d3' },
   },
   typography: {
-    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+    fontFamily: '"Playfair Display"',
+  },
+  components: {
+    MuiButton: {
+      defaultProps: { disableElevation: true },
+      styleOverrides: {
+        root: { boxShadow: 'none', '&:hover': { boxShadow: 'none' }, '&:active': { boxShadow: 'none' } },
+      },
+    },
+    MuiIconButton: {
+      styleOverrides: {
+        root: { boxShadow: 'none' },
+      },
+    },
   },
 });
 

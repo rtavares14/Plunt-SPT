@@ -148,7 +148,6 @@ function SpeciesAutocomplete({ value, freeText, onChange, disabled }: Props) {
               '& .MuiOutlinedInput-root': {
                 backgroundColor: '#ffffff',
                 borderRadius: '14px',
-                fontFamily: '"Manrope", system-ui, sans-serif',
                 '& fieldset': { borderColor: 'rgba(20,83,45,0.18)' },
                 '&:hover fieldset': { borderColor: 'rgba(20,83,45,0.45)' },
                 '&.Mui-focused fieldset': {
@@ -157,12 +156,10 @@ function SpeciesAutocomplete({ value, freeText, onChange, disabled }: Props) {
                 },
               },
               '& .MuiInputLabel-root': {
-                fontFamily: '"Manrope", system-ui, sans-serif',
                 color: 'rgba(20,83,45,0.7)',
                 '&.Mui-focused': { color: '#14532d' },
               },
               '& .MuiFormHelperText-root': {
-                fontFamily: '"Manrope", system-ui, sans-serif',
                 color: 'rgba(90,74,54,0.85)',
                 marginLeft: '4px',
               },
@@ -177,7 +174,6 @@ function SpeciesAutocomplete({ value, freeText, onChange, disabled }: Props) {
             border: '1px solid rgba(20,83,45,0.12)',
             boxShadow: '0 18px 40px -16px rgba(20,83,45,0.25)',
             mt: 1,
-            fontFamily: '"Manrope", system-ui, sans-serif',
           },
         },
       }}

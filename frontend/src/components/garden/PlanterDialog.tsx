@@ -26,18 +26,15 @@ const fieldSx = {
   '& .MuiOutlinedInput-root': {
     backgroundColor: '#ffffff',
     borderRadius: '14px',
-    fontFamily: '"Manrope", system-ui, sans-serif',
     '& fieldset': { borderColor: 'rgba(20,83,45,0.18)' },
     '&:hover fieldset': { borderColor: 'rgba(20,83,45,0.45)' },
     '&.Mui-focused fieldset': { borderColor: '#14532d', borderWidth: '1.5px' },
   },
   '& .MuiInputLabel-root': {
-    fontFamily: '"Manrope", system-ui, sans-serif',
     color: 'rgba(20,83,45,0.7)',
     '&.Mui-focused': { color: '#14532d' },
   },
   '& .MuiFormHelperText-root': {
-    fontFamily: '"Manrope", system-ui, sans-serif',
     color: 'rgba(90,74,54,0.85)',
     marginLeft: '4px',
   },
@@ -127,8 +124,7 @@ function PlanterDialog({ open, onClose, onCreated }: Props) {
           New planter
         </div>
         <h2
-          className="font-display text-[1.75rem] leading-tight text-green-main mt-1"
-          style={{ fontVariationSettings: '"opsz" 144, "wght" 500, "SOFT" 50' }}
+          className="font-display text-[1.75rem] leading-tight text-green-main mt-1 font-medium"
         >
           A home for your plant
         </h2>
@@ -142,7 +138,7 @@ function PlanterDialog({ open, onClose, onCreated }: Props) {
           <Alert
             severity="error"
             className="!rounded-xl"
-            sx={{ fontFamily: '"Manrope", system-ui, sans-serif' }}
+            sx={{}}
           >
             {error}
           </Alert>
@@ -173,8 +169,7 @@ function PlanterDialog({ open, onClose, onCreated }: Props) {
 
         <Box className="flex flex-col gap-2">
           <span
-            className="font-display text-base text-green-main"
-            style={{ fontVariationSettings: '"opsz" 24, "wght" 500' }}
+            className="font-display text-base text-green-main font-medium"
           >
             Where does it live?
           </span>
@@ -188,7 +183,6 @@ function PlanterDialog({ open, onClose, onCreated }: Props) {
               '& .MuiToggleButtonGroup-grouped': {
                 border: '1px solid rgba(20,83,45,0.18) !important',
                 borderRadius: '12px !important',
-                fontFamily: '"Manrope", system-ui, sans-serif',
                 textTransform: 'none',
                 fontWeight: 500,
                 color: '#14532d',
@@ -245,7 +239,6 @@ function PlanterDialog({ open, onClose, onCreated }: Props) {
           onClick={handleClose}
           disabled={submitting}
           sx={{
-            fontFamily: '"Manrope", system-ui, sans-serif',
             textTransform: 'none',
             color: 'rgba(20,83,45,0.7)',
             fontWeight: 500,
@@ -259,14 +252,12 @@ function PlanterDialog({ open, onClose, onCreated }: Props) {
           variant="contained"
           disabled={!canSubmit}
           sx={{
-            fontFamily: '"Manrope", system-ui, sans-serif',
             textTransform: 'none',
             fontWeight: 600,
             px: 3,
             py: 1,
             borderRadius: '12px',
             backgroundColor: '#14532d',
-            boxShadow: '0 6px 18px -6px rgba(20,83,45,0.5)',
             '&:hover': { backgroundColor: '#0f3d20' },
             '&.Mui-disabled': {
               backgroundColor: 'rgba(20,83,45,0.18)',
