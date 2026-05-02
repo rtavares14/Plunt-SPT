@@ -93,21 +93,30 @@ function SpeciesAutocomplete({ value, freeText, onChange, disabled }: Props) {
       renderOption={(props, option) => {
         if (typeof option === 'string') return null;
         return (
-          <Box component="li" {...props} key={option.id} className="!gap-3">
+          <Box
+            component="li"
+            {...props}
+            key={option.id}
+            sx={{ display: 'flex', alignItems: 'center', gap: 1.5, py: 1 }}
+          >
             <Avatar
               src={option.imageUrl ?? undefined}
               variant="rounded"
-              sx={{ width: 40, height: 40 }}
+              sx={{ width: 44, height: 44, flexShrink: 0 }}
             >
               <LocalFloristIcon fontSize="small" />
             </Avatar>
-            <Box className="flex flex-col">
-              <span className="font-medium text-plunt-900">
+            <Box sx={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+              <span className="font-medium text-green-main truncate">
                 {option.commonName ?? option.scientificName}
               </span>
-              <span className="text-xs text-gray-500 italic">
-                {option.scientificName}
-                {option.family ? ` • ${option.family}` : ''}
+              <span className="text-xs text-gray-500 italic truncate">
+                {[
+                  option.commonName ? option.scientificName : null,
+                  option.family,
+                ]
+                  .filter(Boolean)
+                  .join(' • ')}
               </span>
             </Box>
           </Box>
@@ -135,8 +144,42 @@ function SpeciesAutocomplete({ value, freeText, onChange, disabled }: Props) {
                 ),
               },
             }}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                backgroundColor: '#ffffff',
+                borderRadius: '14px',
+                fontFamily: '"Manrope", system-ui, sans-serif',
+                '& fieldset': { borderColor: 'rgba(20,83,45,0.18)' },
+                '&:hover fieldset': { borderColor: 'rgba(20,83,45,0.45)' },
+                '&.Mui-focused fieldset': {
+                  borderColor: '#14532d',
+                  borderWidth: '1.5px',
+                },
+              },
+              '& .MuiInputLabel-root': {
+                fontFamily: '"Manrope", system-ui, sans-serif',
+                color: 'rgba(20,83,45,0.7)',
+                '&.Mui-focused': { color: '#14532d' },
+              },
+              '& .MuiFormHelperText-root': {
+                fontFamily: '"Manrope", system-ui, sans-serif',
+                color: 'rgba(90,74,54,0.85)',
+                marginLeft: '4px',
+              },
+            }}
           />
         );
+      }}
+      slotProps={{
+        paper: {
+          sx: {
+            borderRadius: '16px',
+            border: '1px solid rgba(20,83,45,0.12)',
+            boxShadow: '0 18px 40px -16px rgba(20,83,45,0.25)',
+            mt: 1,
+            fontFamily: '"Manrope", system-ui, sans-serif',
+          },
+        },
       }}
     />
   );
