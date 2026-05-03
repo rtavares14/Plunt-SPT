@@ -14,7 +14,7 @@ import ParkIcon from '@mui/icons-material/Park';
 import CloseIcon from '@mui/icons-material/Close';
 import ImageOutlinedIcon from '@mui/icons-material/ImageOutlined';
 import { useAuth } from '../../context/useAuth';
-import { createPlanter, type PlanterSummary } from '../../api/garden';
+import { createPlanter, type PlanterSummary } from '../../api/plants';
 
 interface Props {
   open: boolean;
@@ -40,7 +40,7 @@ const fieldSx = {
   },
 } as const;
 
-function PlanterDialog({ open, onClose, onCreated }: Props) {
+function CreatePlanterForm({ open, onClose, onCreated }: Props) {
   const { authFetch } = useAuth();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -123,9 +123,7 @@ function PlanterDialog({ open, onClose, onCreated }: Props) {
         <div className="font-body text-[11px] uppercase tracking-[0.28em] text-bark/70">
           New planter
         </div>
-        <h2
-          className="font-display text-[1.75rem] leading-tight text-green-main mt-1 font-medium"
-        >
+        <h2 className="font-display text-[1.75rem] leading-tight text-green-main mt-1 font-medium">
           A home for your plant
         </h2>
       </Box>
@@ -135,11 +133,7 @@ function PlanterDialog({ open, onClose, onCreated }: Props) {
         sx={{ '&.MuiDialogContent-root': { paddingTop: '16px !important' } }}
       >
         {error && (
-          <Alert
-            severity="error"
-            className="!rounded-xl"
-            sx={{}}
-          >
+          <Alert severity="error" className="!rounded-xl">
             {error}
           </Alert>
         )}
@@ -168,9 +162,7 @@ function PlanterDialog({ open, onClose, onCreated }: Props) {
         />
 
         <Box className="flex flex-col gap-2">
-          <span
-            className="font-display text-base text-green-main font-medium"
-          >
+          <span className="font-display text-base text-green-main font-medium">
             Where does it live?
           </span>
           <ToggleButtonGroup
@@ -272,4 +264,4 @@ function PlanterDialog({ open, onClose, onCreated }: Props) {
   );
 }
 
-export default PlanterDialog;
+export default CreatePlanterForm;

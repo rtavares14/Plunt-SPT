@@ -135,6 +135,30 @@ export async function getSpeciesDetail(
   return data.species;
 }
 
+export async function deletePlant(fetcher: Fetcher, id: string): Promise<void> {
+  const res = await fetcher(`/api/plants/${id}`, { method: 'DELETE' });
+  if (!res.ok && res.status !== 404) {
+    let msg = `Request failed (${res.status})`;
+    try {
+      const body = (await res.json()) as { error?: string };
+      if (body?.error) msg = body.error;
+    } catch { /* ignore */ }
+    throw new Error(msg);
+  }
+}
+
+export async function deletePlanter(fetcher: Fetcher, id: string): Promise<void> {
+  const res = await fetcher(`/api/planters/${id}`, { method: 'DELETE' });
+  if (!res.ok && res.status !== 404) {
+    let msg = `Request failed (${res.status})`;
+    try {
+      const body = (await res.json()) as { error?: string };
+      if (body?.error) msg = body.error;
+    } catch { /* ignore */ }
+    throw new Error(msg);
+  }
+}
+
 // Trefle's `light` is 0..10 — squash into our three-bucket enum.
 export function trefleLightToSunlight(light: number | null): Sunlight | null {
   if (light == null) return null;

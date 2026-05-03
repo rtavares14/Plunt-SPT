@@ -4,7 +4,7 @@ import Box from '@mui/material/Box';
 import { Routes, Route } from 'react-router-dom';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { AuthProvider } from './context/AuthContext';
-import Navbar from './components/Navbar';
+import AppNavbar from './components/AppNavbar';
 import LandingPage from './pages/LandingPage';
 import AuthPage from './pages/AuthPage';
 import ProfilePage from './pages/ProfilePage';
@@ -50,7 +50,7 @@ function App() {
               path="/"
               element={
                 <Box className="min-h-screen flex flex-col">
-                  <Navbar />
+                  <AppNavbar />
                   <Box className="pt-16 flex-1 flex flex-col">
                     <LandingPage />
                   </Box>
@@ -61,7 +61,7 @@ function App() {
               path="/auth"
               element={
                 <Box className="min-h-screen flex flex-col">
-                  <Navbar />
+                  <AppNavbar />
                   <Box className="pt-16 flex-1 flex flex-col">
                     <AuthPage />
                   </Box>
@@ -72,7 +72,7 @@ function App() {
               path="/verify-email"
               element={
                 <Box className="min-h-screen flex flex-col">
-                  <Navbar />
+                  <AppNavbar />
                   <Box className="pt-16 flex-1 flex flex-col">
                     <VerifyEmailPage />
                   </Box>
@@ -83,7 +83,7 @@ function App() {
               path="/forgot-password"
               element={
                 <Box className="min-h-screen flex flex-col">
-                  <Navbar />
+                  <AppNavbar />
                   <Box className="pt-16 flex-1 flex flex-col">
                     <ForgotPasswordPage />
                   </Box>
@@ -94,7 +94,7 @@ function App() {
               path="/reset-password"
               element={
                 <Box className="min-h-screen flex flex-col">
-                  <Navbar />
+                  <AppNavbar />
                   <Box className="pt-16 flex-1 flex flex-col">
                     <ResetPasswordPage />
                   </Box>
@@ -105,7 +105,7 @@ function App() {
               path="/profile"
               element={
                 <Box className="min-h-screen flex flex-col">
-                  <Navbar />
+                  <AppNavbar />
                   <Box className="pt-16 flex-1 flex flex-col">
                     <ProfilePage />
                   </Box>

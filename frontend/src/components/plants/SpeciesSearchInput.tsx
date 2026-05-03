@@ -6,7 +6,7 @@ import Box from '@mui/material/Box';
 import Avatar from '@mui/material/Avatar';
 import LocalFloristIcon from '@mui/icons-material/LocalFlorist';
 import { useAuth } from '../../context/useAuth';
-import { searchSpecies, type SpeciesSearchResult } from '../../api/garden';
+import { searchSpecies, type SpeciesSearchResult } from '../../api/plants';
 
 interface Props {
   value: SpeciesSearchResult | null;
@@ -15,7 +15,11 @@ interface Props {
   disabled?: boolean;
 }
 
-function SpeciesAutocomplete({ value, freeText, onChange, disabled }: Props) {
+function labelOf(s: SpeciesSearchResult): string {
+  return s.commonName ? `${s.commonName} (${s.scientificName})` : s.scientificName;
+}
+
+function SpeciesSearchInput({ value, freeText, onChange, disabled }: Props) {
   const { authFetch } = useAuth();
   const [input, setInput] = useState(freeText);
   const [options, setOptions] = useState<SpeciesSearchResult[]>([]);
@@ -67,7 +71,6 @@ function SpeciesAutocomplete({ value, freeText, onChange, disabled }: Props) {
       inputValue={input}
       onInputChange={(_, newInput) => {
         setInput(newInput);
-        // Free-text typing — clear the structured selection but keep the text.
         if (value && newInput !== labelOf(value)) {
           onChange(null, newInput);
         } else if (!value) {
@@ -181,8 +184,4 @@ function SpeciesAutocomplete({ value, freeText, onChange, disabled }: Props) {
   );
 }
 
-function labelOf(s: SpeciesSearchResult): string {
-  return s.commonName ? `${s.commonName} (${s.scientificName})` : s.scientificName;
-}
-
-export default SpeciesAutocomplete;
+export default SpeciesSearchInput;

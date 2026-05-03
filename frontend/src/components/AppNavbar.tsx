@@ -13,7 +13,7 @@ import { useAuth } from '../context/useAuth';
 const navButtonClass =
   'hover:!bg-cream hover:!text-green-main !bg-green-second !text-cream disabled:!opacity-60 disabled:!text-cream';
 
-function Navbar() {
+function AppNavbar() {
   const navigate = useNavigate();
   const { user } = useAuth();
 
@@ -57,4 +57,4 @@ function Navbar() {
   );
 }
 
-export default Navbar;
+export default AppNavbar;

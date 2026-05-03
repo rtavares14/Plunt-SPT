@@ -9,8 +9,8 @@ import Alert from '@mui/material/Alert';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/useAuth';
-import SessionsSection from '../components/SessionsSection';
-import GardenSection from '../components/garden/GardenSection';
+import ActiveSessionsList from '../components/ActiveSessionsList';
+import GardenOverview from '../components/plants/GardenOverview';
 
 function ProfilePage() {
   const { user, logout, authFetch } = useAuth();
@@ -104,14 +104,14 @@ function ProfilePage() {
         <Typography variant="subtitle2" className="!font-bold !text-gray-700 !mb-3">
           My garden
         </Typography>
-        <GardenSection />
+        <GardenOverview />
 
         <Divider className="!my-6" />
 
         <Typography variant="subtitle2" className="!font-bold !text-gray-700 !mb-3">
           Active sessions
         </Typography>
-        <SessionsSection />
+        <ActiveSessionsList />
 
         <Divider className="!my-4" />
 
