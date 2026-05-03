@@ -19,7 +19,8 @@ import {
   type Sunlight,
 } from '../../../api/plants';
 import PlanterDialog from '../PlanterDialog';
-import WizardStepTracker, { WIZARD_STEPS } from './WizardStepTracker';
+import WizardStepTracker from './WizardStepTracker';
+import { WIZARD_STEPS } from './constants';
 import IdentityStep from './IdentityStep';
 import HomeStep from './HomeStep';
 import CareStep from './CareStep';

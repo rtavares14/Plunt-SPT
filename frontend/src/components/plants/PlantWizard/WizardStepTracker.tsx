@@ -4,11 +4,7 @@ import SpaIcon from '@mui/icons-material/Spa';
 import LocalFloristIcon from '@mui/icons-material/LocalFlorist';
 import ParkIcon from '@mui/icons-material/Park';
 
-export const WIZARD_STEPS = [
-  { key: 'identity', label: 'Identity' },
-  { key: 'home', label: 'Home' },
-  { key: 'care', label: 'Care' },
-] as const;
+import { WIZARD_STEPS } from './constants';
 
 const STEP_ICONS = [
   <SpaIcon sx={{ fontSize: 15 }} />,
