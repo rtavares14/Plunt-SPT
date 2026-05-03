@@ -15,7 +15,6 @@ import {
   trefleLightToSunlight,
   type PlanterSummary,
   type PlantSummary,
-  type SpeciesDetail,
   type SpeciesSearchResult,
   type Sunlight,
 } from '../../../api/plants';
@@ -65,8 +64,6 @@ function PlantWizard({ open, onClose, onSaved, planters, onPlanterCreated, plant
   const [species, setSpecies] = useState<SpeciesSearchResult | null>(null);
   const [speciesText, setSpeciesText] = useState('');
   const [imageUrl, setImageUrl] = useState('');
-  const [speciesDetail, setSpeciesDetail] = useState<SpeciesDetail | null>(null);
-  const [detailLoading, setDetailLoading] = useState(false);
 
   // Step 2 — Home
   const [planterId, setPlanterId] = useState<string | null>(null);
@@ -91,8 +88,6 @@ function PlantWizard({ open, onClose, onSaved, planters, onPlanterCreated, plant
     setSpecies(null);
     setSpeciesText('');
     setImageUrl('');
-    setSpeciesDetail(null);
-    setDetailLoading(false);
     setPlanterId(null);
     setPlanterDialogOpen(false);
     setWateringIntervalDays(7);
@@ -112,8 +107,6 @@ function PlantWizard({ open, onClose, onSaved, planters, onPlanterCreated, plant
     setError(null);
     setSubmitting(false);
     setSpecies(null);
-    setSpeciesDetail(null);
-    setDetailLoading(false);
     setPlanterDialogOpen(false);
     if (plant) {
       setName(plant.name);
@@ -142,28 +135,18 @@ function PlantWizard({ open, onClose, onSaved, planters, onPlanterCreated, plant
 
   /* ---- Auto-fill from species detail ---- */
   useEffect(() => {
-    if (!species) {
-      setSpeciesDetail(null);
-      return;
-    }
+    if (!species) return;
     let cancelled = false;
-    setDetailLoading(true);
     (async () => {
       try {
         const detail = await getSpeciesDetail(authFetch, species.id);
-        if (cancelled) return;
-        setSpeciesDetail(detail);
-        if (detail) {
-          if (!imageUrl && detail.imageUrl) setImageUrl(detail.imageUrl);
-          const inferred = trefleLightToSunlight(detail.light);
-          if (inferred) setSunlight(inferred);
-          if (detail.minTemp != null && minTemp === '') setMinTemp(String(detail.minTemp));
-          if (detail.maxTemp != null && maxTemp === '') setMaxTemp(String(detail.maxTemp));
-        }
+        if (cancelled || !detail) return;
+        const inferred = trefleLightToSunlight(detail.light);
+        if (inferred) setSunlight(inferred);
+        if (detail.minTemp != null && minTemp === '') setMinTemp(String(detail.minTemp));
+        if (detail.maxTemp != null && maxTemp === '') setMaxTemp(String(detail.maxTemp));
       } catch {
         /* soft-fail */
-      } finally {
-        if (!cancelled) setDetailLoading(false);
       }
     })();
     return () => {
@@ -296,8 +279,6 @@ function PlantWizard({ open, onClose, onSaved, planters, onPlanterCreated, plant
               }}
               imageUrl={imageUrl}
               onImageUrlChange={setImageUrl}
-              detailLoading={detailLoading}
-              speciesDetail={speciesDetail}
             />
           )}
 

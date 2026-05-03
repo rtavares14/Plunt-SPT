@@ -12,9 +12,9 @@ import IconButton from '@mui/material/IconButton';
 import HomeIcon from '@mui/icons-material/Home';
 import ParkIcon from '@mui/icons-material/Park';
 import CloseIcon from '@mui/icons-material/Close';
-import ImageOutlinedIcon from '@mui/icons-material/ImageOutlined';
 import { useAuth } from '../../context/useAuth';
 import { createPlanter, updatePlanter, type PlanterSummary } from '../../api/plants';
+import ImageUploadField from './ImageUploadField';
 
 interface Props {
   open: boolean;
@@ -203,23 +203,10 @@ function PlanterDialog({ open, onClose, onSaved, planter }: Props) {
           </ToggleButtonGroup>
         </Box>
 
-        <TextField
-          label="Photo URL"
-          placeholder="https://…"
+        <ImageUploadField
+          kind="planter"
           value={imageUrl}
-          onChange={(e) => setImageUrl(e.target.value)}
-          fullWidth
-          slotProps={{
-            input: {
-              startAdornment: (
-                <Box className="flex items-center justify-center mr-2 text-green-main/60">
-                  <ImageOutlinedIcon fontSize="small" />
-                </Box>
-              ),
-            },
-          }}
-          helperText="Optional · uploads coming soon"
-          sx={fieldSx}
+          onChange={setImageUrl}
         />
       </DialogContent>
 

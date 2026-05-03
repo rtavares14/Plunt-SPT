@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
@@ -6,8 +5,9 @@ import InputAdornment from '@mui/material/InputAdornment';
 import Tooltip from '@mui/material/Tooltip';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import plantNames from '../../../data/plantNames.json';
-import type { SpeciesDetail, SpeciesSearchResult } from '../../../api/plants';
+import type { SpeciesSearchResult } from '../../../api/plants';
 import SpeciesSearchInput from '../SpeciesSearchInput';
+import ImageUploadField from '../ImageUploadField';
 
 const fieldSx = {
   '& .MuiOutlinedInput-root': {
@@ -35,8 +35,6 @@ interface IdentityStepProps {
   onSpeciesChange: (species: SpeciesSearchResult | null, text: string) => void;
   imageUrl: string;
   onImageUrlChange: (value: string) => void;
-  detailLoading: boolean;
-  speciesDetail: SpeciesDetail | null;
 }
 
 function IdentityStep({
@@ -47,17 +45,7 @@ function IdentityStep({
   onSpeciesChange,
   imageUrl,
   onImageUrlChange,
-  detailLoading,
-  speciesDetail,
 }: IdentityStepProps) {
-  const photoHelper = useMemo(() => {
-    if (detailLoading) return 'Pulling care notes from Trefle…';
-    if (speciesDetail) {
-      return `Auto-filled from ${speciesDetail.commonName ?? speciesDetail.scientificName}`;
-    }
-    return 'Paste an image URL (uploads coming soon)';
-  }, [detailLoading, speciesDetail]);
-
   return (
     <Box key="step-identity" className="flex flex-col gap-5 animate-fade-up">
       <Box className="flex flex-col gap-4">
@@ -107,14 +95,10 @@ function IdentityStep({
           }}
         />
 
-        <TextField
-          label="Photo URL"
-          placeholder="https://…"
+        <ImageUploadField
+          kind="plant"
           value={imageUrl}
-          onChange={(e) => onImageUrlChange(e.target.value)}
-          fullWidth
-          helperText={photoHelper}
-          sx={fieldSx}
+          onChange={onImageUrlChange}
         />
       </Box>
     </Box>
