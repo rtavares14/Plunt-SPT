@@ -55,8 +55,8 @@ export async function sendWelcomeEmail(to: string, name: string) {
   await send(
     to,
     'Welcome to Plunt',
-    `<p>Hi ${firstName},</p><p>Welcome to Plunt! Your account is ready — start adding plants, connecting with friends, and keeping everything green.</p><p><a href="${appLink}">Open Plunt</a></p>`,
-    `Hi ${firstName},\n\nWelcome to Plunt! Your account is ready — start adding plants, connecting with friends, and keeping everything green.\n\n${appLink}`,
+    `<p>Hi ${firstName},</p><p>Welcome to Plunt! Your account is ready, start adding plants, connecting with friends, and keeping everything green.</p><p><a href="${appLink}">Open Plunt</a></p>`,
+    `Hi ${firstName},\n\nWelcome to Plunt! Your account is ready, start adding plants, connecting with friends, and keeping everything green.\n\n${appLink}`,
   );
 }
 

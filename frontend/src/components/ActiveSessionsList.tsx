@@ -45,7 +45,7 @@ function timeAgo(iso: string): string {
   return `${days}d ago`;
 }
 
-export default function SessionsSection() {
+export default function ActiveSessionsList() {
   const { authFetch } = useAuth();
   const [sessions, setSessions] = useState<Session[] | null>(null);
   const [error, setError] = useState('');

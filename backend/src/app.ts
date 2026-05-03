@@ -5,6 +5,10 @@ import helmet from 'helmet';
 import pinoHttp from 'pino-http';
 import authRoutes from './routes/auth';
 import waitlistRoutes from './routes/waitlist';
+import plantRoutes from './routes/plants';
+import planterRoutes from './routes/planters';
+import speciesRoutes from './routes/species';
+import uploadRoutes from './routes/uploads';
 import { getPrisma } from './lib/prisma';
 import { logger } from './lib/logger';
 
@@ -65,6 +69,10 @@ export function createApp() {
 
   app.use('/api/auth', authRoutes);
   app.use('/api/waitlist', waitlistRoutes);
+  app.use('/api/plants', plantRoutes);
+  app.use('/api/planters', planterRoutes);
+  app.use('/api/species', speciesRoutes);
+  app.use('/api/uploads', uploadRoutes);
 
   // Safety net for any throw that escapes a route handler.
   app.use((err: Error, req: express.Request, res: express.Response, _next: express.NextFunction) => {
