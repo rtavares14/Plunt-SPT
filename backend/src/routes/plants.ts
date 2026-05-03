@@ -2,61 +2,20 @@ import { Router, Request, Response } from 'express';
 import { getPrisma } from '../lib/prisma';
 import { authMiddleware, requireVerified } from '../middleware/auth';
 import { Sunlight } from '../generated/prisma/client';
+import {
+  INVALID,
+  optionalDate,
+  optionalNumber,
+  optionalString,
+  optionalUrl,
+  trimmedString,
+} from '../lib/validate';
 
 const router = Router();
 
 router.use(authMiddleware, requireVerified);
 
 const SUNLIGHT_VALUES: Sunlight[] = [Sunlight.HIGH, Sunlight.MEDIUM, Sunlight.LOW];
-
-function trimmedString(value: unknown, max: number): string | null {
-  if (typeof value !== 'string') return null;
-  const t = value.trim();
-  if (!t || t.length > max) return null;
-  return t;
-}
-
-function optionalString(value: unknown, max: number): string | null | undefined {
-  if (value === undefined) return undefined;
-  if (value === null || value === '') return null;
-  if (typeof value !== 'string') return undefined;
-  const t = value.trim();
-  if (!t) return null;
-  if (t.length > max) return undefined;
-  return t;
-}
-
-function optionalUrl(value: unknown): string | null | undefined {
-  if (value === undefined) return undefined;
-  if (value === null || value === '') return null;
-  if (typeof value !== 'string') return undefined;
-  const t = value.trim();
-  if (!t) return null;
-  try {
-    const url = new URL(t);
-    if (url.protocol !== 'https:' && url.protocol !== 'http:') return undefined;
-    return t;
-  } catch {
-    return undefined;
-  }
-}
-
-function optionalNumber(value: unknown, min: number, max: number): number | null | undefined {
-  if (value === undefined) return undefined;
-  if (value === null || value === '') return null;
-  const n = typeof value === 'number' ? value : Number(value);
-  if (!Number.isFinite(n) || n < min || n > max) return undefined;
-  return n;
-}
-
-function optionalDate(value: unknown): Date | null | undefined {
-  if (value === undefined) return undefined;
-  if (value === null || value === '') return null;
-  if (typeof value !== 'string') return undefined;
-  const d = new Date(value);
-  if (Number.isNaN(d.getTime())) return undefined;
-  return d;
-}
 
 router.get('/', async (req: Request, res: Response) => {
   try {
@@ -84,13 +43,13 @@ router.post('/', async (req: Request, res: Response) => {
     }
 
     const species = optionalString(req.body?.species, 120);
-    if (species === undefined) {
+    if (species === INVALID) {
       res.status(400).json({ error: 'Species is invalid' });
       return;
     }
 
     const wateringIntervalDays = optionalNumber(req.body?.wateringIntervalDays, 1, 365);
-    if (wateringIntervalDays === undefined) {
+    if (wateringIntervalDays === INVALID) {
       res.status(400).json({ error: 'wateringIntervalDays must be between 1 and 365' });
       return;
     }
@@ -106,7 +65,7 @@ router.post('/', async (req: Request, res: Response) => {
 
     const minTemp = optionalNumber(req.body?.minTemp, -50, 60);
     const maxTemp = optionalNumber(req.body?.maxTemp, -50, 60);
-    if (minTemp === undefined || maxTemp === undefined) {
+    if (minTemp === INVALID || maxTemp === INVALID) {
       res.status(400).json({ error: 'Temperature must be between -50°C and 60°C' });
       return;
     }
@@ -117,7 +76,7 @@ router.post('/', async (req: Request, res: Response) => {
 
     const lastWateredAt = optionalDate(req.body?.lastWateredAt);
     const dateAcquired = optionalDate(req.body?.dateAcquired);
-    if (lastWateredAt === undefined || dateAcquired === undefined) {
+    if (lastWateredAt === INVALID || dateAcquired === INVALID) {
       res.status(400).json({ error: 'Invalid date' });
       return;
     }
@@ -140,7 +99,7 @@ router.post('/', async (req: Request, res: Response) => {
 
     // Optional first image attached at creation time.
     const imageUrl = optionalUrl(req.body?.imageUrl);
-    if (imageUrl === undefined) {
+    if (imageUrl === INVALID) {
       res.status(400).json({ error: 'imageUrl must be a valid http(s) URL' });
       return;
     }
@@ -174,11 +133,13 @@ router.post('/', async (req: Request, res: Response) => {
 router.patch('/:id', async (req: Request, res: Response) => {
   try {
     const id = String(req.params.id);
-    const owned = await getPrisma().plant.findFirst({
+    // Load current temp range so we can validate the merged state, not just
+    // the fields the caller happened to send.
+    const existing = await getPrisma().plant.findFirst({
       where: { id, ownerId: req.user!.userId },
-      select: { id: true },
+      select: { id: true, minTemp: true, maxTemp: true },
     });
-    if (!owned) {
+    if (!existing) {
       res.status(404).json({ error: 'Plant not found' });
       return;
     }
@@ -196,7 +157,7 @@ router.patch('/:id', async (req: Request, res: Response) => {
 
     if (req.body?.species !== undefined) {
       const species = optionalString(req.body.species, 120);
-      if (species === undefined) {
+      if (species === INVALID) {
         res.status(400).json({ error: 'Species is invalid' });
         return;
       }
@@ -205,7 +166,7 @@ router.patch('/:id', async (req: Request, res: Response) => {
 
     if (req.body?.wateringIntervalDays !== undefined) {
       const wateringIntervalDays = optionalNumber(req.body.wateringIntervalDays, 1, 365);
-      if (wateringIntervalDays === undefined || wateringIntervalDays === null) {
+      if (wateringIntervalDays === INVALID || wateringIntervalDays === null) {
         res.status(400).json({ error: 'wateringIntervalDays must be between 1 and 365' });
         return;
       }
@@ -220,36 +181,34 @@ router.patch('/:id', async (req: Request, res: Response) => {
       data.sunlight = req.body.sunlight as Sunlight;
     }
 
-    let nextMin: number | null | undefined;
-    let nextMax: number | null | undefined;
+    let mergedMin: number | null = existing.minTemp;
+    let mergedMax: number | null = existing.maxTemp;
     if (req.body?.minTemp !== undefined) {
-      nextMin = optionalNumber(req.body.minTemp, -50, 60);
-      if (nextMin === undefined) {
+      const next = optionalNumber(req.body.minTemp, -50, 60);
+      if (next === INVALID) {
         res.status(400).json({ error: 'Temperature must be between -50°C and 60°C' });
         return;
       }
-      data.minTemp = nextMin;
+      data.minTemp = next;
+      mergedMin = next ?? null;
     }
     if (req.body?.maxTemp !== undefined) {
-      nextMax = optionalNumber(req.body.maxTemp, -50, 60);
-      if (nextMax === undefined) {
+      const next = optionalNumber(req.body.maxTemp, -50, 60);
+      if (next === INVALID) {
         res.status(400).json({ error: 'Temperature must be between -50°C and 60°C' });
         return;
       }
-      data.maxTemp = nextMax;
+      data.maxTemp = next;
+      mergedMax = next ?? null;
     }
-    if (
-      nextMin != null &&
-      nextMax != null &&
-      nextMin > nextMax
-    ) {
+    if (mergedMin != null && mergedMax != null && mergedMin > mergedMax) {
       res.status(400).json({ error: 'minTemp cannot be greater than maxTemp' });
       return;
     }
 
     if (req.body?.lastWateredAt !== undefined) {
       const lastWateredAt = optionalDate(req.body.lastWateredAt);
-      if (lastWateredAt === undefined) {
+      if (lastWateredAt === INVALID) {
         res.status(400).json({ error: 'Invalid date' });
         return;
       }
@@ -257,7 +216,7 @@ router.patch('/:id', async (req: Request, res: Response) => {
     }
     if (req.body?.dateAcquired !== undefined) {
       const dateAcquired = optionalDate(req.body.dateAcquired);
-      if (dateAcquired === undefined || dateAcquired === null) {
+      if (dateAcquired === INVALID || dateAcquired === null) {
         res.status(400).json({ error: 'Invalid date' });
         return;
       }
@@ -287,7 +246,7 @@ router.patch('/:id', async (req: Request, res: Response) => {
 
     if (req.body?.imageUrl !== undefined) {
       const imageUrl = optionalUrl(req.body.imageUrl);
-      if (imageUrl === undefined) {
+      if (imageUrl === INVALID) {
         res.status(400).json({ error: 'imageUrl must be a valid http(s) URL' });
         return;
       }

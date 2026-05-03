@@ -23,6 +23,8 @@ const FOLDERS: Record<string, string | undefined> = {
   planter: process.env.CLOUDINARY_PLANTER_FOLDER,
 };
 
+const ALLOWED_FORMATS = 'jpg,jpeg,png,webp';
+
 router.post('/signature', (req: Request, res: Response) => {
   try {
     const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
@@ -42,13 +44,30 @@ router.post('/signature', (req: Request, res: Response) => {
 
     configure();
 
+    // Sign every parameter the client will submit. Cloudinary excludes
+    // `file`, `cloud_name`, `resource_type`, and `api_key` from signing — so
+    // additionally pin `resource_type=image` in the request URL on the
+    // client to prevent the same signature being reused against `raw/upload`.
     const timestamp = Math.floor(Date.now() / 1000);
-    const signature = cloudinary.utils.api_sign_request(
-      { folder, timestamp },
-      apiSecret,
-    );
+    const paramsToSign = {
+      folder,
+      timestamp,
+      allowed_formats: ALLOWED_FORMATS,
+      unique_filename: 'true',
+      overwrite: 'false',
+    };
+    const signature = cloudinary.utils.api_sign_request(paramsToSign, apiSecret);
 
-    res.json({ signature, timestamp, apiKey, cloudName, folder });
+    res.json({
+      signature,
+      timestamp,
+      apiKey,
+      cloudName,
+      folder,
+      allowedFormats: ALLOWED_FORMATS,
+      uniqueFilename: 'true',
+      overwrite: 'false',
+    });
   } catch (err) {
     req.log.error({ err }, 'Cloudinary signature error');
     res.status(500).json({ error: 'Could not sign upload' });

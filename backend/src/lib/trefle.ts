@@ -27,6 +27,25 @@ function isConfigured(): boolean {
   return typeof TREFLE_TOKEN === 'string' && TREFLE_TOKEN.length > 0;
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function asNumber(value: unknown): number | null {
+  if (typeof value !== 'number' || !Number.isFinite(value)) return null;
+  return value;
+}
+
+function asString(value: unknown): string | null {
+  return typeof value === 'string' ? value : null;
+}
+
+function asStringArray(value: unknown): string[] | null {
+  if (!Array.isArray(value)) return null;
+  const out = value.filter((v): v is string => typeof v === 'string');
+  return out.length === value.length ? out : out;
+}
+
 async function trefleGet(path: string, params: Record<string, string>): Promise<unknown> {
   if (!isConfigured()) return null;
   const qs = new URLSearchParams({ ...params, token: TREFLE_TOKEN! }).toString();
@@ -39,58 +58,56 @@ async function trefleGet(path: string, params: Record<string, string>): Promise<
   return res.json();
 }
 
+function parseSpeciesRow(row: unknown): TrefleSpecies | null {
+  if (!isRecord(row)) return null;
+  const id = asNumber(row.id);
+  const scientificName = asString(row.scientific_name) ?? '';
+  if (id === null || !scientificName) return null;
+  return {
+    id,
+    commonName: asString(row.common_name),
+    scientificName,
+    family: asString(row.family_common_name),
+    imageUrl: asString(row.image_url),
+    slug: asString(row.slug) ?? '',
+  };
+}
+
 export async function searchSpecies(query: string): Promise<TrefleSpecies[]> {
   if (!query.trim()) return [];
-  const json = (await trefleGet('/plants/search', { q: query })) as
-    | { data?: Array<Record<string, unknown>> }
-    | null;
-  if (!json?.data) return [];
-  return json.data.map((row) => ({
-    id: Number(row.id),
-    commonName: (row.common_name as string | null) ?? null,
-    scientificName: String(row.scientific_name ?? ''),
-    family: (row.family_common_name as string | null) ?? null,
-    imageUrl: (row.image_url as string | null) ?? null,
-    slug: String(row.slug ?? ''),
-  }));
+  const json = await trefleGet('/plants/search', { q: query });
+  if (!isRecord(json)) return [];
+  const data = json.data;
+  if (!Array.isArray(data)) return [];
+  return data
+    .map(parseSpeciesRow)
+    .filter((s): s is TrefleSpecies => s !== null);
 }
 
 export async function getSpeciesDetail(id: number): Promise<TrefleSpeciesDetail | null> {
-  const json = (await trefleGet(`/plants/${id}`, {})) as
-    | { data?: Record<string, unknown> }
-    | null;
-  const data = json?.data;
-  if (!data) return null;
+  const json = await trefleGet(`/plants/${id}`, {});
+  if (!isRecord(json) || !isRecord(json.data)) return null;
+  const data = json.data;
 
-  const main = (data.main_species as Record<string, unknown> | undefined) ?? {};
-  const growth = (main.growth as Record<string, unknown> | undefined) ?? {};
-  const specifications =
-    (main.specifications as Record<string, unknown> | undefined) ?? {};
+  const base = parseSpeciesRow(data);
+  if (!base) return null;
 
-  const minTempRow = growth.minimum_temperature as Record<string, unknown> | undefined;
-  const maxTempRow = growth.maximum_temperature as Record<string, unknown> | undefined;
+  const main = isRecord(data.main_species) ? data.main_species : {};
+  const growth = isRecord(main.growth) ? main.growth : {};
+  const specifications = isRecord(main.specifications) ? main.specifications : {};
+
+  const minTempRow = isRecord(growth.minimum_temperature) ? growth.minimum_temperature : null;
+  const maxTempRow = isRecord(growth.maximum_temperature) ? growth.maximum_temperature : null;
 
   return {
-    id: Number(data.id),
-    commonName: (data.common_name as string | null) ?? null,
-    scientificName: String(data.scientific_name ?? ''),
-    family: (data.family_common_name as string | null) ?? null,
-    imageUrl: (data.image_url as string | null) ?? null,
-    slug: String(data.slug ?? ''),
-    minTemp: typeof minTempRow?.deg_c === 'number' ? (minTempRow.deg_c as number) : null,
-    maxTemp: typeof maxTempRow?.deg_c === 'number' ? (maxTempRow.deg_c as number) : null,
-    light: typeof growth.light === 'number' ? (growth.light as number) : null,
-    atmosphericHumidity:
-      typeof growth.atmospheric_humidity === 'number'
-        ? (growth.atmospheric_humidity as number)
-        : null,
-    growthMonths: Array.isArray(growth.growth_months)
-      ? (growth.growth_months as string[])
-      : null,
-    bloomMonths: Array.isArray(growth.bloom_months)
-      ? (growth.bloom_months as string[])
-      : null,
-    edible: typeof specifications.edible === 'boolean' ? (specifications.edible as boolean) : null,
+    ...base,
+    minTemp: minTempRow ? asNumber(minTempRow.deg_c) : null,
+    maxTemp: maxTempRow ? asNumber(maxTempRow.deg_c) : null,
+    light: asNumber(growth.light),
+    atmosphericHumidity: asNumber(growth.atmospheric_humidity),
+    growthMonths: asStringArray(growth.growth_months),
+    bloomMonths: asStringArray(growth.bloom_months),
+    edible: typeof specifications.edible === 'boolean' ? specifications.edible : null,
   };
 }
 

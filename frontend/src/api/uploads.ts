@@ -8,6 +8,9 @@ interface SignaturePayload {
   apiKey: string;
   cloudName: string;
   folder: string;
+  allowedFormats: string;
+  uniqueFilename: string;
+  overwrite: string;
 }
 
 async function getSignature(fetcher: Fetcher, kind: UploadKind): Promise<SignaturePayload> {
@@ -40,6 +43,9 @@ export async function uploadImage(
   form.append('timestamp', String(sig.timestamp));
   form.append('signature', sig.signature);
   form.append('folder', sig.folder);
+  form.append('allowed_formats', sig.allowedFormats);
+  form.append('unique_filename', sig.uniqueFilename);
+  form.append('overwrite', sig.overwrite);
 
   const res = await fetch(
     `https://api.cloudinary.com/v1_1/${sig.cloudName}/image/upload`,

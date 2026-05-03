@@ -1,32 +1,11 @@
 import { Router, Request, Response } from 'express';
 import { getPrisma } from '../lib/prisma';
 import { authMiddleware, requireVerified } from '../middleware/auth';
+import { INVALID, optionalUrl, trimmedString } from '../lib/validate';
 
 const router = Router();
 
 router.use(authMiddleware, requireVerified);
-
-function trimmedString(value: unknown, max: number): string | null {
-  if (typeof value !== 'string') return null;
-  const t = value.trim();
-  if (!t || t.length > max) return null;
-  return t;
-}
-
-function optionalUrl(value: unknown): string | null | undefined {
-  if (value === undefined) return undefined;
-  if (value === null || value === '') return null;
-  if (typeof value !== 'string') return undefined;
-  const t = value.trim();
-  if (!t) return null;
-  try {
-    const url = new URL(t);
-    if (url.protocol !== 'https:' && url.protocol !== 'http:') return undefined;
-    return t;
-  } catch {
-    return undefined;
-  }
-}
 
 router.get('/', async (req: Request, res: Response) => {
   try {
@@ -61,7 +40,7 @@ router.post('/', async (req: Request, res: Response) => {
     const isIndoor = typeof req.body?.isIndoor === 'boolean' ? req.body.isIndoor : true;
 
     const imageUrl = optionalUrl(req.body?.imageUrl);
-    if (imageUrl === undefined) {
+    if (imageUrl === INVALID) {
       res.status(400).json({ error: 'imageUrl must be a valid http(s) URL' });
       return;
     }
@@ -72,7 +51,7 @@ router.post('/', async (req: Request, res: Response) => {
         name,
         description,
         isIndoor,
-        imageUrl,
+        imageUrl: imageUrl ?? null,
       },
     });
     res.status(201).json({ planter });
@@ -118,7 +97,7 @@ router.patch('/:id', async (req: Request, res: Response) => {
     }
     if (req.body?.imageUrl !== undefined) {
       const imageUrl = optionalUrl(req.body.imageUrl);
-      if (imageUrl === undefined) {
+      if (imageUrl === INVALID) {
         res.status(400).json({ error: 'imageUrl must be a valid http(s) URL' });
         return;
       }
