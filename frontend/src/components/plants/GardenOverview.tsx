@@ -19,6 +19,7 @@ import WbCloudyIcon from '@mui/icons-material/WbCloudy';
 import NightsStayIcon from '@mui/icons-material/NightsStay';
 import WaterDropIcon from '@mui/icons-material/WaterDrop';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import { useAuth } from '../../context/useAuth';
 import {
   listPlanters,
@@ -30,7 +31,7 @@ import {
   type Sunlight,
 } from '../../api/plants';
 import PlantWizard from './PlantWizard';
-import CreatePlanterForm from './CreatePlanterForm';
+import PlanterDialog from './PlanterDialog';
 
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                            */
@@ -48,9 +49,11 @@ function sunlightIcon(s: Sunlight) {
 
 function PlantCard({
   plant,
+  onEdit,
   onDelete,
 }: {
   plant: PlantSummary;
+  onEdit: () => void;
   onDelete: () => void;
 }) {
   const photo = plant.images?.[0]?.url ?? null;
@@ -95,6 +98,18 @@ function PlantCard({
       </Box>
       <IconButton
         size="small"
+        onClick={onEdit}
+        aria-label={`Edit ${plant.name}`}
+        sx={{
+          color: '#14532d',
+          flexShrink: 0,
+          '&:hover': { color: '#0f3d20', backgroundColor: 'rgba(20,83,45,0.08)' },
+        }}
+      >
+        <EditOutlinedIcon fontSize="small" />
+      </IconButton>
+      <IconButton
+        size="small"
         onClick={onDelete}
         aria-label={`Delete ${plant.name}`}
         sx={{
@@ -111,9 +126,11 @@ function PlantCard({
 
 function PlanterCard({
   planter,
+  onEdit,
   onDelete,
 }: {
   planter: PlanterSummary;
+  onEdit: () => void;
   onDelete: () => void;
 }) {
   return (
@@ -146,6 +163,18 @@ function PlanterCard({
           )}
         </Box>
       </Box>
+      <IconButton
+        size="small"
+        onClick={onEdit}
+        aria-label={`Edit ${planter.name}`}
+        sx={{
+          color: '#14532d',
+          flexShrink: 0,
+          '&:hover': { color: '#0f3d20', backgroundColor: 'rgba(20,83,45,0.08)' },
+        }}
+      >
+        <EditOutlinedIcon fontSize="small" />
+      </IconButton>
       <IconButton
         size="small"
         onClick={onDelete}
@@ -270,6 +299,9 @@ function GardenOverview() {
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
+  const [editingPlant, setEditingPlant] = useState<PlantSummary | null>(null);
+  const [editingPlanter, setEditingPlanter] = useState<PlanterSummary | null>(null);
+
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -354,6 +386,7 @@ function GardenOverview() {
             <PlanterCard
               key={p.id}
               planter={p}
+              onEdit={() => setEditingPlanter(p)}
               onDelete={() =>
                 setPendingDelete({
                   kind: 'planter',
@@ -392,6 +425,7 @@ function GardenOverview() {
             <PlantCard
               key={p.id}
               plant={p}
+              onEdit={() => setEditingPlant(p)}
               onDelete={() =>
                 setPendingDelete({ kind: 'plant', id: p.id, name: p.name })
               }
@@ -410,19 +444,41 @@ function GardenOverview() {
       )}
 
       <PlantWizard
-        open={wizardOpen}
-        onClose={() => setWizardOpen(false)}
+        open={wizardOpen || !!editingPlant}
+        plant={editingPlant}
+        onClose={() => {
+          setWizardOpen(false);
+          setEditingPlant(null);
+        }}
         planters={planters}
-        onCreated={(plant) => setPlants((prev) => [plant, ...prev])}
+        onSaved={(plant) =>
+          setPlants((prev) => {
+            const idx = prev.findIndex((p) => p.id === plant.id);
+            if (idx === -1) return [plant, ...prev];
+            const next = [...prev];
+            next[idx] = plant;
+            return next;
+          })
+        }
         onPlanterCreated={(planter) =>
           setPlanters((prev) => [planter, ...prev.filter((p) => p.id !== planter.id)])
         }
       />
-      <CreatePlanterForm
-        open={planterDialogOpen}
-        onClose={() => setPlanterDialogOpen(false)}
-        onCreated={(planter) =>
-          setPlanters((prev) => [planter, ...prev.filter((p) => p.id !== planter.id)])
+      <PlanterDialog
+        open={planterDialogOpen || !!editingPlanter}
+        planter={editingPlanter}
+        onClose={() => {
+          setPlanterDialogOpen(false);
+          setEditingPlanter(null);
+        }}
+        onSaved={(planter) =>
+          setPlanters((prev) => {
+            const idx = prev.findIndex((p) => p.id === planter.id);
+            if (idx === -1) return [planter, ...prev];
+            const next = [...prev];
+            next[idx] = { ...prev[idx], ...planter };
+            return next;
+          })
         }
       />
     </Box>

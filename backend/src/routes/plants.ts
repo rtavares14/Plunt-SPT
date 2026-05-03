@@ -171,6 +171,146 @@ router.post('/', async (req: Request, res: Response) => {
   }
 });
 
+router.patch('/:id', async (req: Request, res: Response) => {
+  try {
+    const id = String(req.params.id);
+    const owned = await getPrisma().plant.findFirst({
+      where: { id, ownerId: req.user!.userId },
+      select: { id: true },
+    });
+    if (!owned) {
+      res.status(404).json({ error: 'Plant not found' });
+      return;
+    }
+
+    const data: Record<string, unknown> = {};
+
+    if (req.body?.name !== undefined) {
+      const name = trimmedString(req.body.name, 80);
+      if (!name) {
+        res.status(400).json({ error: 'Name is required (max 80 characters)' });
+        return;
+      }
+      data.name = name;
+    }
+
+    if (req.body?.species !== undefined) {
+      const species = optionalString(req.body.species, 120);
+      if (species === undefined) {
+        res.status(400).json({ error: 'Species is invalid' });
+        return;
+      }
+      data.species = species;
+    }
+
+    if (req.body?.wateringIntervalDays !== undefined) {
+      const wateringIntervalDays = optionalNumber(req.body.wateringIntervalDays, 1, 365);
+      if (wateringIntervalDays === undefined || wateringIntervalDays === null) {
+        res.status(400).json({ error: 'wateringIntervalDays must be between 1 and 365' });
+        return;
+      }
+      data.wateringIntervalDays = wateringIntervalDays;
+    }
+
+    if (req.body?.sunlight !== undefined) {
+      if (!SUNLIGHT_VALUES.includes(req.body.sunlight as Sunlight)) {
+        res.status(400).json({ error: 'sunlight must be HIGH, MEDIUM, or LOW' });
+        return;
+      }
+      data.sunlight = req.body.sunlight as Sunlight;
+    }
+
+    let nextMin: number | null | undefined;
+    let nextMax: number | null | undefined;
+    if (req.body?.minTemp !== undefined) {
+      nextMin = optionalNumber(req.body.minTemp, -50, 60);
+      if (nextMin === undefined) {
+        res.status(400).json({ error: 'Temperature must be between -50°C and 60°C' });
+        return;
+      }
+      data.minTemp = nextMin;
+    }
+    if (req.body?.maxTemp !== undefined) {
+      nextMax = optionalNumber(req.body.maxTemp, -50, 60);
+      if (nextMax === undefined) {
+        res.status(400).json({ error: 'Temperature must be between -50°C and 60°C' });
+        return;
+      }
+      data.maxTemp = nextMax;
+    }
+    if (
+      nextMin != null &&
+      nextMax != null &&
+      nextMin > nextMax
+    ) {
+      res.status(400).json({ error: 'minTemp cannot be greater than maxTemp' });
+      return;
+    }
+
+    if (req.body?.lastWateredAt !== undefined) {
+      const lastWateredAt = optionalDate(req.body.lastWateredAt);
+      if (lastWateredAt === undefined) {
+        res.status(400).json({ error: 'Invalid date' });
+        return;
+      }
+      data.lastWateredAt = lastWateredAt;
+    }
+    if (req.body?.dateAcquired !== undefined) {
+      const dateAcquired = optionalDate(req.body.dateAcquired);
+      if (dateAcquired === undefined || dateAcquired === null) {
+        res.status(400).json({ error: 'Invalid date' });
+        return;
+      }
+      data.dateAcquired = dateAcquired;
+    }
+
+    if (req.body?.planterId !== undefined) {
+      const planterId = req.body.planterId;
+      if (planterId === null) {
+        data.planterId = null;
+      } else {
+        if (typeof planterId !== 'string' || !planterId) {
+          res.status(400).json({ error: 'Invalid planterId' });
+          return;
+        }
+        const ownedPlanter = await getPrisma().planter.findFirst({
+          where: { id: planterId, ownerId: req.user!.userId },
+          select: { id: true },
+        });
+        if (!ownedPlanter) {
+          res.status(400).json({ error: 'Planter not found' });
+          return;
+        }
+        data.planterId = planterId;
+      }
+    }
+
+    if (req.body?.imageUrl !== undefined) {
+      const imageUrl = optionalUrl(req.body.imageUrl);
+      if (imageUrl === undefined) {
+        res.status(400).json({ error: 'imageUrl must be a valid http(s) URL' });
+        return;
+      }
+      if (imageUrl) {
+        await getPrisma().plantImage.create({ data: { plantId: id, url: imageUrl } });
+      }
+    }
+
+    const plant = await getPrisma().plant.update({
+      where: { id },
+      data,
+      include: {
+        planter: { select: { id: true, name: true, isIndoor: true } },
+        images: { orderBy: { createdAt: 'desc' }, take: 1 },
+      },
+    });
+    res.json({ plant });
+  } catch (err) {
+    req.log.error({ err }, 'Update plant error');
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const id = String(req.params.id);

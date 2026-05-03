@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
@@ -14,12 +14,13 @@ import ParkIcon from '@mui/icons-material/Park';
 import CloseIcon from '@mui/icons-material/Close';
 import ImageOutlinedIcon from '@mui/icons-material/ImageOutlined';
 import { useAuth } from '../../context/useAuth';
-import { createPlanter, type PlanterSummary } from '../../api/plants';
+import { createPlanter, updatePlanter, type PlanterSummary } from '../../api/plants';
 
 interface Props {
   open: boolean;
   onClose: () => void;
-  onCreated: (planter: PlanterSummary) => void;
+  onSaved: (planter: PlanterSummary) => void;
+  planter?: PlanterSummary | null;
 }
 
 const fieldSx = {
@@ -40,8 +41,9 @@ const fieldSx = {
   },
 } as const;
 
-function CreatePlanterForm({ open, onClose, onCreated }: Props) {
+function PlanterDialog({ open, onClose, onSaved, planter }: Props) {
   const { authFetch } = useAuth();
+  const isEdit = !!planter;
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [isIndoor, setIsIndoor] = useState(true);
@@ -49,18 +51,18 @@ function CreatePlanterForm({ open, onClose, onCreated }: Props) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const reset = () => {
-    setName('');
-    setDescription('');
-    setIsIndoor(true);
-    setImageUrl('');
+  useEffect(() => {
+    if (!open) return;
+    setName(planter?.name ?? '');
+    setDescription(planter?.description ?? '');
+    setIsIndoor(planter?.isIndoor ?? true);
+    setImageUrl(planter?.imageUrl ?? '');
     setError(null);
     setSubmitting(false);
-  };
+  }, [open, planter]);
 
   const handleClose = () => {
     if (submitting) return;
-    reset();
     onClose();
   };
 
@@ -68,17 +70,19 @@ function CreatePlanterForm({ open, onClose, onCreated }: Props) {
     setError(null);
     setSubmitting(true);
     try {
-      const planter = await createPlanter(authFetch, {
+      const payload = {
         name: name.trim(),
         description: description.trim() || null,
         isIndoor,
         imageUrl: imageUrl.trim() || null,
-      });
-      onCreated(planter);
-      reset();
+      };
+      const saved = isEdit
+        ? await updatePlanter(authFetch, planter!.id, payload)
+        : await createPlanter(authFetch, payload);
+      onSaved(saved);
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not create planter');
+      setError(err instanceof Error ? err.message : `Could not ${isEdit ? 'update' : 'create'} planter`);
     } finally {
       setSubmitting(false);
     }
@@ -121,10 +125,10 @@ function CreatePlanterForm({ open, onClose, onCreated }: Props) {
 
       <Box className="px-7 pt-2 pb-2">
         <div className="font-body text-[11px] uppercase tracking-[0.28em] text-bark/70">
-          New planter
+          {isEdit ? 'Edit planter' : 'New planter'}
         </div>
         <h2 className="font-display text-[1.75rem] leading-tight text-green-main mt-1 font-medium">
-          A home for your plant
+          {isEdit ? 'Update its details' : 'A home for your plant'}
         </h2>
       </Box>
 
@@ -257,11 +261,17 @@ function CreatePlanterForm({ open, onClose, onCreated }: Props) {
             },
           }}
         >
-          {submitting ? 'Planting…' : 'Create planter'}
+          {submitting
+            ? isEdit
+              ? 'Saving…'
+              : 'Planting…'
+            : isEdit
+              ? 'Save changes'
+              : 'Create planter'}
         </Button>
       </DialogActions>
     </Dialog>
   );
 }
 
-export default CreatePlanterForm;
+export default PlanterDialog;

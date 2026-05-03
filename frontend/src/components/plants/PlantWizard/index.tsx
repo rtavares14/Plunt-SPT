@@ -10,6 +10,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import { useAuth } from '../../../context/useAuth';
 import {
   createPlant,
+  updatePlant,
   getSpeciesDetail,
   trefleLightToSunlight,
   type PlanterSummary,
@@ -18,7 +19,7 @@ import {
   type SpeciesSearchResult,
   type Sunlight,
 } from '../../../api/plants';
-import CreatePlanterForm from '../CreatePlanterForm';
+import PlanterDialog from '../PlanterDialog';
 import WizardStepTracker, { WIZARD_STEPS } from './WizardStepTracker';
 import IdentityStep from './IdentityStep';
 import HomeStep from './HomeStep';
@@ -31,9 +32,10 @@ import CareStep from './CareStep';
 interface PlantWizardProps {
   open: boolean;
   onClose: () => void;
-  onCreated: (plant: PlantSummary) => void;
+  onSaved: (plant: PlantSummary) => void;
   planters: PlanterSummary[];
   onPlanterCreated: (planter: PlanterSummary) => void;
+  plant?: PlantSummary | null;
 }
 
 /* ------------------------------------------------------------------ */
@@ -44,12 +46,18 @@ function todayIso(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
+function toIsoDay(value: string | null | undefined): string {
+  if (!value) return '';
+  return value.slice(0, 10);
+}
+
 /* ------------------------------------------------------------------ */
 /*  Component                                                          */
 /* ------------------------------------------------------------------ */
 
-function PlantWizard({ open, onClose, onCreated, planters, onPlanterCreated }: PlantWizardProps) {
+function PlantWizard({ open, onClose, onSaved, planters, onPlanterCreated, plant }: PlantWizardProps) {
   const { authFetch } = useAuth();
+  const isEdit = !!plant;
   const [step, setStep] = useState(0);
 
   // Step 1 — Identity
@@ -97,6 +105,41 @@ function PlantWizard({ open, onClose, onCreated, planters, onPlanterCreated }: P
     setSubmitting(false);
   };
 
+  /* ---- Prefill on open when editing ---- */
+  useEffect(() => {
+    if (!open) return;
+    setStep(0);
+    setError(null);
+    setSubmitting(false);
+    setSpecies(null);
+    setSpeciesDetail(null);
+    setDetailLoading(false);
+    setPlanterDialogOpen(false);
+    if (plant) {
+      setName(plant.name);
+      setSpeciesText(plant.species ?? '');
+      setImageUrl(plant.images?.[0]?.url ?? '');
+      setPlanterId(plant.planterId);
+      setWateringIntervalDays(plant.wateringIntervalDays);
+      setSunlight(plant.sunlight);
+      setDateAcquired(toIsoDay(plant.dateAcquired));
+      setLastWateredAt(toIsoDay(plant.lastWateredAt));
+      setMinTemp(plant.minTemp != null ? String(plant.minTemp) : '');
+      setMaxTemp(plant.maxTemp != null ? String(plant.maxTemp) : '');
+    } else {
+      setName('');
+      setSpeciesText('');
+      setImageUrl('');
+      setPlanterId(null);
+      setWateringIntervalDays(7);
+      setSunlight('MEDIUM');
+      setDateAcquired(todayIso());
+      setLastWateredAt('');
+      setMinTemp('');
+      setMaxTemp('');
+    }
+  }, [open, plant]);
+
   /* ---- Auto-fill from species detail ---- */
   useEffect(() => {
     if (!species) {
@@ -141,7 +184,9 @@ function PlantWizard({ open, onClose, onCreated, planters, onPlanterCreated }: P
     setError(null);
     setSubmitting(true);
     try {
-      const payload = {
+      const trimmedImage = imageUrl.trim();
+      const initialImage = plant?.images?.[0]?.url ?? '';
+      const basePayload = {
         name: name.trim(),
         species: speciesText.trim() || null,
         planterId: planterId,
@@ -151,14 +196,18 @@ function PlantWizard({ open, onClose, onCreated, planters, onPlanterCreated }: P
         maxTemp: maxTemp === '' ? null : Number(maxTemp),
         lastWateredAt: lastWateredAt ? new Date(lastWateredAt).toISOString() : null,
         dateAcquired: dateAcquired ? new Date(dateAcquired).toISOString() : null,
-        imageUrl: imageUrl.trim() || null,
       };
-      const plant = await createPlant(authFetch, payload);
-      onCreated(plant);
+      const saved = isEdit
+        ? await updatePlant(authFetch, plant!.id, {
+            ...basePayload,
+            ...(trimmedImage && trimmedImage !== initialImage ? { imageUrl: trimmedImage } : {}),
+          })
+        : await createPlant(authFetch, { ...basePayload, imageUrl: trimmedImage || null });
+      onSaved(saved);
       reset();
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not create plant');
+      setError(err instanceof Error ? err.message : `Could not ${isEdit ? 'update' : 'create'} plant`);
     } finally {
       setSubmitting(false);
     }
@@ -193,10 +242,12 @@ function PlantWizard({ open, onClose, onCreated, planters, onPlanterCreated }: P
           <Box className="flex items-start justify-between gap-4">
             <Box>
               <h2 className="font-display text-[2rem] leading-[1.05] text-green-main font-medium">
-                A new plant
+                {isEdit ? 'Edit plant' : 'A new plant'}
               </h2>
               <p className="font-body text-sm text-bark/80 mt-1.5">
-                Three small steps to add it to your garden.
+                {isEdit
+                  ? 'Three small steps to update its details.'
+                  : 'Three small steps to add it to your garden.'}
               </p>
             </Box>
             <IconButton
@@ -349,17 +400,23 @@ function PlantWizard({ open, onClose, onCreated, planters, onPlanterCreated }: P
                   '&:hover': { backgroundColor: '#0f3d20' },
                 }}
               >
-                {submitting ? 'Plunting…' : 'Plunt it'}
+                {submitting
+                  ? isEdit
+                    ? 'Saving…'
+                    : 'Plunting…'
+                  : isEdit
+                    ? 'Save changes'
+                    : 'Plunt it'}
               </Button>
             )}
           </Box>
         </DialogActions>
       </Dialog>
 
-      <CreatePlanterForm
+      <PlanterDialog
         open={planterDialogOpen}
         onClose={() => setPlanterDialogOpen(false)}
-        onCreated={(planter) => {
+        onSaved={(planter) => {
           onPlanterCreated(planter);
           setPlanterId(planter.id);
         }}

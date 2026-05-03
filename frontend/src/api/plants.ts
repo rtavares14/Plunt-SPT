@@ -85,6 +85,20 @@ export async function createPlanter(
   return data.planter;
 }
 
+export async function updatePlanter(
+  fetcher: Fetcher,
+  id: string,
+  input: Partial<{ name: string; description: string | null; isIndoor: boolean; imageUrl: string | null }>,
+): Promise<PlanterSummary> {
+  const res = await fetcher(`/api/planters/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(input),
+  });
+  const data = await parse<{ planter: PlanterSummary }>(res);
+  return data.planter;
+}
+
 export async function listPlants(fetcher: Fetcher): Promise<PlantSummary[]> {
   const res = await fetcher('/api/plants');
   const data = await parse<{ plants: PlantSummary[] }>(res);
@@ -110,6 +124,22 @@ export async function createPlant(
 ): Promise<PlantSummary> {
   const res = await fetcher('/api/plants', {
     method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(input),
+  });
+  const data = await parse<{ plant: PlantSummary }>(res);
+  return data.plant;
+}
+
+export type UpdatePlantInput = Partial<CreatePlantInput>;
+
+export async function updatePlant(
+  fetcher: Fetcher,
+  id: string,
+  input: UpdatePlantInput,
+): Promise<PlantSummary> {
+  const res = await fetcher(`/api/plants/${id}`, {
+    method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(input),
   });
