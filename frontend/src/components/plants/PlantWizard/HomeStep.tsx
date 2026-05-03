@@ -29,7 +29,7 @@ function HomeStep({
           Where does {plantName.trim() || 'this plant'} live?
         </h3>
         <p className="font-body text-sm text-bark/80">
-          Pick a planter, skip for now, or create a new one — you can re-pot any time.
+          Pick a planter, skip for now, or create a new one, you can repot any time.
         </p>
       </Box>
 

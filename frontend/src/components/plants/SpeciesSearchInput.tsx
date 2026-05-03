@@ -58,7 +58,7 @@ function SpeciesSearchInput({ value, freeText, onChange, disabled }: Props) {
   }, [input, authFetch]);
 
   const helper = useMemo(() => {
-    if (unconfigured) return 'Trefle is offline — type the species name manually.';
+    if (unconfigured) return 'Trefle is offline, type the species name manually.';
     if (input.length > 0 && input.length < 2) return 'Type at least 2 characters.';
     return 'Pick from the list to auto-fill care info, or type your own.';
   }, [unconfigured, input.length]);

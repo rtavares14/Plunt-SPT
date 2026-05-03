@@ -145,7 +145,7 @@ function AuthPage() {
             title={
               APPLE_SIGNIN_ENABLED
                 ? ''
-                : 'Apple sign-in coming soon — requires a paid Apple Developer account'
+                : 'Apple sign-in coming soon, requires a paid Apple Developer account'
             }
           >
             <span>

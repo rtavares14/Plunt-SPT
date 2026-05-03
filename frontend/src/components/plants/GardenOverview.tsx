@@ -96,11 +96,11 @@ function PlantCard({
       <IconButton
         size="small"
         onClick={onDelete}
-        className=""
+        aria-label={`Delete ${plant.name}`}
         sx={{
-          color: 'rgba(180,40,40,0.6)',
+          color: '#b91c1c',
           flexShrink: 0,
-          '&:hover': { color: '#b91c1c', backgroundColor: 'rgba(185,28,28,0.06)' },
+          '&:hover': { color: '#991b1b', backgroundColor: 'rgba(185,28,28,0.08)' },
         }}
       >
         <DeleteOutlinedIcon fontSize="small" />
@@ -149,11 +149,11 @@ function PlanterCard({
       <IconButton
         size="small"
         onClick={onDelete}
-        className=""
+        aria-label={`Delete ${planter.name}`}
         sx={{
-          color: 'rgba(180,40,40,0.6)',
+          color: '#b91c1c',
           flexShrink: 0,
-          '&:hover': { color: '#b91c1c', backgroundColor: 'rgba(185,28,28,0.06)' },
+          '&:hover': { color: '#991b1b', backgroundColor: 'rgba(185,28,28,0.08)' },
         }}
       >
         <DeleteOutlinedIcon fontSize="small" />
@@ -384,7 +384,7 @@ function GardenOverview() {
 
       {loading ? null : plants.length === 0 ? (
         <Typography variant="body2" className="!text-gray-500 !italic">
-          No plants yet — start with "Add plant".
+          No plants yet, start with "Add plant".
         </Typography>
       ) : (
         <Box className="flex flex-col gap-2">

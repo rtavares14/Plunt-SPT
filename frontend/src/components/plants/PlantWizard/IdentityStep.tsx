@@ -55,7 +55,7 @@ function IdentityStep({
     if (speciesDetail) {
       return `Auto-filled from ${speciesDetail.commonName ?? speciesDetail.scientificName}`;
     }
-    return 'Paste an image URL — uploads coming soon';
+    return 'Paste an image URL (uploads coming soon)';
   }, [detailLoading, speciesDetail]);
 
   return (

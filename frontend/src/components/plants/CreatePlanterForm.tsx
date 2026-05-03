@@ -140,7 +140,7 @@ function CreatePlanterForm({ open, onClose, onCreated }: Props) {
 
         <TextField
           label="Name"
-          placeholder="e.g. Living-room shelf"
+          placeholder="e.g. Living room shelf"
           value={name}
           onChange={(e) => setName(e.target.value)}
           fullWidth
