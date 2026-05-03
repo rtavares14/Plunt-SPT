@@ -42,8 +42,7 @@ function asString(value: unknown): string | null {
 
 function asStringArray(value: unknown): string[] | null {
   if (!Array.isArray(value)) return null;
-  const out = value.filter((v): v is string => typeof v === 'string');
-  return out.length === value.length ? out : out;
+  return value.filter((v): v is string => typeof v === 'string');
 }
 
 async function trefleGet(path: string, params: Record<string, string>): Promise<unknown> {
@@ -61,7 +60,7 @@ async function trefleGet(path: string, params: Record<string, string>): Promise<
 function parseSpeciesRow(row: unknown): TrefleSpecies | null {
   if (!isRecord(row)) return null;
   const id = asNumber(row.id);
-  const scientificName = asString(row.scientific_name) ?? '';
+  const scientificName = asString(row.scientific_name);
   if (id === null || !scientificName) return null;
   return {
     id,
