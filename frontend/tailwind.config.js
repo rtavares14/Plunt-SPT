@@ -8,10 +8,14 @@ export default {
   theme: {
     extend: {
       colors: {
-        cream:          '#ebe1d3',
-        'green-main':   '#14532d',
-        'green-second': '#0f7033',
-        'green-light':  '#2e7d52',
+        'cream-main': '#ECE7DC',
+        'cream-soft': '#FAF7EF',
+        'olive-main': '#405035',
+        'olive-light': '#5B6952',
+        'olive-opac': 'rgba(91, 105, 82, 0.5)',
+      },
+      fontFamily: {
+        lateef: ['Lateef', 'Georgia', 'serif'],
       },
     },
   },

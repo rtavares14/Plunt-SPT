@@ -1,18 +1,16 @@
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import Box from '@mui/material/Box';
-import Navbar from './components/Navbar';
 import LandingPage from './pages/LandingPage';
 
-// Mirror of green-main / green-second in tailwind.config.js
+// Mirror of olive-deep / cream in tailwind.config.js
 const theme = createTheme({
   palette: {
-    primary:    { main: '#14532d' },
-    secondary:  { main: '#0f7033' },
-    background: { default: '#ebe1d3' },
+    primary:    { main: '#405035' },
+    secondary:  { main: '#5B6952' },
+    background: { default: '#ECE7DC' },
   },
   typography: {
-    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+    fontFamily: '"Lateef", Georgia, serif',
   },
 });
 
@@ -20,12 +18,7 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box className="min-h-screen flex flex-col">
-        <Navbar />
-        <Box className="pt-16 flex-1 flex flex-col">
-          <LandingPage />
-        </Box>
-      </Box>
+      <LandingPage />
     </ThemeProvider>
   );
 }
