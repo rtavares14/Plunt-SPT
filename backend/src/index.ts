@@ -35,6 +35,13 @@ const waitlistLimiter = rateLimit({
   message: { error: 'Too many signups — please try again in a minute' },
 });
 
+const waitlistCheckLimiter = rateLimit({
+  windowMs: 60_000,
+  limit: 10,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+});
+
 app.post('/api/waitlist', waitlistLimiter, async (req, res) => {
   const rawEmail = typeof req.body?.email === 'string' ? req.body.email : '';
   const email = rawEmail.trim().toLowerCase();
@@ -52,6 +59,23 @@ app.post('/api/waitlist', waitlistLimiter, async (req, res) => {
     }
     console.error('waitlist signup failed', err);
     return res.status(500).json({ error: 'Could not save signup' });
+  }
+});
+
+app.get('/api/waitlist/check', waitlistCheckLimiter, async (req, res) => {
+  const rawEmail = typeof req.query?.email === 'string' ? req.query.email : '';
+  const email = rawEmail.trim().toLowerCase();
+
+  if (!EMAIL_REGEX.test(email)) {
+    return res.status(400).json({ error: 'Invalid email address' });
+  }
+
+  try {
+    const entry = await prisma.waitlistEntry.findUnique({ where: { email } });
+    return res.json({ registered: Boolean(entry) });
+  } catch (err) {
+    console.error('waitlist check failed', err);
+    return res.status(500).json({ error: 'Could not check email' });
   }
 });
 
