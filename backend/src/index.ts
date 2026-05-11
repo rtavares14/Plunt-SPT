@@ -32,7 +32,7 @@ const waitlistLimiter = rateLimit({
   limit: 5,
   standardHeaders: 'draft-7',
   legacyHeaders: false,
-  message: { error: 'Too many signups — please try again in a minute' },
+  message: { error: 'Too many signups. Please try again in a minute.' },
 });
 
 const waitlistCheckLimiter = rateLimit({
