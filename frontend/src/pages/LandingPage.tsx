@@ -79,7 +79,7 @@ function LandingPage() {
     <main className="font-lateef min-h-screen flex flex-col lg:flex-row">
       {/* Left panel */}
       <section className="bg-olive-main flex flex-col p-8 sm:p-12 lg:p-16 min-h-[60vh] lg:min-h-screen lg:w-3/5 lg:h-screen">
-        <div className="inline-flex items-center gap-2 self-start bg-olive-light rounded-lg px-5 py-2.5">
+        <div className="inline-flex items-center gap-2 self-start bg-olive-light rounded-lg px-5 py-2.5 mb-10 lg:mb-0">
           <YardIcon className="text-cream-main" sx={{ fontSize: 28 }} />
           <span className="text-cream-main text-3xl leading-none font-medium">myPlunt</span>
         </div>
@@ -132,7 +132,7 @@ function LandingPage() {
               </button>
             </form>
 
-            <hr className="my-9 border-t border-olive-main -mx-10" />
+            <hr className="my-9 border-t border-olive-main w-[90%] mx-auto lg:w-auto lg:-mx-10" />
           </div>
         </div>
 
