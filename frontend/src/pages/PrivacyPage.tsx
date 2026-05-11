@@ -3,7 +3,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 function PrivacyPage() {
   return (
-    <main className="font-lateef bg-cream-main min-h-screen">
+    <main className="font-lateef bg-olive-main min-h-screen">
       <div className="max-w-3xl mx-auto px-6 sm:px-10 py-12">
         <div className="rounded-xl border border-olive-main bg-cream-soft p-8 sm:p-10">
           <Link
@@ -50,8 +50,18 @@ function PrivacyPage() {
             <div>
               <h2 className="text-3xl font-bold mb-3">Who can see it</h2>
               <p>
-                Your email is stored in our database. We don't sell, share, or hand it
-                to anyone else, ever.
+                Your email is stored in our database and is processed
+                through{' '}
+                <a
+                  href="https://resend.com"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="underline hover:opacity-80"
+                >
+                  Resend
+                </a>
+                , the service we use to deliver waitlist communications. We
+                don't sell, share, or hand your data to anyone else, ever.
               </p>
             </div>
 
