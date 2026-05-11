@@ -1,6 +1,8 @@
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import LandingPage from './pages/LandingPage';
+import PrivacyPage from './pages/PrivacyPage';
 
 // Mirror of olive-deep / cream in tailwind.config.js
 const theme = createTheme({
@@ -18,7 +20,12 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <LandingPage />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
+        </Routes>
+      </BrowserRouter>
     </ThemeProvider>
   );
 }

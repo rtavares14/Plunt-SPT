@@ -5,10 +5,13 @@ import rateLimit from 'express-rate-limit';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Prisma, PrismaClient } from './generated/prisma/client';
 
+import { Resend } from 'resend';
+
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+const resend = new Resend(process.env.RESEND_API_KEY);
 const prisma = new PrismaClient({
   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),
 });
@@ -52,6 +55,31 @@ app.post('/api/waitlist', waitlistLimiter, async (req, res) => {
 
   try {
     await prisma.waitlistEntry.create({ data: { email } });
+
+    // Send confirmation email via Resend
+    try {
+      await resend.emails.send({
+        from: process.env.EMAIL_FROM || 'Ricardo from Plunt <noreply@myplunt.com>',
+        to: email,
+        subject: "You're on the list!",
+        text: `Hey,\n\nThanks for joining the waitlist for myPlunt! We're building a private space for you and your plants to thrive together.\n\nWe'll reach out when the beta opens and again on launch day. In the meantime, keep those plants happy!\n\n— Ricardo from Plunt`,
+        html: `
+          <div style="font-family: sans-serif; color: #333; line-height: 1.6;">
+            <p>Hey,</p>
+            <p>Thanks for joining the waitlist for myPlunt! We're building a private space for you and your plants to thrive together.</p>
+            <p>We'll reach out when the beta opens and again on launch day. In the meantime, keep those plants happy!</p>
+            <p>Plunt</p>
+          </div>
+        `,
+        headers: {
+          'X-Entity-Ref-ID': Date.now().toString(),
+        },
+      });
+    } catch (emailErr) {
+      // Log the error but don't fail the request if the email fails to send
+      console.error('Failed to send confirmation email', emailErr);
+    }
+
     return res.status(201).json({ ok: true });
   } catch (err) {
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {

@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { Link } from 'react-router-dom';
 import YardIcon from '@mui/icons-material/Yard';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import CheckIcon from '@mui/icons-material/Check';
@@ -131,6 +132,14 @@ function LandingPage() {
                 {isSubmitting ? 'Joining…' : status.kind === 'checking' ? 'Checking…' : 'Join waitlist'}
               </button>
             </form>
+
+            <p className="text-olive-light text-base mt-3">
+              We only use your email to tell you when Plunt is live.
+              <Link to="/privacy" className="underline hover:opacity-80">
+                Read our privacy policy
+              </Link>
+              .
+            </p>
 
             <hr className="my-9 border-t border-olive-main w-[90%] mx-auto lg:w-auto lg:-mx-10" />
           </div>
