@@ -2,8 +2,5 @@ node_modules
 .env
 .claude
 .DS_Store
-<<<<<<< HEAD
 **/.DS_Store
 *.tsbuildinfo
-=======
->>>>>>> origin/main

@@ -70,3 +70,18 @@ export async function sendPasswordChangedEmail(to: string) {
     `Your Plunt password was just changed (${when}).\n\nIf this wasn't you, reset your password immediately at ${resetLink}. Your other sessions have already been signed out as a precaution.`,
   );
 }
+export async function sendWaitlistEmail(to: string) {
+  await send(
+    to,
+    "You're on the list!",
+    `
+      <div style="font-family: sans-serif; color: #333; line-height: 1.6;">
+        <p>Hey,</p>
+        <p>Thanks for joining the waitlist for myPlunt! We're building a private space for you and your plants to thrive together.</p>
+        <p>We'll reach out when the beta opens and again on launch day. In the meantime, keep those plants happy!</p>
+        <p>Plunt</p>
+      </div>
+    `,
+    `Hey,\n\nThanks for joining the waitlist for myPlunt! We're building a private space for you and your plants to thrive together.\n\nWe'll reach out when the beta opens and again on launch day. In the meantime, keep those plants happy!\n\n— Ricardo from Plunt`,
+  );
+}

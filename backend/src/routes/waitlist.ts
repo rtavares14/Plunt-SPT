@@ -2,6 +2,8 @@ import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
 import { getPrisma } from '../lib/prisma';
 import { Prisma } from '../generated/prisma/client';
+import { sendWaitlistEmail } from '../lib/email';
+import { logger } from '../lib/logger';
 
 const router = Router();
 
@@ -25,14 +27,21 @@ router.post('/', waitlistLimiter, async (req, res) => {
 
   try {
     await getPrisma().waitlistEntry.create({ data: { email } });
+
+    // Fire-and-forget: send confirmation email without blocking the response
+    sendWaitlistEmail(email).catch((err) => {
+      logger.error({ err, email }, 'Failed to send waitlist confirmation email');
+    });
+
     return res.status(201).json({ ok: true });
   } catch (err) {
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
       return res.status(200).json({ ok: true, alreadyRegistered: true });
     }
-    req.log.error({ err }, 'waitlist signup failed');
+    logger.error({ err }, 'waitlist signup failed');
     return res.status(500).json({ error: 'Could not save signup' });
   }
 });
 
 export default router;
+
