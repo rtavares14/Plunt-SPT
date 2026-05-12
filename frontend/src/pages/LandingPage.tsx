@@ -58,18 +58,21 @@ function LandingPage() {
   return (
     <main className="font-lateef min-h-screen flex flex-col lg:flex-row">
       {/* Left panel */}
-      <section className="bg-olive-main flex flex-col p-8 sm:p-12 lg:p-16 min-h-[60vh] lg:min-h-screen lg:w-3/5 lg:h-screen">
+      <section className="bg-olive-main flex flex-col p-8 sm:p-12 lg:p-16 min-h-[60vh] lg:min-h-screen lg:w-3/5">
         <div className="inline-flex items-center gap-2 self-start bg-olive-light rounded-lg px-5 py-2.5 mb-10 lg:mb-0">
           <YardIcon className="text-cream-main" sx={{ fontSize: 28 }} />
           <span className="text-cream-main text-3xl leading-none font-medium">myPlunt</span>
         </div>
 
-        <div className="flex-1 flex flex-col justify-center lg:justify-start lg:pt-[22%] max-w-4xl">
+        <div className="flex-1 flex flex-col justify-center max-w-4xl">
           <h1 className="text-cream-main text-[3.5rem] sm:text-[4.25rem] lg:text-[5.75rem] leading-[1.05] mb-8 font-medium">
-            Because plants thrive with company.
+            Because plants thrive
+            <br />
+            with company.
           </h1>
           <p className="text-cream-main text-[1.75rem] sm:text-[2rem] lg:text-[2.25rem] leading-relaxed max-w-2xl">
             The right place to connect plant lovers everywhere.
+            <br />
             Just you, your loved plants and a little help from
             someone to keep them alive and thriving.
           </p>
@@ -77,9 +80,9 @@ function LandingPage() {
       </section>
 
       {/* Right panel 40% */}
-      <section className="bg-cream-main flex flex-col justify-center lg:justify-start p-8 sm:p-12 lg:p-16 min-h-[40vh] lg:min-h-screen lg:w-2/5 lg:h-screen">
+      <section className="bg-cream-main flex flex-col justify-center p-8 sm:p-12 lg:p-16 min-h-[40vh] lg:min-h-screen lg:w-2/5">
         {/* Top half heading, form, hr anchored to bottom on lg so they don't move when the box grows */}
-        <div className="lg:flex-1 lg:flex lg:flex-col lg:justify-end">
+        <div>
           <div className="w-full lg:max-w-xl mx-auto">
             <p className="text-olive-main text-4xl sm:text-5xl font-semibold mb-3">Coming soon</p>
             <h2 className="text-olive-light text-2xl sm:text-3xl font-bold leading-snug mb-7">
@@ -124,7 +127,7 @@ function LandingPage() {
         </div>
 
         {/* Bottom half estimated launch box anchored to top on lg so it grows down into its own space */}
-        <div className="lg:flex-1 lg:flex lg:flex-col lg:justify-start">
+        <div>
           <div className="w-full lg:max-w-xl mx-auto">
             <div className="rounded-xl border border-olive-main p-5 bg-cream-soft">
               <div className="flex items-center gap-3 mb-3">
