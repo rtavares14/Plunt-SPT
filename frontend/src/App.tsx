@@ -1,5 +1,6 @@
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
+<<<<<<< HEAD
 import Box from '@mui/material/Box';
 import { Routes, Route } from 'react-router-dom';
 import { GoogleOAuthProvider } from '@react-oauth/google';
@@ -13,10 +14,16 @@ import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
+=======
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import LandingPage from './pages/LandingPage';
+import PrivacyPage from './pages/PrivacyPage';
+>>>>>>> origin/main
 
-// Mirror of green-main / green-second in tailwind.config.js
+// Mirror of olive-main / olive-light / cream-main in tailwind.config.js
 const theme = createTheme({
   palette: {
+<<<<<<< HEAD
     primary: { main: '#14532d' },
     secondary: { main: '#0f7033' },
     background: { default: '#ebe1d3' },
@@ -36,11 +43,20 @@ const theme = createTheme({
         root: { boxShadow: 'none' },
       },
     },
+=======
+    primary: { main: '#405035' },
+    secondary: { main: '#5B6952' },
+    background: { default: '#ECE7DC' },
+  },
+  typography: {
+    fontFamily: '"Lateef", Georgia, serif',
+>>>>>>> origin/main
   },
 });
 
 function App() {
   return (
+<<<<<<< HEAD
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
       <AuthProvider>
         <ThemeProvider theme={theme}>
@@ -116,6 +132,17 @@ function App() {
         </ThemeProvider>
       </AuthProvider>
     </GoogleOAuthProvider>
+=======
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
+        </Routes>
+      </BrowserRouter>
+    </ThemeProvider>
+>>>>>>> origin/main
   );
 }
 

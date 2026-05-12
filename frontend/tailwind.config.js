@@ -8,6 +8,7 @@ export default {
   theme: {
     extend: {
       colors: {
+<<<<<<< HEAD
         cream:          '#ebe1d3',
         'cream-paper':  '#f6efe1',
         'cream-mist':   '#fbf6ec',
@@ -34,6 +35,16 @@ export default {
       },
       animation: {
         'fade-up': 'fade-up 320ms ease-out both',
+=======
+        'cream-main': '#ECE7DC',
+        'cream-soft': '#FAF7EF',
+        'olive-main': '#405035',
+        'olive-light': '#5B6952',
+        'olive-opac': 'rgba(91, 105, 82, 0.5)',
+      },
+      fontFamily: {
+        lateef: ['Lateef', 'Georgia', 'serif'],
+>>>>>>> origin/main
       },
     },
   },
