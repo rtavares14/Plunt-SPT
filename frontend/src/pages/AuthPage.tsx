@@ -37,7 +37,7 @@ function AuthPage() {
 
   // Already logged in — go home
   useEffect(() => {
-    if (user) navigate('/');
+    if (user) navigate('/feed');
   }, [user, navigate]);
 
   if (user) return null;
@@ -73,7 +73,7 @@ function AuthPage() {
       }
 
       login(data.token, data.user);
-      navigate('/');
+      navigate('/feed');
     } catch {
       setError('Unable to connect to server');
     } finally {
@@ -101,7 +101,7 @@ function AuthPage() {
         return;
       }
       login(data.token, data.user);
-      navigate('/');
+      navigate('/feed');
     } catch {
       setError('Unable to connect to server');
     } finally {
@@ -110,18 +110,18 @@ function AuthPage() {
   };
 
   return (
-    <Box className="min-h-screen bg-gradient-to-br from-plunt-50 via-white to-plunt-100 flex items-center justify-center px-4">
+    <Box className="font-lateef min-h-screen bg-gradient-to-br from-cream-soft via-cream-main to-cream-soft flex items-center justify-center px-4 py-8">
       <Paper
         elevation={0}
-        className="w-full max-w-[420px] p-8 rounded-2xl border border-plunt-200"
+        className="w-full max-w-[420px] p-8 rounded-2xl border border-olive-main/20 bg-cream-soft"
       >
         {/* Branding */}
         <Box className="text-center mb-6">
-          <YardIcon sx={{ fontSize: 48 }} className="!text-green-main mb-2" />
-          <Typography variant="h4" className="!font-bold !text-plunt-900">
+          <YardIcon sx={{ fontSize: 48 }} className="!text-olive-main mb-2" />
+          <Typography variant="h4" className="!font-bold !text-olive-main">
             {mode === 'login' ? 'Welcome back' : 'Join Plunt'}
           </Typography>
-          <Typography variant="body2" className="!text-gray-500 !mt-1">
+          <Typography variant="body2" className="!text-olive-light !mt-1">
             {mode === 'login'
               ? 'Sign in to your plant community'
               : 'Create your account and start sharing'}
@@ -155,12 +155,12 @@ function AuthPage() {
                 disabled={!APPLE_SIGNIN_ENABLED}
                 startIcon={<AppleIcon />}
                 sx={{
-                  borderColor: '#e5e7eb',
-                  color: '#374151',
+                  borderColor: 'rgba(64, 80, 53, 0.3)',
+                  color: '#405035',
                   textTransform: 'none',
                   fontWeight: 500,
                   py: 1.2,
-                  '&:hover': { borderColor: '#d1d5db', backgroundColor: '#f9fafb' },
+                  '&:hover': { borderColor: '#405035', backgroundColor: '#ECE7DC' },
                 }}
               >
                 Continue with Apple
@@ -170,7 +170,7 @@ function AuthPage() {
         </Box>
 
         <Divider className="!my-4">
-          <Typography variant="body2" className="!text-gray-400 !px-2">
+          <Typography variant="body2" className="!text-olive-light !px-2">
             or
           </Typography>
         </Divider>
@@ -254,8 +254,8 @@ function AuthPage() {
               textTransform: 'none',
               fontWeight: 600,
               fontSize: '0.95rem',
-              backgroundColor: '#0f7033',
-              '&:hover': { backgroundColor: '#14532d' },
+              backgroundColor: '#405035',
+              '&:hover': { backgroundColor: '#5B6952' },
             }}
           >
             {loading ? (
@@ -272,7 +272,7 @@ function AuthPage() {
               variant="body2"
               component={RouterLink}
               to="/forgot-password"
-              className="!text-center !text-plunt-600 !mt-1 hover:underline"
+              className="!text-center !text-olive-light !mt-1 hover:underline"
               sx={{ textDecoration: 'none' }}
             >
               Forgot password?
@@ -281,12 +281,12 @@ function AuthPage() {
         </Box>
 
         {/* Toggle mode */}
-        <Typography variant="body2" className="!text-center !mt-5 !text-gray-500">
+        <Typography variant="body2" className="!text-center !mt-5 !text-olive-light">
           {mode === 'login' ? "Don't have an account?" : 'Already have an account?'}{' '}
           <Box
             component="span"
             onClick={toggleMode}
-            className="text-plunt-600 font-semibold cursor-pointer hover:underline"
+            className="text-olive-main font-semibold cursor-pointer hover:underline"
           >
             {mode === 'login' ? 'Sign up' : 'Sign in'}
           </Box>

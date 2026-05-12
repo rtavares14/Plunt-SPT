@@ -59,9 +59,17 @@ function LandingPage() {
     <main className="font-lateef min-h-screen flex flex-col lg:flex-row">
       {/* Left panel */}
       <section className="bg-olive-main flex flex-col p-8 sm:p-12 lg:p-16 min-h-[60vh] lg:min-h-screen lg:w-3/5">
-        <div className="inline-flex items-center gap-2 self-start bg-olive-light rounded-lg px-5 py-2.5 mb-10 lg:mb-0">
-          <YardIcon className="text-cream-main" sx={{ fontSize: 28 }} />
-          <span className="text-cream-main text-3xl leading-none font-medium">myPlunt</span>
+        <div className="flex items-center justify-between gap-3 mb-10 lg:mb-0">
+          <div className="inline-flex items-center gap-2 bg-olive-light rounded-lg px-5 py-2.5">
+            <YardIcon className="text-cream-main" sx={{ fontSize: 28 }} />
+            <span className="text-cream-main text-3xl leading-none font-medium">myPlunt</span>
+          </div>
+          <Link
+            to="/auth"
+            className="text-cream-main text-xl border border-cream-main/60 rounded-md px-4 py-2 hover:bg-cream-main/10 focus:outline-none focus:ring-2 focus:ring-cream-main/40 transition-colors"
+          >
+            Sign in
+          </Link>
         </div>
 
         <div className="flex-1 flex flex-col justify-center max-w-4xl">
