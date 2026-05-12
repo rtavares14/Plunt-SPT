@@ -1,11 +1,8 @@
 import { useState, type FormEvent } from 'react';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
-import Container from '@mui/material/Container';
-import TextField from '@mui/material/TextField';
-import Button from '@mui/material/Button';
-import Alert from '@mui/material/Alert';
+import { Link } from 'react-router-dom';
 import YardIcon from '@mui/icons-material/Yard';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import CheckIcon from '@mui/icons-material/Check';
 
 type Status =
   | { kind: 'idle' }
@@ -17,8 +14,8 @@ const API_BASE = import.meta.env.VITE_API_URL ?? '';
 
 function errorMessage(status: number, serverMessage?: string): string {
   if (status === 400) return serverMessage ?? "That email doesn't look right.";
-  if (status === 429) return "Too many tries give it a minute and try again.";
-  if (status >= 500) return "Our server is having a moment. Please try again later.";
+  if (status === 429) return 'Too many tries. Give it a minute and try again.';
+  if (status >= 500) return 'Our server is having a moment. Please try again later.';
   return serverMessage ?? "Something didn't work. Please try again.";
 }
 
@@ -55,101 +52,124 @@ function LandingPage() {
   }
 
   const isSubmitting = status.kind === 'submitting';
+  const isSuccess = status.kind === 'success';
+  const hasAlert = isSuccess || status.kind === 'error';
 
   return (
-    <Box className="flex-1 bg-cream flex items-center justify-center">
-      <Container maxWidth="sm">
-        <Box className="text-center p-8">
-          <YardIcon
-            sx={{ fontSize: 80 }}
-            className="text-green-second mb-4"
-          />
-          <Typography
-            variant="h2"
-            component="h1"
-            className="!font-bold !mb-4 !text-green-main"
-          >
-            Welcome to myPlunt
-          </Typography>
-          <Typography
-            variant="h5"
-            className="!text-green-light !mb-6 !font-light"
-          >
-            Connecting plant lovers everywhere
-          </Typography>
-          <Box className="w-16 h-1 bg-green-second mx-auto rounded-full mb-6" />
-          <Typography
-            variant="h6"
-            className="!text-gray-600 !mb-6 !font-light"
-          >
-            We're launching soon (I hope....)
-            <br />
-            Join the waitlist to be the first to know.
-          </Typography>
+    <main className="font-lateef min-h-screen flex flex-col lg:flex-row">
+      {/* Left panel */}
+      <section className="bg-olive-main flex flex-col p-8 sm:p-12 lg:p-16 min-h-[60vh] lg:min-h-screen lg:w-3/5 lg:h-screen">
+        <div className="inline-flex items-center gap-2 self-start bg-olive-light rounded-lg px-5 py-2.5 mb-10 lg:mb-0">
+          <YardIcon className="text-cream-main" sx={{ fontSize: 28 }} />
+          <span className="text-cream-main text-3xl leading-none font-medium">myPlunt</span>
+        </div>
 
-          <Box
-            component="form"
-            onSubmit={handleSubmit}
-            className="flex flex-col sm:flex-row gap-3 justify-center items-stretch max-w-md mx-auto"
-          >
-            <TextField
-              type="email"
-              required
-              fullWidth
-              size="small"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => {
-                setEmail(e.target.value);
-                if (status.kind !== 'submitting' && status.kind !== 'idle') {
-                  setStatus({ kind: 'idle' });
-                }
-              }}
-              disabled={isSubmitting}
-              slotProps={{ htmlInput: { 'aria-label': 'Email address' } }}
-              sx={(theme) => {
-                const cream = theme.palette.background.default;
-                return {
-                  '& .MuiOutlinedInput-root': {
-                    backgroundColor: cream,
-                    '&:hover': { backgroundColor: cream },
-                    '&.Mui-focused': { backgroundColor: cream },
-                  },
-                  '& input:-webkit-autofill, & input:-webkit-autofill:hover, & input:-webkit-autofill:focus':
-                  {
-                    WebkitBoxShadow: `0 0 0 1000px ${cream} inset`,
-                    WebkitTextFillColor: 'inherit',
-                  },
-                };
-              }}
-            />
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              disabled={isSubmitting || email.trim().length === 0}
-              className="!whitespace-nowrap"
-              sx={{ textTransform: 'none', minWidth: 130 }}
-            >
-              {isSubmitting ? 'Joining…' : 'Join waitlist'}
-            </Button>
-          </Box>
+        <div className="flex-1 flex flex-col justify-center lg:justify-start lg:pt-[22%] max-w-4xl">
+          <h1 className="text-cream-main text-[3.5rem] sm:text-[4.25rem] lg:text-[5.75rem] leading-[1.05] mb-8 font-medium">
+            Because plants thrive with company.
+          </h1>
+          <p className="text-cream-main text-[1.75rem] sm:text-[2rem] lg:text-[2.25rem] leading-relaxed max-w-2xl">
+            The right place to connect plant lovers everywhere.
+            Just you, your loved plants and a little help from
+            someone to keep them alive and thriving.
+          </p>
+        </div>
+      </section>
 
-          {status.kind === 'success' && (
-            <Alert severity="success" className="!mt-4 !text-left">
-              {status.alreadyRegistered
-                ? "You're already on the list — we'll be in touch soon."
-                : "You're in! We'll email you when Plunt is live."}
-            </Alert>
-          )}
-          {status.kind === 'error' && (
-            <Alert severity="error" className="!mt-4 !text-left">
-              {status.message}
-            </Alert>
-          )}
-        </Box>
-      </Container>
-    </Box>
+      {/* Right panel 40% */}
+      <section className="bg-cream-main flex flex-col justify-center lg:justify-start p-8 sm:p-12 lg:p-16 min-h-[40vh] lg:min-h-screen lg:w-2/5 lg:h-screen">
+        {/* Top half heading, form, hr anchored to bottom on lg so they don't move when the box grows */}
+        <div className="lg:flex-1 lg:flex lg:flex-col lg:justify-end">
+          <div className="w-full lg:max-w-xl mx-auto">
+            <p className="text-olive-main text-4xl sm:text-5xl font-semibold mb-3">Coming soon</p>
+            <h2 className="text-olive-light text-2xl sm:text-3xl font-bold leading-snug mb-7">
+              We're launching soon (I hope....). Join the waitlist to be the first to know.
+            </h2>
+
+            <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3">
+              <input
+                type="email"
+                required
+                placeholder="you@example.com"
+                value={email}
+                aria-label="Email address"
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (status.kind !== 'submitting' && status.kind !== 'idle') {
+                    setStatus({ kind: 'idle' });
+                  }
+                }}
+                disabled={isSubmitting}
+                className="flex-1 px-4 py-3 rounded-md bg-cream-soft border border-olive-main text-olive-light text-xl placeholder:text-olive-opac focus:outline-none focus:ring-2 focus:ring-olive-main/30 disabled:opacity-60"
+              />
+              <button
+                type="submit"
+                disabled={isSubmitting || email.trim().length === 0}
+                className="bg-olive-main text-cream-main px-6 py-3 rounded-md text-xl font-semibold whitespace-nowrap hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-olive-main/40 transition-opacity disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {isSubmitting ? 'Joining…' : 'Join waitlist'}
+              </button>
+            </form>
+
+            <p className="text-olive-light text-base mt-3">
+              We only use your email to tell you when Plunt is live.
+              <Link to="/privacy" className="underline hover:opacity-80">
+                Read our privacy policy
+              </Link>
+              .
+            </p>
+
+            <hr className="my-9 border-t border-olive-main w-[90%] mx-auto lg:w-auto lg:-mx-10" />
+          </div>
+        </div>
+
+        {/* Bottom half estimated launch box anchored to top on lg so it grows down into its own space */}
+        <div className="lg:flex-1 lg:flex lg:flex-col lg:justify-start">
+          <div className="w-full lg:max-w-xl mx-auto">
+            <div className="rounded-xl border border-olive-main p-5 bg-cream-soft">
+              <div className="flex items-center gap-3 mb-3">
+                <span className="bg-olive-opac rounded-md p-2 inline-flex">
+                  <CalendarMonthIcon className="text-olive-main" sx={{ fontSize: 22 }} />
+                </span>
+                <span className="text-olive-main text-2xl font-bold">
+                  Estimated launch Winter 2026
+                </span>
+              </div>
+              <p className="text-olive-light text-2xl leading-relaxed mb-4">
+                We're getting there. Early access goes to the waitlist first, you'll be the
+                first to hear.
+              </p>
+
+              <div
+                className={`grid transition-[grid-template-rows] duration-500 ease-in-out ${hasAlert ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
+                  }`}
+              >
+                <div className="overflow-hidden">
+                  <div className="mt-4" role="alert">
+                    {isSuccess && (
+                      <div className="bg-olive-opac rounded-md px-4 py-3 flex items-center gap-2">
+                        <CheckIcon className="text-olive-main" sx={{ fontSize: 20 }} />
+                        <span className="text-olive-main text-2xl font-medium">
+                          {status.alreadyRegistered
+                            ? "You're already on the list. We'll email you the moment we go live."
+                            : "You're on the list. We'll email you the moment we go live."}
+                        </span>
+                      </div>
+                    )}
+
+                    {status.kind === 'error' && (
+                      <div className="rounded-md border border-red-300 bg-red-50 px-4 py-3 text-red-700 text-2xl">
+                        {status.message}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
   );
 }
 

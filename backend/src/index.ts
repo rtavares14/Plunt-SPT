@@ -5,10 +5,20 @@ import rateLimit from 'express-rate-limit';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Prisma, PrismaClient } from './generated/prisma/client';
 
+import { Resend } from 'resend';
+
 dotenv.config();
+
+const REQUIRED_ENV = ['DATABASE_URL', 'RESEND_API_KEY', 'CORS_ORIGIN', 'EMAIL_FROM'] as const;
+const missing = REQUIRED_ENV.filter((key) => !process.env[key]);
+if (missing.length > 0) {
+  console.error(`Missing required environment variables: ${missing.join(', ')}`);
+  process.exit(1);
+}
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+const resend = new Resend(process.env.RESEND_API_KEY);
 const prisma = new PrismaClient({
   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),
 });
@@ -32,7 +42,7 @@ const waitlistLimiter = rateLimit({
   limit: 5,
   standardHeaders: 'draft-7',
   legacyHeaders: false,
-  message: { error: 'Too many signups — please try again in a minute' },
+  message: { error: 'Too many signups. Please try again in a minute.' },
 });
 
 app.post('/api/waitlist', waitlistLimiter, async (req, res) => {
@@ -45,6 +55,28 @@ app.post('/api/waitlist', waitlistLimiter, async (req, res) => {
 
   try {
     await prisma.waitlistEntry.create({ data: { email } });
+
+    // Fire-and-forget: send confirmation email without blocking the response
+    resend.emails
+      .send({
+        from: process.env.EMAIL_FROM!,
+        to: email,
+        subject: "You're on the list!",
+        text: `Hey,\n\nThanks for joining the waitlist for myPlunt! We're building a private space for you and your plants to thrive together.\n\nWe'll reach out when the beta opens and again on launch day. In the meantime, keep those plants happy!\n\n— Ricardo from Plunt`,
+        html: `
+          <div style="font-family: sans-serif; color: #333; line-height: 1.6;">
+            <p>Hey,</p>
+            <p>Thanks for joining the waitlist for myPlunt! We're building a private space for you and your plants to thrive together.</p>
+            <p>We'll reach out when the beta opens and again on launch day. In the meantime, keep those plants happy!</p>
+            <p>Plunt</p>
+          </div>
+        `,
+        headers: {
+          'X-Entity-Ref-ID': Date.now().toString(),
+        },
+      })
+      .catch((emailErr) => console.error('Failed to send confirmation email', emailErr));
+
     return res.status(201).json({ ok: true });
   } catch (err) {
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {

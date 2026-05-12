@@ -2,7 +2,9 @@
   "name": "backend",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "docker compose -f ../docker-compose.yml up -d && nodemon --exec ts-node src/index.ts",
     "build": "prisma generate && tsc",
@@ -20,7 +22,8 @@
     "dotenv": "^17.4.1",
     "express": "^5.2.1",
     "express-rate-limit": "^8.3.2",
-    "pg": "^8.20.0"
+    "pg": "^8.20.0",
+    "resend": "^6.12.3"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
