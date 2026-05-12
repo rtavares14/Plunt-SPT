@@ -14,8 +14,8 @@ They are either clinical spreadsheets ("Water in 3 days") or social-media-like a
 
 ### The Three Pillars of myPlunt
 
-#### 1. Its realistic
-It’s a digital greenhouse where you can be honest about your plant's progress—whether it's thriving or struggling—without the pressure of social media aesthetics.
+ #### 1. It's realistic
+ It’s a digital greenhouse where you can be honest about your plant's progress—whether it's thriving or struggling—without the pressure of social media aesthetics.
 
 #### 2. Environmental Intelligence
 Plants are deeply affected by their surroundings. myPlunt ties each plant to a real-world city location, allowing the app to factor in local weather patterns. 
@@ -24,7 +24,7 @@ Plants are deeply affected by their surroundings. myPlunt ties each plant to a r
 - **Threshold Monitoring:** Track temperature and humidity against your plant's specific needs.
 
 #### 3. Collaborative Care 
-Plant care is better with friends. myPlunt lets you peek into your friends' gardens, swap advice, remindend each other to water or move plants and keep each other accountable. It’s designed to feel more like a supportive group than a competitive network.
+Plant care is better with friends. myPlunt lets you peek into your friends' gardens, swap advice, remind each other to water or move plants and keep each other accountable. It’s designed to feel more like a supportive group than a competitive network.
 
 ---
 

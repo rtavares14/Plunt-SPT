@@ -6,14 +6,11 @@ import CheckIcon from '@mui/icons-material/Check';
 
 type Status =
   | { kind: 'idle' }
-  | { kind: 'checking' }
-  | { kind: 'taken' }
   | { kind: 'submitting' }
   | { kind: 'success'; alreadyRegistered: boolean }
   | { kind: 'error'; message: string };
 
 const API_BASE = import.meta.env.VITE_API_URL ?? '';
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function errorMessage(status: number, serverMessage?: string): string {
   if (status === 400) return serverMessage ?? "That email doesn't look right.";
@@ -54,27 +51,9 @@ function LandingPage() {
     }
   }
 
-  async function handleEmailBlur() {
-    const trimmed = email.trim();
-    if (!EMAIL_REGEX.test(trimmed) || status.kind === 'submitting' || status.kind === 'success') return;
-    setStatus({ kind: 'checking' });
-    try {
-      const res = await fetch(`${API_BASE}/api/waitlist/check?email=${encodeURIComponent(trimmed)}`);
-      if (res.ok) {
-        const data = await res.json().catch(() => ({}));
-        setStatus(data?.registered ? { kind: 'taken' } : { kind: 'idle' });
-      } else {
-        setStatus({ kind: 'idle' });
-      }
-    } catch {
-      setStatus({ kind: 'idle' });
-    }
-  }
-
   const isSubmitting = status.kind === 'submitting';
   const isSuccess = status.kind === 'success';
-  const isTaken = status.kind === 'taken';
-  const hasAlert = isSuccess || isTaken || status.kind === 'error';
+  const hasAlert = isSuccess || status.kind === 'error';
 
   return (
     <main className="font-lateef min-h-screen flex flex-col lg:flex-row">
@@ -120,16 +99,15 @@ function LandingPage() {
                     setStatus({ kind: 'idle' });
                   }
                 }}
-                onBlur={handleEmailBlur}
                 disabled={isSubmitting}
                 className="flex-1 px-4 py-3 rounded-md bg-cream-soft border border-olive-main text-olive-light text-xl placeholder:text-olive-opac focus:outline-none focus:ring-2 focus:ring-olive-main/30 disabled:opacity-60"
               />
               <button
                 type="submit"
-                disabled={isSubmitting || isTaken || status.kind === 'checking' || email.trim().length === 0}
+                disabled={isSubmitting || email.trim().length === 0}
                 className="bg-olive-main text-cream-main px-6 py-3 rounded-md text-xl font-semibold whitespace-nowrap hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-olive-main/40 transition-opacity disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                {isSubmitting ? 'Joining…' : status.kind === 'checking' ? 'Checking…' : 'Join waitlist'}
+                {isSubmitting ? 'Joining…' : 'Join waitlist'}
               </button>
             </form>
 
@@ -178,14 +156,7 @@ function LandingPage() {
                         </span>
                       </div>
                     )}
-                    {isTaken && (
-                      <div className="bg-olive-opac rounded-md px-4 py-3 flex items-center gap-2">
-                        <CheckIcon className="text-olive-main" sx={{ fontSize: 20 }} />
-                        <span className="text-olive-main text-2xl font-medium">
-                          This email is already on the waitlist, you're all set!
-                        </span>
-                      </div>
-                    )}
+
                     {status.kind === 'error' && (
                       <div className="rounded-md border border-red-300 bg-red-50 px-4 py-3 text-red-700 text-2xl">
                         {status.message}

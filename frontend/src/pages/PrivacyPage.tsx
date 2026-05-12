@@ -33,7 +33,7 @@ function PrivacyPage() {
             <div>
               <h2 className="text-3xl font-bold mb-3">Why we collect it</h2>
               <p>
-                We use your email to send you <strong>four messages</strong>{' '}
+                We use your email to send you <strong>up to four messages</strong>{' '}
                 about Plunt's status:
               </p>
               <ul className="list-disc list-inside mt-3 space-y-1">

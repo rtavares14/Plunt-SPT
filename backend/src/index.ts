@@ -9,6 +9,13 @@ import { Resend } from 'resend';
 
 dotenv.config();
 
+const REQUIRED_ENV = ['DATABASE_URL', 'RESEND_API_KEY', 'CORS_ORIGIN', 'EMAIL_FROM'] as const;
+const missing = REQUIRED_ENV.filter((key) => !process.env[key]);
+if (missing.length > 0) {
+  console.error(`Missing required environment variables: ${missing.join(', ')}`);
+  process.exit(1);
+}
+
 const app = express();
 const PORT = process.env.PORT || 3001;
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -38,13 +45,6 @@ const waitlistLimiter = rateLimit({
   message: { error: 'Too many signups. Please try again in a minute.' },
 });
 
-const waitlistCheckLimiter = rateLimit({
-  windowMs: 60_000,
-  limit: 10,
-  standardHeaders: 'draft-7',
-  legacyHeaders: false,
-});
-
 app.post('/api/waitlist', waitlistLimiter, async (req, res) => {
   const rawEmail = typeof req.body?.email === 'string' ? req.body.email : '';
   const email = rawEmail.trim().toLowerCase();
@@ -56,10 +56,10 @@ app.post('/api/waitlist', waitlistLimiter, async (req, res) => {
   try {
     await prisma.waitlistEntry.create({ data: { email } });
 
-    // Send confirmation email via Resend
-    try {
-      await resend.emails.send({
-        from: process.env.EMAIL_FROM || 'Ricardo from Plunt <noreply@myplunt.com>',
+    // Fire-and-forget: send confirmation email without blocking the response
+    resend.emails
+      .send({
+        from: process.env.EMAIL_FROM!,
         to: email,
         subject: "You're on the list!",
         text: `Hey,\n\nThanks for joining the waitlist for myPlunt! We're building a private space for you and your plants to thrive together.\n\nWe'll reach out when the beta opens and again on launch day. In the meantime, keep those plants happy!\n\n— Ricardo from Plunt`,
@@ -74,11 +74,8 @@ app.post('/api/waitlist', waitlistLimiter, async (req, res) => {
         headers: {
           'X-Entity-Ref-ID': Date.now().toString(),
         },
-      });
-    } catch (emailErr) {
-      // Log the error but don't fail the request if the email fails to send
-      console.error('Failed to send confirmation email', emailErr);
-    }
+      })
+      .catch((emailErr) => console.error('Failed to send confirmation email', emailErr));
 
     return res.status(201).json({ ok: true });
   } catch (err) {
@@ -87,23 +84,6 @@ app.post('/api/waitlist', waitlistLimiter, async (req, res) => {
     }
     console.error('waitlist signup failed', err);
     return res.status(500).json({ error: 'Could not save signup' });
-  }
-});
-
-app.get('/api/waitlist/check', waitlistCheckLimiter, async (req, res) => {
-  const rawEmail = typeof req.query?.email === 'string' ? req.query.email : '';
-  const email = rawEmail.trim().toLowerCase();
-
-  if (!EMAIL_REGEX.test(email)) {
-    return res.status(400).json({ error: 'Invalid email address' });
-  }
-
-  try {
-    const entry = await prisma.waitlistEntry.findUnique({ where: { email } });
-    return res.json({ registered: Boolean(entry) });
-  } catch (err) {
-    console.error('waitlist check failed', err);
-    return res.status(500).json({ error: 'Could not check email' });
   }
 });
 
