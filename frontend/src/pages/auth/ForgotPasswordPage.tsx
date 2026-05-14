@@ -1,17 +1,15 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import Box from '@mui/material/Box';
-import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Alert from '@mui/material/Alert';
 import CircularProgress from '@mui/material/CircularProgress';
-import EmailIcon from '@mui/icons-material/Email';
+import { Link as RouterLink } from 'react-router-dom';
 import { apiUrl } from '../../lib/api';
+import AuthHero from '../../components/AuthHero';
 
 function ForgotPasswordPage() {
-  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
   const [error, setError] = useState('');
@@ -41,71 +39,109 @@ function ForgotPasswordPage() {
   };
 
   return (
-    <Box className="min-h-screen bg-gradient-to-br from-plunt-50 via-white to-plunt-100 flex items-center justify-center px-4">
-      <Paper
-        elevation={0}
-        className="w-full max-w-[420px] p-8 rounded-2xl border border-plunt-200"
-      >
-        <Box className="text-center mb-6">
-          <EmailIcon sx={{ fontSize: 44 }} className="text-plunt-600" />
-          <Typography variant="h5" className="!font-bold !text-plunt-900 !mt-2">
-            Reset your password
-          </Typography>
-        </Box>
+    <main className="font-lateef min-h-screen flex bg-cream-main">
+      <AuthHero />
 
-        {sent ? (
-          <>
-            <Alert severity="success">
-              If an account exists for that email, we've sent a reset link. Check your inbox.
-            </Alert>
-            <Button
-              fullWidth
-              variant="outlined"
-              onClick={() => navigate('/login')}
-              sx={{ mt: 3, textTransform: 'none' }}
+      <section className="flex-1 flex items-center justify-center px-6 py-10 sm:px-10">
+        <Box className="w-full max-w-[440px] rounded-2xl border border-olive-main/25 bg-cream-soft px-8 py-10 shadow-sm">
+          <Box className="text-center mb-6">
+            <Typography
+              variant="h3"
+              className="!font-bold !text-olive-main"
+              sx={{ fontSize: '2.25rem' }}
             >
-              Back to sign in
-            </Button>
-          </>
-        ) : (
-          <>
-            {error && (
-              <Alert severity="error" className="!mb-4" onClose={() => setError('')}>
-                {error}
+              Forgot your password?
+            </Typography>
+            <Typography variant="body1" className="!text-olive-light !mt-1">
+              We'll email you a link to set a new one
+            </Typography>
+          </Box>
+
+          {sent ? (
+            <>
+              <Alert severity="success">
+                If an account exists for that email, we've sent a reset link. Check your inbox.
               </Alert>
-            )}
-            <Box component="form" onSubmit={handleSubmit} className="flex flex-col gap-3">
-              <TextField
-                label="Email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                fullWidth
-                size="small"
-                autoComplete="email"
-              />
               <Button
-                type="submit"
+                component={RouterLink}
+                to="/login"
                 variant="contained"
-                disabled={loading}
                 fullWidth
                 sx={{
-                  mt: 1,
-                  py: 1.2,
+                  mt: 3,
+                  py: 1.4,
                   textTransform: 'none',
                   fontWeight: 600,
-                  backgroundColor: '#16a34a',
-                  '&:hover': { backgroundColor: '#15803d' },
+                  fontSize: '1.1rem',
+                  borderRadius: 1,
+                  backgroundColor: '#5B6952',
+                  boxShadow: 'none',
+                  '&:hover': { backgroundColor: '#405035', boxShadow: 'none' },
                 }}
               >
-                {loading ? <CircularProgress size={22} color="inherit" /> : 'Send reset link'}
+                Back to sign in
               </Button>
-            </Box>
-          </>
-        )}
-      </Paper>
-    </Box>
+            </>
+          ) : (
+            <>
+              {error && (
+                <Alert severity="error" className="!mb-4" onClose={() => setError('')}>
+                  {error}
+                </Alert>
+              )}
+
+              <Box component="form" onSubmit={handleSubmit} className="flex flex-col gap-4">
+                <TextField
+                  label="Email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  fullWidth
+                  autoComplete="email"
+                  slotProps={{ inputLabel: { shrink: true } }}
+                />
+
+                <Button
+                  type="submit"
+                  variant="contained"
+                  fullWidth
+                  disabled={loading}
+                  sx={{
+                    mt: 1,
+                    py: 1.4,
+                    textTransform: 'none',
+                    fontWeight: 600,
+                    fontSize: '1.1rem',
+                    borderRadius: 1,
+                    backgroundColor: '#5B6952',
+                    boxShadow: 'none',
+                    '&:hover': { backgroundColor: '#405035', boxShadow: 'none' },
+                  }}
+                >
+                  {loading ? <CircularProgress size={22} color="inherit" /> : 'Send reset link'}
+                </Button>
+              </Box>
+
+              <Typography
+                variant="body2"
+                className="!text-center !mt-5 !text-olive-main !font-semibold"
+              >
+                Remembered it?{' '}
+                <Box
+                  component={RouterLink}
+                  to="/login"
+                  className="text-olive-main font-bold hover:underline"
+                  sx={{ textDecoration: 'none' }}
+                >
+                  Sign in
+                </Box>
+              </Typography>
+            </>
+          )}
+        </Box>
+      </section>
+    </main>
   );
 }
 
