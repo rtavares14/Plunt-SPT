@@ -22,9 +22,14 @@ export function createApp() {
   // would let clients forge X-Forwarded-For and bypass the rate limiter.
   app.set('trust proxy', 1);
 
+  // FRONTEND_URL may be a single origin or a comma-separated list — useful when
+  // the frontend lives on multiple origins (e.g. app.plunt.com + www.plunt.com)
+  // or when accessing the dev server from a phone on the LAN.
   let allowedOrigins: string[];
   if (process.env.FRONTEND_URL) {
-    allowedOrigins = [process.env.FRONTEND_URL];
+    allowedOrigins = process.env.FRONTEND_URL.split(',')
+      .map((o) => o.trim())
+      .filter(Boolean);
   } else if (IS_PROD) {
     throw new Error('FRONTEND_URL must be set in production');
   } else {
