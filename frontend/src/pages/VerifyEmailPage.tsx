@@ -8,6 +8,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutlined';
 import { useAuth } from '../context/useAuth';
+import { apiUrl } from '../lib/api';
 
 type Status = 'pending' | 'success' | 'error';
 
@@ -30,7 +31,7 @@ function VerifyEmailPage() {
 
     (async () => {
       try {
-        const res = await fetch('/api/auth/verify-email', {
+        const res = await fetch(apiUrl('/api/auth/verify-email'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ token: token! }),

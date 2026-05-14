@@ -3,14 +3,13 @@ import { Link } from 'react-router-dom';
 import YardIcon from '@mui/icons-material/Yard';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import CheckIcon from '@mui/icons-material/Check';
+import { apiUrl } from '../lib/api';
 
 type Status =
   | { kind: 'idle' }
   | { kind: 'submitting' }
   | { kind: 'success'; alreadyRegistered: boolean }
   | { kind: 'error'; message: string };
-
-const API_BASE = import.meta.env.VITE_API_URL ?? '';
 
 function errorMessage(status: number, serverMessage?: string): string {
   if (status === 400) return serverMessage ?? "That email doesn't look right.";
@@ -28,7 +27,7 @@ function LandingPage() {
     setStatus({ kind: 'submitting' });
 
     try {
-      const response = await fetch(`${API_BASE}/api/waitlist`, {
+      const response = await fetch(apiUrl('/api/waitlist'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),

@@ -17,6 +17,7 @@ import AppleIcon from '@mui/icons-material/Apple';
 import { GoogleLogin, type CredentialResponse } from '@react-oauth/google';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import { useAuth } from '../context/useAuth';
+import { apiUrl } from '../lib/api';
 
 const APPLE_SIGNIN_ENABLED = import.meta.env.VITE_APPLE_SIGNIN_ENABLED === 'true';
 
@@ -58,7 +59,7 @@ function AuthPage() {
       : { email, name, username, password };
 
     try {
-      const res = await fetch(endpoint, {
+      const res = await fetch(apiUrl(endpoint), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -89,7 +90,7 @@ function AuthPage() {
     setError('');
     setLoading(true);
     try {
-      const res = await fetch('/api/auth/google', {
+      const res = await fetch(apiUrl('/api/auth/google'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',

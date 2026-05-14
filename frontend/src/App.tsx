@@ -6,6 +6,7 @@ import LandingPage from './pages/LandingPage';
 import PrivacyPage from './pages/PrivacyPage';
 import AuthPage from './pages/AuthPage';
 import FeedPage from './pages/FeedPage';
+import VerifyEmailPage from './pages/VerifyEmailPage';
 import { AuthProvider } from './context/AuthContext';
 
 // Mirror of olive-main / olive-light / cream-main in tailwind.config.js
@@ -33,6 +34,7 @@ function App() {
             <Route path="/privacy" element={<PrivacyPage />} />
             <Route path="/auth" element={<AuthPage />} />
             <Route path="/feed" element={<FeedPage />} />
+            <Route path="/verify-email" element={<VerifyEmailPage />} />
           </Routes>
         </AuthProvider>
       </ThemeProvider>
