@@ -1,12 +1,15 @@
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { GoogleOAuthProvider } from '@react-oauth/google';
-import LandingPage from './pages/LandingPage';
-import PrivacyPage from './pages/PrivacyPage';
-import AuthPage from './pages/AuthPage';
-import FeedPage from './pages/FeedPage';
-import VerifyEmailPage from './pages/VerifyEmailPage';
+import LandingPage from './pages/marketing/LandingPage';
+import PrivacyPage from './pages/marketing/PrivacyPage';
+import LoginPage from './pages/auth/LoginPage';
+import SignupPage from './pages/auth/SignupPage';
+import ForgotPasswordPage from './pages/auth/ForgotPasswordPage';
+import ResetPasswordPage from './pages/auth/ResetPasswordPage';
+import VerifyEmailPage from './pages/auth/VerifyEmailPage';
+import FeedPage from './pages/app/FeedPage';
 import { AuthProvider } from './context/AuthContext';
 
 // Mirror of olive-main / olive-light / cream-main in tailwind.config.js
@@ -32,7 +35,11 @@ function App() {
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/privacy" element={<PrivacyPage />} />
-            <Route path="/auth" element={<AuthPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<SignupPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
+            <Route path="/auth" element={<Navigate to="/login" replace />} />
             <Route path="/feed" element={<FeedPage />} />
             <Route path="/verify-email" element={<VerifyEmailPage />} />
           </Routes>
