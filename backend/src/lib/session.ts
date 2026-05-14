@@ -39,18 +39,29 @@ async function createSession(
   return { token, sessionId: row.id };
 }
 
+// In prod the frontend (app.plunt.com) and backend (api.plunt.com) live on
+// separate origins, so the refresh cookie travels on cross-site fetches and
+// must be SameSite=None. SameSite=None requires Secure=true, which is fine
+// because prod is always HTTPS. In dev we stay on lax + insecure for localhost.
+const COOKIE_SAMESITE: 'lax' | 'none' = IS_PROD ? 'none' : 'lax';
+
 function setRefreshCookie(res: Response, token: string) {
   res.cookie(REFRESH_COOKIE_NAME, token, {
     httpOnly: true,
     secure: IS_PROD,
-    sameSite: 'lax',
+    sameSite: COOKIE_SAMESITE,
     path: '/api/auth',
     maxAge: REFRESH_TOKEN_TTL_MS,
   });
 }
 
 export function clearRefreshCookie(res: Response) {
-  res.clearCookie(REFRESH_COOKIE_NAME, { path: '/api/auth' });
+  res.clearCookie(REFRESH_COOKIE_NAME, {
+    path: '/api/auth',
+    httpOnly: true,
+    secure: IS_PROD,
+    sameSite: COOKIE_SAMESITE,
+  });
 }
 
 export async function issueTokens(

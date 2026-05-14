@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, type ReactNode } from 'react';
 import { AuthContext, type AuthUser } from './authContextValue';
+import { apiUrl } from '../lib/api';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
@@ -9,7 +10,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   tokenRef.current = token;
 
   const refreshUser = async (): Promise<string | null> => {
-    const res = await fetch('/api/auth/refresh', {
+    const res = await fetch(apiUrl('/api/auth/refresh'), {
       method: 'POST',
       credentials: 'include',
     });
@@ -51,7 +52,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     try {
-      await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+      await fetch(apiUrl('/api/auth/logout'), { method: 'POST', credentials: 'include' });
     } catch {
       // ignore — clear local state regardless
     }
@@ -73,12 +74,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       },
     });
 
-    const first = await fetch(input, withAuth(tokenRef.current));
+    const url = apiUrl(input);
+    const first = await fetch(url, withAuth(tokenRef.current));
     if (first.status !== 401) return first;
 
     const refreshed = await refreshUser();
     if (!refreshed) return first;
-    return fetch(input, withAuth(refreshed));
+    return fetch(url, withAuth(refreshed));
   };
 
   return (
