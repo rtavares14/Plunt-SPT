@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import YardIcon from '@mui/icons-material/Yard';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
@@ -22,7 +22,7 @@ function LandingPage() {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<Status>({ kind: 'idle' });
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
     setStatus({ kind: 'submitting' });
 

@@ -36,7 +36,7 @@ function LoginPage() {
 
   if (user) return null;
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
     setLoading(true);
@@ -186,7 +186,7 @@ function LoginPage() {
               required
               fullWidth
               autoComplete="email"
-              slotProps={{ inputLabel: { shrink: true } }}
+              slotProps={{ inputLabel: { shrink: true, sx: { fontSize: '1.15rem' } } }}
             />
 
             <TextField
@@ -198,7 +198,7 @@ function LoginPage() {
               fullWidth
               autoComplete="current-password"
               slotProps={{
-                inputLabel: { shrink: true },
+                inputLabel: { shrink: true, sx: { fontSize: '1.15rem' } },
                 input: {
                   endAdornment: (
                     <InputAdornment position="end">

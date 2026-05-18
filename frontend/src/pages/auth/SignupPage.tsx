@@ -38,7 +38,7 @@ function SignupPage() {
 
   if (user) return null;
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
     setLoading(true);
@@ -188,7 +188,7 @@ function SignupPage() {
               required
               fullWidth
               autoComplete="name"
-              slotProps={{ inputLabel: { shrink: true } }}
+              slotProps={{ inputLabel: { shrink: true, sx: { fontSize: '1.15rem' } } }}
             />
 
             <TextField
@@ -198,7 +198,7 @@ function SignupPage() {
               required
               fullWidth
               autoComplete="username"
-              slotProps={{ inputLabel: { shrink: true } }}
+              slotProps={{ inputLabel: { shrink: true, sx: { fontSize: '1.15rem' } } }}
             />
 
             <TextField
@@ -209,7 +209,7 @@ function SignupPage() {
               required
               fullWidth
               autoComplete="email"
-              slotProps={{ inputLabel: { shrink: true } }}
+              slotProps={{ inputLabel: { shrink: true, sx: { fontSize: '1.15rem' } } }}
             />
 
             <TextField
@@ -221,7 +221,7 @@ function SignupPage() {
               fullWidth
               autoComplete="new-password"
               slotProps={{
-                inputLabel: { shrink: true },
+                inputLabel: { shrink: true, sx: { fontSize: '1.15rem' } },
                 input: {
                   endAdornment: (
                     <InputAdornment position="end">

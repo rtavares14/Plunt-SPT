@@ -15,7 +15,7 @@ function ForgotPasswordPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
     setLoading(true);
@@ -99,7 +99,7 @@ function ForgotPasswordPage() {
                   required
                   fullWidth
                   autoComplete="email"
-                  slotProps={{ inputLabel: { shrink: true } }}
+                  slotProps={{ inputLabel: { shrink: true, sx: { fontSize: '1.15rem' } } }}
                 />
 
                 <Button
