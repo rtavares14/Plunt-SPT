@@ -7,8 +7,8 @@ import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutlined';
-import { useAuth } from '../context/useAuth';
-import { apiUrl } from '../lib/api';
+import { useAuth } from '../../context/useAuth';
+import { apiUrl } from '../../lib/api';
 
 type Status = 'pending' | 'success' | 'error';
 
@@ -80,7 +80,7 @@ function VerifyEmailPage() {
             </Typography>
             <Button
               variant="contained"
-              onClick={() => navigate(user ? '/' : '/auth')}
+              onClick={() => navigate(user ? '/' : '/login')}
               sx={{ mt: 3, textTransform: 'none', backgroundColor: '#16a34a' }}
             >
               {user ? 'Go to your plants' : 'Sign in'}
@@ -98,7 +98,7 @@ function VerifyEmailPage() {
             </Typography>
             <Button
               variant="outlined"
-              onClick={() => navigate('/auth')}
+              onClick={() => navigate('/login')}
               sx={{ mt: 3, textTransform: 'none' }}
             >
               Back to sign in

@@ -12,7 +12,7 @@ import InputAdornment from '@mui/material/InputAdornment';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import LockResetIcon from '@mui/icons-material/LockReset';
-import { apiUrl } from '../lib/api';
+import { apiUrl } from '../../lib/api';
 
 function ResetPasswordPage() {
   const [params] = useSearchParams();
@@ -35,7 +35,7 @@ function ResetPasswordPage() {
     );
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
     setLoading(true);
@@ -79,7 +79,7 @@ function ResetPasswordPage() {
             <Button
               fullWidth
               variant="contained"
-              onClick={() => navigate('/auth')}
+              onClick={() => navigate('/login')}
               sx={{ mt: 3, textTransform: 'none', backgroundColor: '#16a34a' }}
             >
               Sign in

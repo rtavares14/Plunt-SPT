@@ -1,9 +1,9 @@
-import { useState, type FormEvent } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import YardIcon from '@mui/icons-material/Yard';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import CheckIcon from '@mui/icons-material/Check';
-import { apiUrl } from '../lib/api';
+import { apiUrl } from '../../lib/api';
 
 type Status =
   | { kind: 'idle' }
@@ -22,7 +22,7 @@ function LandingPage() {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<Status>({ kind: 'idle' });
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
     setStatus({ kind: 'submitting' });
 
@@ -64,7 +64,7 @@ function LandingPage() {
             <span className="text-cream-main text-3xl leading-none font-medium">myPlunt</span>
           </div>
           <Link
-            to="/auth"
+            to="/login"
             className="text-cream-main text-xl border border-cream-main/60 rounded-md px-4 py-2 hover:bg-cream-main/10 focus:outline-none focus:ring-2 focus:ring-cream-main/40 transition-colors"
           >
             Sign in

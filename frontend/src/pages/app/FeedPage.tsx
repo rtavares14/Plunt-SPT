@@ -5,14 +5,14 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Typography from '@mui/material/Typography';
 import YardIcon from '@mui/icons-material/Yard';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/useAuth';
+import { useAuth } from '../../context/useAuth';
 
 function FeedPage() {
   const navigate = useNavigate();
   const { user, loading, logout } = useAuth();
 
   useEffect(() => {
-    if (!loading && !user) navigate('/auth', { replace: true });
+    if (!loading && !user) navigate('/login', { replace: true });
   }, [loading, user, navigate]);
 
   if (loading || !user) {
