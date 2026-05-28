@@ -100,12 +100,11 @@ function SignupPage() {
       <AuthHero />
 
       <section className="flex-1 flex items-center justify-center px-6 py-10 sm:px-10">
-        <Box className="w-full max-w-[440px] rounded-2xl border border-olive-main/25 bg-cream-soft px-8 py-10 shadow-sm">
+        <Box className="w-full max-w-[440px] rounded-2xl border border-olive-main/25 bg-cream-soft px-6 py-10 sm:px-8 shadow-sm">
           <Box className="text-center mb-6">
             <Typography
               variant="h3"
-              className="!font-bold !text-olive-main"
-              sx={{ fontSize: '2.25rem' }}
+              className="!text-4xl !font-bold !text-olive-main"
             >
               Join Plunt
             </Typography>
@@ -128,33 +127,14 @@ function SignupPage() {
                   fullWidth
                   disabled={!APPLE_SIGNIN_ENABLED}
                   startIcon={<AppleIcon />}
-                  sx={{
-                    borderColor: 'rgba(64, 80, 53, 0.35)',
-                    color: 'rgba(64, 80, 53, 0.55)',
-                    backgroundColor: '#FAF7EF',
-                    textTransform: 'none',
-                    fontWeight: 500,
-                    fontSize: '1rem',
-                    py: 1.25,
-                    '&:hover': {
-                      borderColor: '#405035',
-                      backgroundColor: '#ECE7DC',
-                    },
-                    '&.Mui-disabled': {
-                      borderColor: 'rgba(64, 80, 53, 0.25)',
-                      color: 'rgba(64, 80, 53, 0.45)',
-                    },
-                  }}
+                  className="!py-2.5 !text-base !normal-case !font-medium !border-olive-main/35 !text-olive-main/55 !bg-cream-soft disabled:!border-olive-main/25 disabled:!text-olive-main/45"
                 >
                   Continue with Apple
                 </Button>
               </span>
             </Tooltip>
 
-            <Box
-              className="flex justify-center"
-              sx={{ '& > div': { width: '100%' }, '& iframe': { margin: '0 auto !important' } }}
-            >
+            <div className="google-login-wrapper flex justify-center w-full overflow-hidden">
               <GoogleLogin
                 onSuccess={handleGoogleSuccess}
                 onError={() => setError('Google sign-in failed')}
@@ -162,9 +142,8 @@ function SignupPage() {
                 size="large"
                 text="continue_with"
                 shape="rectangular"
-                width="376"
               />
-            </Box>
+            </div>
           </Box>
 
           <Divider className="!my-4">
@@ -188,7 +167,7 @@ function SignupPage() {
               required
               fullWidth
               autoComplete="name"
-              slotProps={{ inputLabel: { shrink: true, sx: { fontSize: '1.15rem' } } }}
+              slotProps={{ inputLabel: { shrink: true, className: 'text-lg' } }}
             />
 
             <TextField
@@ -198,7 +177,7 @@ function SignupPage() {
               required
               fullWidth
               autoComplete="username"
-              slotProps={{ inputLabel: { shrink: true, sx: { fontSize: '1.15rem' } } }}
+              slotProps={{ inputLabel: { shrink: true, className: 'text-lg' } }}
             />
 
             <TextField
@@ -209,7 +188,7 @@ function SignupPage() {
               required
               fullWidth
               autoComplete="email"
-              slotProps={{ inputLabel: { shrink: true, sx: { fontSize: '1.15rem' } } }}
+              slotProps={{ inputLabel: { shrink: true, className: 'text-lg' } }}
             />
 
             <TextField
@@ -221,7 +200,7 @@ function SignupPage() {
               fullWidth
               autoComplete="new-password"
               slotProps={{
-                inputLabel: { shrink: true, sx: { fontSize: '1.15rem' } },
+                inputLabel: { shrink: true, className: 'text-lg' },
                 input: {
                   endAdornment: (
                     <InputAdornment position="end">
@@ -247,17 +226,7 @@ function SignupPage() {
               variant="contained"
               fullWidth
               disabled={loading}
-              sx={{
-                mt: 1,
-                py: 1.4,
-                textTransform: 'none',
-                fontWeight: 600,
-                fontSize: '1.1rem',
-                borderRadius: 1,
-                backgroundColor: '#5B6952',
-                boxShadow: 'none',
-                '&:hover': { backgroundColor: '#405035', boxShadow: 'none' },
-              }}
+              className="!mt-2 !py-3 !text-lg !rounded !normal-case !font-semibold !bg-olive-light !shadow-none"
             >
               {loading ? <CircularProgress size={22} color="inherit" /> : 'Create account'}
             </Button>
@@ -268,8 +237,7 @@ function SignupPage() {
             <Box
               component={RouterLink}
               to="/login"
-              className="text-olive-main font-bold hover:underline"
-              sx={{ textDecoration: 'none' }}
+              className="text-olive-main font-bold no-underline hover:underline"
             >
               Sign in
             </Box>

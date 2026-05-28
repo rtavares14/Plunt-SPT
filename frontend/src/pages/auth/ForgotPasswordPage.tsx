@@ -43,12 +43,11 @@ function ForgotPasswordPage() {
       <AuthHero />
 
       <section className="flex-1 flex items-center justify-center px-6 py-10 sm:px-10">
-        <Box className="w-full max-w-[440px] rounded-2xl border border-olive-main/25 bg-cream-soft px-8 py-10 shadow-sm">
+        <Box className="w-full max-w-[440px] rounded-2xl border border-olive-main/25 bg-cream-soft px-6 py-10 sm:px-8 shadow-sm">
           <Box className="text-center mb-6">
             <Typography
               variant="h3"
-              className="!font-bold !text-olive-main"
-              sx={{ fontSize: '2.25rem' }}
+              className="!text-4xl !font-bold !text-olive-main"
             >
               Forgot your password?
             </Typography>
@@ -67,17 +66,7 @@ function ForgotPasswordPage() {
                 to="/login"
                 variant="contained"
                 fullWidth
-                sx={{
-                  mt: 3,
-                  py: 1.4,
-                  textTransform: 'none',
-                  fontWeight: 600,
-                  fontSize: '1.1rem',
-                  borderRadius: 1,
-                  backgroundColor: '#5B6952',
-                  boxShadow: 'none',
-                  '&:hover': { backgroundColor: '#405035', boxShadow: 'none' },
-                }}
+                className="!mt-6 !py-3 !text-lg !rounded !normal-case !font-semibold !bg-olive-light !shadow-none"
               >
                 Back to sign in
               </Button>
@@ -99,7 +88,7 @@ function ForgotPasswordPage() {
                   required
                   fullWidth
                   autoComplete="email"
-                  slotProps={{ inputLabel: { shrink: true, sx: { fontSize: '1.15rem' } } }}
+                  slotProps={{ inputLabel: { shrink: true, className: 'text-lg' } }}
                 />
 
                 <Button
@@ -107,17 +96,7 @@ function ForgotPasswordPage() {
                   variant="contained"
                   fullWidth
                   disabled={loading}
-                  sx={{
-                    mt: 1,
-                    py: 1.4,
-                    textTransform: 'none',
-                    fontWeight: 600,
-                    fontSize: '1.1rem',
-                    borderRadius: 1,
-                    backgroundColor: '#5B6952',
-                    boxShadow: 'none',
-                    '&:hover': { backgroundColor: '#405035', boxShadow: 'none' },
-                  }}
+                  className="!mt-2 !py-3 !text-lg !rounded !normal-case !font-semibold !bg-olive-light !shadow-none"
                 >
                   {loading ? <CircularProgress size={22} color="inherit" /> : 'Send reset link'}
                 </Button>
@@ -131,8 +110,7 @@ function ForgotPasswordPage() {
                 <Box
                   component={RouterLink}
                   to="/login"
-                  className="text-olive-main font-bold hover:underline"
-                  sx={{ textDecoration: 'none' }}
+                  className="text-olive-main font-bold no-underline hover:underline"
                 >
                   Sign in
                 </Box>

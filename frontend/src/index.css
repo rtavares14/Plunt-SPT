@@ -6,27 +6,40 @@
 
   html,
   body {
-    @apply bg-olive-main;
+    @apply bg-cream-main;
   }
 
   body {
     margin: 0;
     min-height: 100vh;
+    min-width: 100%;
     font-family: 'Lateef', Georgia, serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
   }
-
 
   #root {
     min-height: 100vh;
+    min-width: 100%;
   }
 
   input:-webkit-autofill,
   input:-webkit-autofill:hover,
   input:-webkit-autofill:focus {
-    -webkit-box-shadow: 0 0 0px 1000px #FAF7EF inset;
-    -webkit-text-fill-color: #5B6952;
+    -webkit-box-shadow: 0 0 0 1000px theme('colors.cream-soft') inset;
+    -webkit-text-fill-color: theme('colors.olive-light');
     transition: background-color 5000s ease-in-out 0s;
   }
 }
+
+/* Third-party Google Sign-In widget renders a fixed-width iframe.
+   Force the wrapper to fill its column and clip on tiny viewports. */
+.google-login-wrapper > div {
+  width: 100%;
+}
+.google-login-wrapper iframe {
+  margin: 0 auto !important;
+  max-width: 100%;
+}
+

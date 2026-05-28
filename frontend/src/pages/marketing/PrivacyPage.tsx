@@ -10,7 +10,7 @@ function PrivacyPage() {
             to="/"
             className="inline-flex items-center gap-2 text-olive-main hover:opacity-80 mb-8"
           >
-            <ArrowBackIcon sx={{ fontSize: 22 }} />
+            <ArrowBackIcon className="!text-[22px]" />
             <span className="text-xl font-medium">Back to home</span>
           </Link>
 

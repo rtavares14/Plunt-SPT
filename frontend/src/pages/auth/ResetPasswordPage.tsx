@@ -27,8 +27,8 @@ function ResetPasswordPage() {
 
   if (!token) {
     return (
-      <Box className="min-h-screen bg-gradient-to-br from-plunt-50 via-white to-plunt-100 flex items-center justify-center px-4">
-        <Paper elevation={0} className="w-full max-w-[420px] p-8 rounded-2xl border border-plunt-200">
+      <Box className="min-h-screen bg-cream-main flex items-center justify-center px-4">
+        <Paper elevation={0} className="w-full max-w-[420px] p-8 rounded-2xl border border-olive-main/25 bg-cream-soft">
           <Alert severity="error">Missing reset token.</Alert>
         </Paper>
       </Box>
@@ -59,14 +59,14 @@ function ResetPasswordPage() {
   };
 
   return (
-    <Box className="min-h-screen bg-gradient-to-br from-plunt-50 via-white to-plunt-100 flex items-center justify-center px-4">
+    <Box className="font-lateef min-h-screen bg-cream-main flex items-center justify-center px-4">
       <Paper
         elevation={0}
-        className="w-full max-w-[420px] p-8 rounded-2xl border border-plunt-200"
+        className="w-full max-w-[420px] p-8 rounded-2xl border border-olive-main/25 bg-cream-soft"
       >
         <Box className="text-center mb-6">
-          <LockResetIcon sx={{ fontSize: 44 }} className="text-plunt-600" />
-          <Typography variant="h5" className="!font-bold !text-plunt-900 !mt-2">
+          <LockResetIcon className="!text-olive-main !text-5xl" />
+          <Typography variant="h5" className="!font-bold !text-olive-main !mt-2">
             Choose a new password
           </Typography>
         </Box>
@@ -80,7 +80,7 @@ function ResetPasswordPage() {
               fullWidth
               variant="contained"
               onClick={() => navigate('/login')}
-              sx={{ mt: 3, textTransform: 'none', backgroundColor: '#16a34a' }}
+              className="!mt-6 !py-3 !text-lg !rounded !normal-case !font-semibold !bg-olive-light !shadow-none"
             >
               Sign in
             </Button>
@@ -123,14 +123,7 @@ function ResetPasswordPage() {
                 variant="contained"
                 disabled={loading}
                 fullWidth
-                sx={{
-                  mt: 1,
-                  py: 1.2,
-                  textTransform: 'none',
-                  fontWeight: 600,
-                  backgroundColor: '#16a34a',
-                  '&:hover': { backgroundColor: '#15803d' },
-                }}
+                className="!mt-2 !py-3 !text-lg !rounded !normal-case !font-semibold !bg-olive-light !shadow-none"
               >
                 {loading ? <CircularProgress size={22} color="inherit" /> : 'Reset password'}
               </Button>

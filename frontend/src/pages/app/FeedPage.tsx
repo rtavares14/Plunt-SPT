@@ -18,7 +18,7 @@ function FeedPage() {
   if (loading || !user) {
     return (
       <Box className="min-h-screen bg-cream-main flex items-center justify-center">
-        <CircularProgress sx={{ color: '#405035' }} />
+        <CircularProgress />
       </Box>
     );
   }
@@ -32,17 +32,12 @@ function FeedPage() {
     <Box className="font-lateef min-h-screen bg-cream-main flex flex-col">
       <header className="flex items-center justify-between px-6 sm:px-10 lg:px-16 py-5 border-b border-olive-main/20">
         <div className="inline-flex items-center gap-2">
-          <YardIcon className="!text-olive-main" sx={{ fontSize: 28 }} />
+          <YardIcon className="!text-olive-main !text-[28px]" />
           <span className="text-olive-main text-3xl leading-none font-medium">myPlunt</span>
         </div>
         <Button
           onClick={handleLogout}
-          sx={{
-            textTransform: 'none',
-            color: '#405035',
-            fontWeight: 600,
-            '&:hover': { backgroundColor: 'rgba(64, 80, 53, 0.08)' },
-          }}
+          className="!normal-case !text-olive-main !font-semibold"
         >
           Sign out
         </Button>
