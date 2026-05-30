@@ -102,8 +102,9 @@ function extractRefreshCookie(res: request.Response): string {
 }
 
 describe('POST /api/auth/refresh', () => {
-  it('rotates the refresh token and returns a new access token', async () => {
+  it('rotates the refresh token, chains old→new via replacedById, and returns a new access token', async () => {
     const reg = await register();
+    const userId = reg.res.body.user.id;
     const oldCookie = extractRefreshCookie(reg.res);
 
     const refreshed = await request(app).post('/api/auth/refresh').set('Cookie', oldCookie);
@@ -113,12 +114,62 @@ describe('POST /api/auth/refresh', () => {
     const newCookie = extractRefreshCookie(refreshed);
     expect(newCookie).not.toBe(oldCookie);
 
-    // Presenting the original (now-revoked) cookie must fail.
-    const reuse = await request(app).post('/api/auth/refresh').set('Cookie', oldCookie);
-    expect(reuse.status).toBe(401);
+    // The old session row is revoked and points at its successor.
+    const sessions = await getPrisma().session.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'asc' },
+    });
+    expect(sessions).toHaveLength(2);
+    expect(sessions[0].revokedAt).not.toBeNull();
+    expect(sessions[0].replacedById).toBe(sessions[1].id);
+    expect(sessions[1].revokedAt).toBeNull();
   });
 
-  it('reuse detection revokes all live sessions for the user', async () => {
+  it('replaying the just-rotated cookie within the grace window re-issues without cascade', async () => {
+    // Simulates page-reload race: browser cancels the rotation response, never
+    // receives the new cookie, then immediately retries with the old one.
+    const reg = await register();
+    const userId = reg.res.body.user.id;
+    const originalCookie = extractRefreshCookie(reg.res);
+
+    const first = await request(app).post('/api/auth/refresh').set('Cookie', originalCookie);
+    expect(first.status).toBe(200);
+    const firstSuccessor = extractRefreshCookie(first);
+
+    // Replay the original (already-revoked) cookie immediately — within grace.
+    const replay = await request(app).post('/api/auth/refresh').set('Cookie', originalCookie);
+    expect(replay.status).toBe(200);
+    const replaySuccessor = extractRefreshCookie(replay);
+    expect(replaySuccessor).not.toBe(originalCookie);
+    expect(replaySuccessor).not.toBe(firstSuccessor);
+
+    // The orphaned first-successor is revoked; the user has exactly one live session.
+    const live = await getPrisma().session.count({
+      where: { userId, revokedAt: null },
+    });
+    expect(live).toBe(1);
+  });
+
+  it('two parallel refreshes with the same cookie both succeed (StrictMode double-fire)', async () => {
+    const reg = await register();
+    const userId = reg.res.body.user.id;
+    const cookie = extractRefreshCookie(reg.res);
+
+    const [a, b] = await Promise.all([
+      request(app).post('/api/auth/refresh').set('Cookie', cookie),
+      request(app).post('/api/auth/refresh').set('Cookie', cookie),
+    ]);
+
+    expect(a.status).toBe(200);
+    expect(b.status).toBe(200);
+
+    const live = await getPrisma().session.count({
+      where: { userId, revokedAt: null },
+    });
+    expect(live).toBe(1);
+  });
+
+  it('reuse detection revokes all live sessions when the replay falls outside the grace window', async () => {
     const reg = await register();
     const userId = reg.res.body.user.id;
     const originalCookie = extractRefreshCookie(reg.res);
@@ -133,8 +184,12 @@ describe('POST /api/auth/refresh', () => {
     const rotated = await request(app).post('/api/auth/refresh').set('Cookie', originalCookie);
     expect(rotated.status).toBe(200);
 
-    // Present the already-revoked original cookie → should trip reuse detection
-    // and nuke every live session for this user.
+    // Backdate the revocation past the grace window so the next replay trips theft detection.
+    await getPrisma().session.updateMany({
+      where: { userId, revokedAt: { not: null } },
+      data: { revokedAt: new Date(Date.now() - 5 * 60 * 1000) },
+    });
+
     const reuse = await request(app).post('/api/auth/refresh').set('Cookie', originalCookie);
     expect(reuse.status).toBe(401);
 

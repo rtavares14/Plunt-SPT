@@ -6,6 +6,11 @@ import { generateToken } from '../middleware/auth';
 
 const REFRESH_TOKEN_BYTES = 48;
 const REFRESH_TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
+// Mirrors Auth0's "reuse interval": if a just-rotated refresh token is
+// presented again within this window, assume the client never received the
+// new cookie (page reload, network blip) and re-issue without tripping the
+// theft cascade.
+const REUSE_GRACE_MS = 30 * 1000;
 const IS_PROD = process.env.NODE_ENV === 'production';
 
 export const REFRESH_COOKIE_NAME = 'plunt_refresh';
@@ -75,12 +80,16 @@ export async function issueTokens(
 }
 
 /**
- * Rotate the current refresh token: revoke the old session row and issue a new one.
- * Returns { accessToken, user } on success, or null if the refresh token is unknown,
- * revoked, or expired (caller should clear the cookie and 401).
+ * Rotate the current refresh token: revoke the old session row, create a successor,
+ * and chain old→new via Session.replacedById. Returns { accessToken, user } on success,
+ * or null if the refresh token is unknown, revoked-and-out-of-grace, or expired (caller
+ * should clear the cookie and 401).
  *
- * If the presented token exists but was already revoked, treat it as a theft signal
- * and revoke every live session for that user.
+ * Reuse handling: if the presented token's session is already revoked but its
+ * revokedAt falls inside REUSE_GRACE_MS, we treat it as a legitimate race (browser
+ * never received the rotated cookie) — revoke the orphaned successor and issue a
+ * fresh one without triggering the theft cascade. Outside the grace window, the
+ * cascade fires and every live session for that user is revoked.
  */
 export async function rotateSession(
   req: Request,
@@ -89,40 +98,103 @@ export async function rotateSession(
 ): Promise<{ accessToken: string; user: UserModel } | null> {
   const prisma = getPrisma();
   const tokenHash = hashRefreshToken(presentedToken);
+  const { userAgent, ip } = requestMeta(req);
 
-  // Atomic-revoke gate: only one concurrent /refresh with the same cookie wins.
-  // If two requests race, exactly one updateMany affects 1 row; the other gets 0
-  // and is treated like reuse of an already-revoked token.
+  type Issued = {
+    kind: 'ok';
+    user: UserModel;
+    sessionId: string;
+    rawToken: string;
+  };
+
+  async function issueSuccessor(
+    tx: Parameters<Parameters<typeof prisma.$transaction>[0]>[0],
+    prev: { id: string; userId: string; user: UserModel },
+  ): Promise<Issued> {
+    const rawToken = crypto.randomBytes(REFRESH_TOKEN_BYTES).toString('base64url');
+    const created = await tx.session.create({
+      data: {
+        userId: prev.userId,
+        refreshTokenHash: hashRefreshToken(rawToken),
+        userAgent,
+        ip,
+        expiresAt: new Date(Date.now() + REFRESH_TOKEN_TTL_MS),
+      },
+    });
+    await tx.session.update({
+      where: { id: prev.id },
+      data: { replacedById: created.id },
+    });
+    return { kind: 'ok', user: prev.user, sessionId: created.id, rawToken };
+  }
+
   const result = await prisma.$transaction(async (tx) => {
-    const session = await tx.session.findUnique({
+    const initial = await tx.session.findUnique({
       where: { refreshTokenHash: tokenHash },
       include: { user: true },
     });
 
-    if (!session) return { kind: 'unknown' as const };
+    if (!initial) return { kind: 'unknown' as const };
 
-    if (session.revokedAt) {
-      await tx.session.updateMany({
-        where: { userId: session.userId, revokedAt: null },
+    // Try to claim the rotation atomically. If `initial` is still alive, only
+    // one concurrent /refresh wins the updateMany; the rest fall through and
+    // are handled as revoked (same path as a legitimate replay).
+    let claimed = initial;
+    if (!initial.revokedAt) {
+      if (initial.expiresAt < new Date()) return { kind: 'expired' as const };
+
+      const revoke = await tx.session.updateMany({
+        where: { id: initial.id, revokedAt: null },
         data: { revokedAt: new Date() },
       });
-      return { kind: 'reuse' as const };
+
+      if (revoke.count === 1) {
+        return issueSuccessor(tx, initial);
+      }
+
+      // Lost the race — another tx just revoked this session. Re-read so we
+      // can read the winner's replacedById and apply grace recovery.
+      const fresh = await tx.session.findUnique({
+        where: { id: initial.id },
+        include: { user: true },
+      });
+      if (!fresh?.revokedAt) return { kind: 'unknown' as const };
+      claimed = fresh;
     }
 
-    if (session.expiresAt < new Date()) return { kind: 'expired' as const };
+    const inGrace =
+      Date.now() - claimed.revokedAt!.getTime() <= REUSE_GRACE_MS;
 
-    const revoke = await tx.session.updateMany({
-      where: { id: session.id, revokedAt: null },
+    if (inGrace) {
+      // Race recovery: either the prior rotation's cookie never reached the
+      // client (page reload mid-flight) or two concurrent refreshes shared the
+      // same cookie (React StrictMode double-fire). Revoke the orphaned
+      // successor and rotate fresh from this point.
+      if (claimed.replacedById) {
+        await tx.session.updateMany({
+          where: { id: claimed.replacedById, revokedAt: null },
+          data: { revokedAt: new Date() },
+        });
+      }
+      return issueSuccessor(tx, claimed);
+    }
+
+    // Outside grace → genuine reuse signal → nuke the whole family.
+    await tx.session.updateMany({
+      where: { userId: claimed.userId, revokedAt: null },
       data: { revokedAt: new Date() },
     });
-    if (revoke.count !== 1) return { kind: 'raced' as const };
-
-    return { kind: 'ok' as const, user: session.user };
+    return { kind: 'reuse' as const };
   });
 
   if (result.kind !== 'ok') return null;
 
-  const accessToken = await issueTokens(req, res, result.user);
+  setRefreshCookie(res, result.rawToken);
+  const accessToken = generateToken({
+    userId: result.user.id,
+    email: result.user.email,
+    sessionId: result.sessionId,
+  });
   return { accessToken, user: result.user };
 }
 
