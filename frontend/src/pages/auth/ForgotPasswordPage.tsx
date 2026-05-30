@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Alert from '@mui/material/Alert';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -79,28 +78,27 @@ function ForgotPasswordPage() {
                 </Alert>
               )}
 
-              <Box component="form" onSubmit={handleSubmit} className="flex flex-col gap-4">
-                <TextField
-                  label="Email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  fullWidth
-                  autoComplete="email"
-                  slotProps={{ inputLabel: { shrink: true, className: 'text-lg' } }}
-                />
+              <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                <label className="flex flex-col gap-1">
+                  <span className="text-olive-main text-lg font-medium">Email</span>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    autoComplete="email"
+                    className="border border-olive-main rounded px-3 py-2.5 text-olive-main bg-cream-soft text-lg outline-none hover:border-[1.5px] focus:border-2 focus:border-olive-light placeholder:text-olive-main/40"
+                  />
+                </label>
 
-                <Button
+                <button
                   type="submit"
-                  variant="contained"
-                  fullWidth
                   disabled={loading}
-                  className="!mt-2 !py-3 !text-lg !rounded !normal-case !font-semibold !bg-olive-light !shadow-none"
+                  className="mt-2 py-3 text-lg rounded normal-case font-semibold bg-olive-light text-cream-soft shadow-none w-full flex items-center justify-center disabled:opacity-60"
                 >
                   {loading ? <CircularProgress size={22} color="inherit" /> : 'Send reset link'}
-                </Button>
-              </Box>
+                </button>
+              </form>
 
               <Typography
                 variant="body2"
