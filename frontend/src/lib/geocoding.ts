@@ -20,7 +20,7 @@ interface PhotonResponse {
   features?: PhotonFeature[];
 }
 
-// Photon is Komoot's open-source geocoder built on OSM data — designed for
+// Photon is Komoot's open-source geocoder built on OSM data, designed for
 // prefix-style autocomplete and ranks results by importance / population, so
 // "ams" surfaces Amsterdam first and "lis" surfaces Lisbon first. Nominatim's
 // own `q=` and `city=` modes do substring matches that bury famous cities

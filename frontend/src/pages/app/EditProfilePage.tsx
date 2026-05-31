@@ -32,6 +32,23 @@ function fromUser(user: { name: string; username: string; bio?: string | null; c
   };
 }
 
+// Shared MUI TextField override — olive border, olive-light on focus (mirrors login inputs)
+const fieldSx = {
+  '& .MuiOutlinedInput-root': {
+    '& fieldset': { borderColor: 'rgba(64,80,53,0.45)' },
+    '&:hover fieldset': { borderColor: 'rgba(64,80,53,0.45)' },
+    '&.Mui-focused fieldset': { borderColor: '#5B6952', borderWidth: '2px' },
+    '&.Mui-disabled fieldset': { borderColor: 'rgba(64,80,53,0.2)' },
+  },
+  '& .MuiInputLabel-root': {
+    color: 'rgba(64,80,53,0.6)',
+    '&.Mui-focused': { color: '#5B6952' },
+    '&.Mui-disabled': { color: 'rgba(64,80,53,0.4)' },
+  },
+  '& .MuiInputBase-input': { color: '#405035' },
+  '& .MuiFormHelperText-root': { color: 'rgba(64,80,53,0.55)' },
+};
+
 function EditProfilePage() {
   const navigate = useNavigate();
   const { user, loading, setUser, authFetch } = useAuth();
@@ -77,7 +94,7 @@ function EditProfilePage() {
         const results = await searchCities(cityQuery, ctrl.signal);
         setCityOptions(results);
       } catch {
-        // ignore: aborted or network error — keep last options
+        // ignore: aborted or network error, keep last options
       } finally {
         setCityLoading(false);
       }
@@ -247,6 +264,7 @@ function EditProfilePage() {
                 helperText={fieldErrors.name ?? ' '}
                 slotProps={{ htmlInput: { maxLength: 80 } }}
                 fullWidth
+                sx={fieldSx}
               />
               <TextField
                 label="Username"
@@ -256,6 +274,7 @@ function EditProfilePage() {
                 helperText={fieldErrors.username ?? 'Letters, numbers, underscore. 3–20 characters.'}
                 slotProps={{ htmlInput: { maxLength: 20 } }}
                 fullWidth
+                sx={fieldSx}
               />
               <Autocomplete
                 freeSolo
@@ -271,6 +290,48 @@ function EditProfilePage() {
                   setForm((prev) => (prev ? { ...prev, city: capped } : prev));
                   setFieldErrors((prev) => ({ ...prev, city: undefined }));
                 }}
+                slotProps={{
+                  paper: {
+                    sx: {
+                      fontFamily: "'Lateef', Georgia, serif",
+                      backgroundColor: '#FAF7EF',
+                      border: '1px solid rgba(64,80,53,0.2)',
+                      borderRadius: '10px',
+                      boxShadow: '0 4px 16px rgba(64,80,53,0.12)',
+                      mt: 0.5,
+                      '& .MuiAutocomplete-listbox': {
+                        padding: '4px 0',
+                        '& .MuiAutocomplete-option': {
+                          fontFamily: "'Lateef', Georgia, serif",
+                          fontSize: '1.15rem',
+                          color: '#405035',
+                          padding: '10px 18px',
+                          '&[aria-selected="true"]': {
+                            backgroundColor: 'rgba(64,80,53,0.1)',
+                            color: '#405035',
+                          },
+                          '&.Mui-focused': {
+                            backgroundColor: 'rgba(64,80,53,0.08)',
+                          },
+                          '&[aria-selected="true"].Mui-focused': {
+                            backgroundColor: 'rgba(64,80,53,0.14)',
+                          },
+                        },
+                      },
+                      '& .MuiAutocomplete-noOptions, & .MuiAutocomplete-loading': {
+                        fontFamily: "'Lateef', Georgia, serif",
+                        fontSize: '1.1rem',
+                        color: 'rgba(64,80,53,0.55)',
+                      },
+                    },
+                  },
+                  clearIndicator: {
+                    sx: { color: 'rgba(64,80,53,0.5)', '&:hover': { color: '#405035' } },
+                  },
+                  popupIndicator: {
+                    sx: { color: 'rgba(64,80,53,0.5)', '&:hover': { color: '#405035' } },
+                  },
+                }}
                 renderInput={(params) => (
                   <TextField
                     {...params}
@@ -278,6 +339,7 @@ function EditProfilePage() {
                     error={Boolean(fieldErrors.city)}
                     helperText={fieldErrors.city ?? 'Powered by Photon / OpenStreetMap'}
                     placeholder="Start typing a city…"
+                    sx={fieldSx}
                   />
                 )}
                 fullWidth
@@ -288,6 +350,7 @@ function EditProfilePage() {
                 disabled
                 helperText="Contact support to change your email."
                 fullWidth
+                sx={fieldSx}
               />
               <TextField
                 label="Bio"
@@ -301,6 +364,7 @@ function EditProfilePage() {
                 placeholder="Tell people about your garden."
                 className="sm:col-span-2"
                 fullWidth
+                sx={fieldSx}
               />
             </div>
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ElementType } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -8,6 +8,9 @@ import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined';
 import TroubleshootOutlinedIcon from '@mui/icons-material/TroubleshootOutlined';
 import GrassOutlinedIcon from '@mui/icons-material/GrassOutlined';
 import HistoryToggleOffOutlinedIcon from '@mui/icons-material/HistoryToggleOffOutlined';
+import BalconyOutlinedIcon from '@mui/icons-material/BalconyOutlined';
+import HelpOutlineOutlinedIcon from '@mui/icons-material/HelpOutlineOutlined';
+import GroupAddOutlinedIcon from '@mui/icons-material/GroupAddOutlined';
 import AddIcon from '@mui/icons-material/Add';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/useAuth';
@@ -15,11 +18,57 @@ import NavBar from '../../components/NavBar';
 
 type TabKey = 'plants' | 'planters' | 'qa' | 'friends';
 
-const TABS: { key: TabKey; label: string; count: number; cta: string }[] = [
-  { key: 'plants', label: 'Plants', count: 0, cta: 'Create a plant' },
-  { key: 'planters', label: 'Planters', count: 0, cta: 'Create a planter' },
-  { key: 'qa', label: 'Q&A', count: 0, cta: 'Wanna ask something' },
-  { key: 'friends', label: 'Friends', count: 0, cta: 'Looking for a friend' },
+interface Tab {
+  key: TabKey;
+  label: string;
+  count: number;
+  cta: string;
+  emptyTitle: string;
+  emptyDescription: string;
+  Icon: ElementType;
+}
+
+const TABS: Tab[] = [
+  {
+    key: 'plants',
+    label: 'Plants',
+    count: 0,
+    cta: 'Create a plant',
+    emptyTitle: 'Plant your first one',
+    emptyDescription:
+      'Add a plant to track watering, log how it grows, and let friends nudge you when it gets thirsty.',
+    Icon: GrassOutlinedIcon,
+  },
+  {
+    key: 'planters',
+    label: 'Planters',
+    count: 0,
+    cta: 'Create a planter',
+    emptyTitle: 'Set up a planter',
+    emptyDescription:
+      'Group your plants by where they live, like the kitchen window, balcony, or the corner that gets afternoon sun.',
+    Icon: BalconyOutlinedIcon,
+  },
+  {
+    key: 'qa',
+    label: 'Q&A',
+    count: 0,
+    cta: 'Wanna ask something',
+    emptyTitle: 'Got a plant question?',
+    emptyDescription:
+      'Brown leaves, slow growth, mystery bug? Ask your friends, they have probably been there.',
+    Icon: HelpOutlineOutlinedIcon,
+  },
+  {
+    key: 'friends',
+    label: 'Friends',
+    count: 0,
+    cta: 'Looking for a friend',
+    emptyTitle: 'Find your plant people',
+    emptyDescription:
+      'Plunt is friends-only. Add the people you want sharing your garden, swapping cuttings, and watering reminders.',
+    Icon: GroupAddOutlinedIcon,
+  },
 ];
 
 function UserPage() {
@@ -39,7 +88,8 @@ function UserPage() {
     );
   }
 
-  const activeCta = TABS.find((t) => t.key === activeTab)?.cta ?? '';
+  const active = TABS.find((t) => t.key === activeTab) ?? TABS[0];
+  const ActiveIcon = active.Icon;
 
   return (
     <Box className="font-lateef min-h-screen bg-cream-main flex flex-col">
@@ -83,7 +133,7 @@ function UserPage() {
             </li>
             <li className="flex items-center gap-2">
               <TroubleshootOutlinedIcon className="!text-[22px]" />
-              <span>—% keep alive</span>
+              <span>Tracking soon</span>
             </li>
             <li className="flex items-center gap-2">
               <HistoryToggleOffOutlinedIcon className="!text-[22px]" />
@@ -130,17 +180,28 @@ function UserPage() {
                 );
               })}
             </div>
-            {/* Fade gradient — visible only on small screens to hint scroll */}
+            {/* Fade gradient, visible only on small screens to hint scroll */}
             <div className="pointer-events-none absolute top-0 right-0 h-full w-10 bg-gradient-to-l from-cream-main to-transparent sm:hidden" />
           </div>
 
-          <div className="mt-12 flex justify-center">
-            <Button
-              startIcon={<AddIcon />}
-              className="!bg-olive-main !text-cream-soft !text-xl sm:!text-2xl !normal-case !rounded-lg !px-6 !py-3 hover:!bg-olive-light"
-            >
-              {activeCta}
-            </Button>
+          <div className="mt-8 sm:mt-12 flex justify-center">
+            <div className="w-full max-w-md rounded-2xl border border-olive-main/15 bg-cream-soft px-6 py-8 sm:px-10 sm:py-10 flex flex-col items-center text-center shadow-sm">
+              <div className="relative w-28 h-28 sm:w-36 sm:h-36 rounded-full bg-stripes-olive ring-4 ring-cream-soft mb-5 flex items-center justify-center">
+                <ActiveIcon className="!text-cream-soft !text-6xl sm:!text-7xl" />
+              </div>
+              <Typography className="!text-olive-main !text-2xl sm:!text-3xl !font-semibold !mb-2">
+                {active.emptyTitle}
+              </Typography>
+              <p className="text-olive-light text-lg sm:text-xl max-w-sm mb-6 leading-snug">
+                {active.emptyDescription}
+              </p>
+              <Button
+                startIcon={<AddIcon />}
+                className="!bg-olive-main !text-cream-soft !text-lg sm:!text-xl !normal-case !rounded-lg !px-5 !py-2.5 hover:!bg-olive-light"
+              >
+                {active.cta}
+              </Button>
+            </div>
           </div>
         </section>
       </div>
