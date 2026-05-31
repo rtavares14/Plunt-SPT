@@ -4,12 +4,15 @@ import IconButton from '@mui/material/IconButton';
 import YardIcon from '@mui/icons-material/Yard';
 import MenuIcon from '@mui/icons-material/Menu';
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
+import DynamicFeedIcon from '@mui/icons-material/DynamicFeed';
+import ForestOutlinedIcon from '@mui/icons-material/ForestOutlined';
+import GroupIcon from '@mui/icons-material/Group';
 import { useAuth } from '../context/useAuth';
 
 const NAV_LINKS = [
-  { to: '/feed', label: 'Feed' },
-  { to: '/garden', label: 'My garden' },
-  { to: '/friends', label: 'Friends' },
+  { to: '/feed', label: 'Feed', Icon: DynamicFeedIcon },
+  { to: '/garden', label: 'My garden', Icon: ForestOutlinedIcon },
+  { to: '/friends', label: 'Friends', Icon: GroupIcon },
 ];
 
 function Avatar({ name, src, size = 'sm' }: { name: string; src?: string | null; size?: 'sm' | 'icon' | 'lg' }) {
@@ -88,18 +91,19 @@ function NavBar() {
 
             {/* All nav links */}
             <nav className="flex flex-col px-6 pt-5 pb-4 gap-5">
-              {NAV_LINKS.map((link) => (
+              {NAV_LINKS.map(({ to, label, Icon }) => (
                 <NavLink
-                  key={link.to}
-                  to={link.to}
+                  key={to}
+                  to={to}
                   onClick={closeMenu}
                   className={({ isActive }) =>
-                    `text-xl text-cream-soft hover:opacity-80 ${
+                    `flex items-center gap-3 text-xl text-cream-soft hover:opacity-80 ${
                       isActive ? 'font-semibold' : 'font-normal'
                     }`
                   }
                 >
-                  {link.label}
+                  <Icon className="!text-[22px]" />
+                  <span>{label}</span>
                 </NavLink>
               ))}
             </nav>
