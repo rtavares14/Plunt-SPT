@@ -5,12 +5,14 @@ import CircularProgress from '@mui/material/CircularProgress';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import Alert from '@mui/material/Alert';
+import Autocomplete from '@mui/material/Autocomplete';
 import PhotoCameraOutlinedIcon from '@mui/icons-material/PhotoCameraOutlined';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/useAuth';
 import NavBar from '../../components/NavBar';
 import { uploadImage } from '../../api/uploads';
+import { searchCities, type CitySuggestion } from '../../lib/geocoding';
 
 type Field = 'name' | 'username' | 'bio' | 'city';
 
@@ -43,6 +45,8 @@ function EditProfilePage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<Field, string>>>({});
+  const [cityOptions, setCityOptions] = useState<CitySuggestion[]>([]);
+  const [cityLoading, setCityLoading] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) navigate('/login', { replace: true });
@@ -55,6 +59,34 @@ function EditProfilePage() {
       setBannerUrl(user.bannerUrl ?? null);
     }
   }, [user, form]);
+
+  // Debounced city lookup against Nominatim. The 1 req/s policy is well respected
+  // by the 350ms debounce + AbortController cancelling in-flight requests as the
+  // user keeps typing.
+  const cityQuery = form?.city ?? '';
+  useEffect(() => {
+    if (cityQuery.trim().length < 2) {
+      setCityOptions([]);
+      setCityLoading(false);
+      return;
+    }
+    const ctrl = new AbortController();
+    setCityLoading(true);
+    const handle = window.setTimeout(async () => {
+      try {
+        const results = await searchCities(cityQuery, ctrl.signal);
+        setCityOptions(results);
+      } catch {
+        // ignore: aborted or network error — keep last options
+      } finally {
+        setCityLoading(false);
+      }
+    }, 200);
+    return () => {
+      window.clearTimeout(handle);
+      ctrl.abort();
+    };
+  }, [cityQuery]);
 
   if (loading || !user || !form) {
     return (
@@ -225,14 +257,29 @@ function EditProfilePage() {
                 slotProps={{ htmlInput: { maxLength: 20 } }}
                 fullWidth
               />
-              <TextField
-                label="Location"
+              <Autocomplete
+                freeSolo
+                options={cityOptions.map((o) => o.label)}
+                loading={cityLoading}
                 value={form.city}
-                onChange={updateField('city')}
-                error={Boolean(fieldErrors.city)}
-                helperText={fieldErrors.city ?? ' '}
-                slotProps={{ htmlInput: { maxLength: 100 } }}
-                placeholder="Lisbon, Portugal"
+                onChange={(_, v) => {
+                  setForm((prev) => (prev ? { ...prev, city: v ?? '' } : prev));
+                  setFieldErrors((prev) => ({ ...prev, city: undefined }));
+                }}
+                onInputChange={(_, v) => {
+                  const capped = v.length > 100 ? v.slice(0, 100) : v;
+                  setForm((prev) => (prev ? { ...prev, city: capped } : prev));
+                  setFieldErrors((prev) => ({ ...prev, city: undefined }));
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Location"
+                    error={Boolean(fieldErrors.city)}
+                    helperText={fieldErrors.city ?? 'Powered by Photon / OpenStreetMap'}
+                    placeholder="Start typing a city…"
+                  />
+                )}
                 fullWidth
               />
               <TextField

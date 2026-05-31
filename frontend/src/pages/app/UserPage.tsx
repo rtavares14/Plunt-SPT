@@ -59,7 +59,7 @@ function UserPage() {
       </div>
 
       <div className="flex flex-col lg:flex-row flex-1">
-        <aside className="relative lg:w-[34%] xl:w-[30%] px-6 sm:px-10 pt-20 pb-10 lg:border-r lg:border-olive-main/15">
+        <aside className="relative lg:w-[34%] xl:w-[30%] px-6 sm:px-10 pt-20 pb-10 lg:border-r lg:border-olive-main/15 bg-cream-soft">
           <div
             className={`absolute -top-14 left-6 sm:-top-16 sm:left-10 w-28 h-28 sm:w-32 sm:h-32 rounded-full ring-4 ring-cream-main overflow-hidden ${user.avatarUrl ? 'bg-cream-main' : 'bg-stripes-olive'}`}
           >
@@ -68,7 +68,7 @@ function UserPage() {
             ) : null}
           </div>
 
-          <Typography className="!text-olive-main !text-5xl sm:!text-6xl !font-semibold !leading-none">
+          <Typography className="!text-olive-main !text-3xl sm:!text-5xl lg:!text-6xl !font-semibold !leading-tight">
             {user.name}
           </Typography>
 
@@ -99,28 +99,39 @@ function UserPage() {
         </aside>
 
         <section className="flex-1 px-6 sm:px-10 pt-8 pb-16">
-          <div role="tablist" className="flex items-end gap-6 sm:gap-10 border-b border-olive-main/20">
-            {TABS.map((t) => {
-              const isActive = t.key === activeTab;
-              return (
-                <button
-                  key={t.key}
-                  role="tab"
-                  type="button"
-                  aria-selected={isActive}
-                  onClick={() => setActiveTab(t.key)}
-                  className={`relative pb-3 text-xl sm:text-2xl text-olive-main transition-opacity hover:opacity-80 ${isActive ? 'font-semibold' : 'font-normal opacity-80'
-                    }`}
-                >
-                  <span>
-                    {t.label} {t.count}
-                  </span>
-                  {isActive ? (
-                    <span className="absolute left-0 right-0 -bottom-px h-0.5 bg-olive-main" />
-                  ) : null}
-                </button>
-              );
-            })}
+          {/* Scroll container with fade hint on the right for mobile */}
+          <div className="relative">
+            <div
+              role="tablist"
+              className="flex gap-6 sm:gap-10 border-b border-olive-main/20 overflow-x-auto scrollbar-hide"
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            >
+              {TABS.map((t) => {
+                const isActive = t.key === activeTab;
+                return (
+                  <button
+                    key={t.key}
+                    role="tab"
+                    type="button"
+                    aria-selected={isActive}
+                    onClick={() => setActiveTab(t.key)}
+                    className={`relative flex-none pb-2 sm:pb-3 px-1 text-olive-main transition-opacity hover:opacity-80 ${isActive ? 'font-semibold' : 'font-normal opacity-80'}`}
+                  >
+                    <span className="flex items-baseline gap-1.5 sm:gap-2">
+                      <span className="text-lg sm:text-2xl leading-tight whitespace-nowrap">{t.label}</span>
+                      <span className="text-sm sm:text-2xl leading-tight opacity-70 sm:opacity-100">
+                        {t.count}
+                      </span>
+                    </span>
+                    {isActive ? (
+                      <span className="absolute left-0 right-0 -bottom-px h-0.5 bg-olive-main" />
+                    ) : null}
+                  </button>
+                );
+              })}
+            </div>
+            {/* Fade gradient — visible only on small screens to hint scroll */}
+            <div className="pointer-events-none absolute top-0 right-0 h-full w-10 bg-gradient-to-l from-cream-main to-transparent sm:hidden" />
           </div>
 
           <div className="mt-12 flex justify-center">

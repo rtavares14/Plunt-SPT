@@ -61,3 +61,11 @@
   );
 }
 
+/* Hide scrollbar while keeping scroll behaviour — used by the tab bar on mobile */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
