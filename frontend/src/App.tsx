@@ -11,8 +11,7 @@ import ResetPasswordPage from './pages/auth/ResetPasswordPage';
 import VerifyEmailPage from './pages/auth/VerifyEmailPage';
 import FeedPage from './pages/app/FeedPage';
 import { AuthProvider } from './context/AuthContext';
-
-// Mirror of olive-main / olive-light / cream-main in tailwind.config.js
+// Mirror of the colors in tailwind.config.js — update both together if a color changes
 const theme = createTheme({
   palette: {
     primary: { main: '#405035' },

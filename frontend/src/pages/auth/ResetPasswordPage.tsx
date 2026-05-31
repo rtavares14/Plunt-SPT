@@ -3,15 +3,11 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
-import TextField from '@mui/material/TextField';
-import Button from '@mui/material/Button';
 import Alert from '@mui/material/Alert';
 import CircularProgress from '@mui/material/CircularProgress';
-import IconButton from '@mui/material/IconButton';
-import InputAdornment from '@mui/material/InputAdornment';
-import Visibility from '@mui/icons-material/Visibility';
-import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import LockResetIcon from '@mui/icons-material/LockReset';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import Visibility from '@mui/icons-material/Visibility';
 import { apiUrl } from '../../lib/api';
 
 function ResetPasswordPage() {
@@ -27,8 +23,8 @@ function ResetPasswordPage() {
 
   if (!token) {
     return (
-      <Box className="min-h-screen bg-gradient-to-br from-plunt-50 via-white to-plunt-100 flex items-center justify-center px-4">
-        <Paper elevation={0} className="w-full max-w-[420px] p-8 rounded-2xl border border-plunt-200">
+      <Box className="min-h-screen bg-cream-main flex items-center justify-center px-4">
+        <Paper elevation={0} className="w-full max-w-[420px] p-8 rounded-2xl border border-olive-main/25 bg-cream-soft">
           <Alert severity="error">Missing reset token.</Alert>
         </Paper>
       </Box>
@@ -59,14 +55,14 @@ function ResetPasswordPage() {
   };
 
   return (
-    <Box className="min-h-screen bg-gradient-to-br from-plunt-50 via-white to-plunt-100 flex items-center justify-center px-4">
+    <Box className="font-lateef min-h-screen bg-cream-main flex items-center justify-center px-4">
       <Paper
         elevation={0}
-        className="w-full max-w-[420px] p-8 rounded-2xl border border-plunt-200"
+        className="w-full max-w-[420px] p-8 rounded-2xl border border-olive-main/25 bg-cream-soft"
       >
         <Box className="text-center mb-6">
-          <LockResetIcon sx={{ fontSize: 44 }} className="text-plunt-600" />
-          <Typography variant="h5" className="!font-bold !text-plunt-900 !mt-2">
+          <LockResetIcon className="!text-olive-main !text-5xl" />
+          <Typography variant="h5" className="!font-bold !text-olive-main !mt-2">
             Choose a new password
           </Typography>
         </Box>
@@ -76,14 +72,12 @@ function ResetPasswordPage() {
             <Alert severity="success">
               Your password has been reset. You've been signed out of all devices.
             </Alert>
-            <Button
-              fullWidth
-              variant="contained"
+            <button
               onClick={() => navigate('/login')}
-              sx={{ mt: 3, textTransform: 'none', backgroundColor: '#16a34a' }}
+              className="mt-6 py-3 text-lg rounded font-semibold bg-olive-light text-cream-soft w-full flex items-center justify-center"
             >
               Sign in
-            </Button>
+            </button>
           </>
         ) : (
           <>
@@ -92,49 +86,37 @@ function ResetPasswordPage() {
                 {error}
               </Alert>
             )}
-            <Box component="form" onSubmit={handleSubmit} className="flex flex-col gap-3">
-              <TextField
-                label="New password"
-                type={showPassword ? 'text' : 'password'}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                fullWidth
-                size="small"
-                autoComplete="new-password"
-                slotProps={{
-                  input: {
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          size="small"
-                          onClick={() => setShowPassword(!showPassword)}
-                          edge="end"
-                        >
-                          {showPassword ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  },
-                }}
-              />
-              <Button
+            <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+              <label className="flex flex-col gap-1">
+                <span className="text-olive-main text-lg font-medium">New password</span>
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    autoComplete="new-password"
+                    className="w-full border border-olive-main rounded px-3 py-2.5 pr-10 text-olive-main bg-cream-soft text-lg outline-none hover:border-[1.5px] focus:border-2 focus:border-olive-light placeholder:text-olive-main/40"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-olive-light hover:text-olive-main"
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showPassword ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
+                  </button>
+                </div>
+              </label>
+
+              <button
                 type="submit"
-                variant="contained"
                 disabled={loading}
-                fullWidth
-                sx={{
-                  mt: 1,
-                  py: 1.2,
-                  textTransform: 'none',
-                  fontWeight: 600,
-                  backgroundColor: '#16a34a',
-                  '&:hover': { backgroundColor: '#15803d' },
-                }}
+                className="mt-2 py-3 text-lg rounded font-semibold bg-olive-light text-cream-soft w-full flex items-center justify-center disabled:opacity-60"
               >
                 {loading ? <CircularProgress size={22} color="inherit" /> : 'Reset password'}
-              </Button>
-            </Box>
+              </button>
+            </form>
           </>
         )}
       </Paper>

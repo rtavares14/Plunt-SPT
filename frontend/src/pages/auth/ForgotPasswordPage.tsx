@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Alert from '@mui/material/Alert';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -43,12 +42,11 @@ function ForgotPasswordPage() {
       <AuthHero />
 
       <section className="flex-1 flex items-center justify-center px-6 py-10 sm:px-10">
-        <Box className="w-full max-w-[440px] rounded-2xl border border-olive-main/25 bg-cream-soft px-8 py-10 shadow-sm">
+        <Box className="w-full max-w-[440px] rounded-2xl border border-olive-main/25 bg-cream-soft px-6 py-10 sm:px-8 shadow-sm">
           <Box className="text-center mb-6">
             <Typography
               variant="h3"
-              className="!font-bold !text-olive-main"
-              sx={{ fontSize: '2.25rem' }}
+              className="!text-4xl !font-bold !text-olive-main"
             >
               Forgot your password?
             </Typography>
@@ -67,17 +65,7 @@ function ForgotPasswordPage() {
                 to="/login"
                 variant="contained"
                 fullWidth
-                sx={{
-                  mt: 3,
-                  py: 1.4,
-                  textTransform: 'none',
-                  fontWeight: 600,
-                  fontSize: '1.1rem',
-                  borderRadius: 1,
-                  backgroundColor: '#5B6952',
-                  boxShadow: 'none',
-                  '&:hover': { backgroundColor: '#405035', boxShadow: 'none' },
-                }}
+                className="!mt-6 !py-3 !text-lg !rounded !normal-case !font-semibold !bg-olive-light !shadow-none"
               >
                 Back to sign in
               </Button>
@@ -90,38 +78,27 @@ function ForgotPasswordPage() {
                 </Alert>
               )}
 
-              <Box component="form" onSubmit={handleSubmit} className="flex flex-col gap-4">
-                <TextField
-                  label="Email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  fullWidth
-                  autoComplete="email"
-                  slotProps={{ inputLabel: { shrink: true, sx: { fontSize: '1.15rem' } } }}
-                />
+              <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                <label className="flex flex-col gap-1">
+                  <span className="text-olive-main text-lg font-medium">Email</span>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    autoComplete="email"
+                    className="border border-olive-main rounded px-3 py-2.5 text-olive-main bg-cream-soft text-lg outline-none hover:border-[1.5px] focus:border-2 focus:border-olive-light placeholder:text-olive-main/40"
+                  />
+                </label>
 
-                <Button
+                <button
                   type="submit"
-                  variant="contained"
-                  fullWidth
                   disabled={loading}
-                  sx={{
-                    mt: 1,
-                    py: 1.4,
-                    textTransform: 'none',
-                    fontWeight: 600,
-                    fontSize: '1.1rem',
-                    borderRadius: 1,
-                    backgroundColor: '#5B6952',
-                    boxShadow: 'none',
-                    '&:hover': { backgroundColor: '#405035', boxShadow: 'none' },
-                  }}
+                  className="mt-2 py-3 text-lg rounded normal-case font-semibold bg-olive-light text-cream-soft shadow-none w-full flex items-center justify-center disabled:opacity-60"
                 >
                   {loading ? <CircularProgress size={22} color="inherit" /> : 'Send reset link'}
-                </Button>
-              </Box>
+                </button>
+              </form>
 
               <Typography
                 variant="body2"
@@ -131,8 +108,7 @@ function ForgotPasswordPage() {
                 <Box
                   component={RouterLink}
                   to="/login"
-                  className="text-olive-main font-bold hover:underline"
-                  sx={{ textDecoration: 'none' }}
+                  className="text-olive-main font-bold no-underline hover:underline"
                 >
                   Sign in
                 </Box>

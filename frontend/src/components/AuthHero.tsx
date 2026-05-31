@@ -8,7 +8,7 @@ function AuthHero() {
         to="/"
         className="inline-flex items-center gap-2 bg-olive-light rounded-lg px-5 py-2.5 self-start hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-cream-main/40"
       >
-        <YardIcon className="text-cream-main" sx={{ fontSize: 28 }} />
+        <YardIcon className="!text-cream-main !text-[28px]" />
         <span className="text-cream-main text-3xl leading-none font-medium">myPlunt</span>
       </Link>
 

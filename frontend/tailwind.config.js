@@ -1,10 +1,10 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
+    './index.html',
+    './src/**/*.{js,ts,jsx,tsx}',
   ],
-  important: "#root",
+  important: '#root',
   theme: {
     extend: {
       colors: {
@@ -13,6 +13,8 @@ export default {
         'olive-main': '#405035',
         'olive-light': '#5B6952',
         'olive-opac': 'rgba(91, 105, 82, 0.5)',
+        'accent-red': '#DC2626',
+        'accent-green': '#16A34A',
       },
       fontFamily: {
         lateef: ['Lateef', 'Georgia', 'serif'],

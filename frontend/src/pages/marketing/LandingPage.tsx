@@ -60,7 +60,7 @@ function LandingPage() {
       <section className="bg-olive-main flex flex-col p-8 sm:p-12 lg:p-16 min-h-[60vh] lg:min-h-screen lg:w-3/5">
         <div className="flex items-center justify-between gap-3 mb-10 lg:mb-0">
           <div className="inline-flex items-center gap-2 bg-olive-light rounded-lg px-5 py-2.5">
-            <YardIcon className="text-cream-main" sx={{ fontSize: 28 }} />
+            <YardIcon className="!text-cream-main !text-[28px]" />
             <span className="text-cream-main text-3xl leading-none font-medium">myPlunt</span>
           </div>
           <Link
@@ -139,7 +139,7 @@ function LandingPage() {
             <div className="rounded-xl border border-olive-main p-5 bg-cream-soft">
               <div className="flex items-center gap-3 mb-3">
                 <span className="bg-olive-opac rounded-md p-2 inline-flex">
-                  <CalendarMonthIcon className="text-olive-main" sx={{ fontSize: 22 }} />
+                  <CalendarMonthIcon className="!text-olive-main !text-[22px]" />
                 </span>
                 <span className="text-olive-main text-2xl font-bold">
                   Estimated launch Winter 2026
@@ -158,7 +158,7 @@ function LandingPage() {
                   <div className="mt-4" role="alert">
                     {isSuccess && (
                       <div className="bg-olive-opac rounded-md px-4 py-3 flex items-center gap-2">
-                        <CheckIcon className="text-olive-main" sx={{ fontSize: 20 }} />
+                        <CheckIcon className="!text-olive-main !text-[20px]" />
                         <span className="text-olive-main text-2xl font-medium">
                           {status.alreadyRegistered
                             ? "You're already on the list. We'll email you the moment we go live."

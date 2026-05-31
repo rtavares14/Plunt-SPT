@@ -1,17 +1,14 @@
 import { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
 import Alert from '@mui/material/Alert';
-import IconButton from '@mui/material/IconButton';
-import InputAdornment from '@mui/material/InputAdornment';
 import CircularProgress from '@mui/material/CircularProgress';
 import Tooltip from '@mui/material/Tooltip';
-import Visibility from '@mui/icons-material/Visibility';
-import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import AppleIcon from '@mui/icons-material/Apple';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import Visibility from '@mui/icons-material/Visibility';
 import { GoogleLogin, type CredentialResponse } from '@react-oauth/google';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import { useAuth } from '../../context/useAuth';
@@ -98,12 +95,11 @@ function LoginPage() {
       <AuthHero />
 
       <section className="flex-1 flex items-center justify-center px-6 py-10 sm:px-10">
-        <Box className="w-full max-w-[440px] rounded-2xl border border-olive-main/25 bg-cream-soft px-8 py-10 shadow-sm">
+        <Box className="w-full max-w-[440px] rounded-2xl border border-olive-main/25 bg-cream-soft px-6 py-10 sm:px-8 shadow-sm">
           <Box className="text-center mb-6">
             <Typography
               variant="h3"
-              className="!font-bold !text-olive-main"
-              sx={{ fontSize: '2.25rem' }}
+              className="!text-4xl !font-bold !text-olive-main"
             >
               Welcome back
             </Typography>
@@ -126,33 +122,14 @@ function LoginPage() {
                   fullWidth
                   disabled={!APPLE_SIGNIN_ENABLED}
                   startIcon={<AppleIcon />}
-                  sx={{
-                    borderColor: 'rgba(64, 80, 53, 0.35)',
-                    color: 'rgba(64, 80, 53, 0.55)',
-                    backgroundColor: '#FAF7EF',
-                    textTransform: 'none',
-                    fontWeight: 500,
-                    fontSize: '1rem',
-                    py: 1.25,
-                    '&:hover': {
-                      borderColor: '#405035',
-                      backgroundColor: '#ECE7DC',
-                    },
-                    '&.Mui-disabled': {
-                      borderColor: 'rgba(64, 80, 53, 0.25)',
-                      color: 'rgba(64, 80, 53, 0.45)',
-                    },
-                  }}
+                  className="!py-2.5 !text-base !normal-case !font-medium !border-olive-main/35 !text-olive-main/55 !bg-cream-soft disabled:!border-olive-main/25 disabled:!text-olive-main/45"
                 >
                   Continue with Apple
                 </Button>
               </span>
             </Tooltip>
 
-            <Box
-              className="flex justify-center"
-              sx={{ '& > div': { width: '100%' }, '& iframe': { margin: '0 auto !important' } }}
-            >
+            <div className="google-login-wrapper flex justify-center w-full overflow-hidden">
               <GoogleLogin
                 onSuccess={handleGoogleSuccess}
                 onError={() => setError('Google sign-in failed')}
@@ -160,9 +137,9 @@ function LoginPage() {
                 size="large"
                 text="continue_with"
                 shape="rectangular"
-                width="376"
+                logo_alignment="center"
               />
-            </Box>
+            </div>
           </Box>
 
           <Divider className="!my-4">
@@ -177,75 +154,55 @@ function LoginPage() {
             </Alert>
           )}
 
-          <Box component="form" onSubmit={handleSubmit} className="flex flex-col gap-4">
-            <TextField
-              label="Email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              fullWidth
-              autoComplete="email"
-              slotProps={{ inputLabel: { shrink: true, sx: { fontSize: '1.15rem' } } }}
-            />
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <label className="flex flex-col gap-1">
+              <span className="text-olive-main text-lg font-medium">Email</span>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                autoComplete="email"
+                className="border border-olive-main rounded px-3 py-2.5 text-olive-main bg-cream-soft text-lg outline-none hover:border-[1.5px] focus:border-2 focus:border-olive-light placeholder:text-olive-main/40"
+              />
+            </label>
 
-            <TextField
-              label="Password"
-              type={showPassword ? 'text' : 'password'}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              fullWidth
-              autoComplete="current-password"
-              slotProps={{
-                inputLabel: { shrink: true, sx: { fontSize: '1.15rem' } },
-                input: {
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton
-                        size="small"
-                        onClick={() => setShowPassword(!showPassword)}
-                        edge="end"
-                      >
-                        {showPassword ? (
-                          <VisibilityOff fontSize="small" />
-                        ) : (
-                          <Visibility fontSize="small" />
-                        )}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                },
-              }}
-            />
+            <label className="flex flex-col gap-1">
+              <span className="text-olive-main text-lg font-medium">Password</span>
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  autoComplete="current-password"
+                  className="w-full border border-olive-main rounded px-3 py-2.5 pr-10 text-olive-main bg-cream-soft text-lg outline-none hover:border-[1.5px] focus:border-2 focus:border-olive-light placeholder:text-olive-main/40"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-olive-light hover:text-olive-main"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
+                </button>
+              </div>
+            </label>
 
-            <Button
+            <button
               type="submit"
-              variant="contained"
-              fullWidth
               disabled={loading}
-              sx={{
-                mt: 1,
-                py: 1.4,
-                textTransform: 'none',
-                fontWeight: 600,
-                fontSize: '1.1rem',
-                borderRadius: 1,
-                backgroundColor: '#5B6952',
-                boxShadow: 'none',
-                '&:hover': { backgroundColor: '#405035', boxShadow: 'none' },
-              }}
+              className="mt-2 py-3 text-lg rounded font-semibold bg-olive-light text-cream-soft w-full flex items-center justify-center disabled:opacity-60"
             >
               {loading ? <CircularProgress size={22} color="inherit" /> : 'Log In'}
-            </Button>
-          </Box>
+            </button>
+          </form>
 
           <Typography
             variant="body2"
             component={RouterLink}
             to="/forgot-password"
-            className="!block !text-center !text-olive-light !mt-4 hover:underline"
-            sx={{ textDecoration: 'none' }}
+            className="!block !text-center !text-olive-light !mt-4 !no-underline hover:!underline"
           >
             Forgot password?
           </Typography>
@@ -255,8 +212,7 @@ function LoginPage() {
             <Box
               component={RouterLink}
               to="/signup"
-              className="text-olive-main font-bold hover:underline"
-              sx={{ textDecoration: 'none' }}
+              className="text-olive-main font-bold no-underline hover:underline"
             >
               Sign up here
             </Box>
