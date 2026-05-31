@@ -4,7 +4,11 @@ export interface AuthUser {
   id: string;
   email: string;
   name: string;
+  username: string;
   avatarUrl?: string | null;
+  bannerUrl?: string | null;
+  bio?: string | null;
+  city?: string | null;
   emailVerified: boolean;
   hasPassword: boolean;
   hasGoogleLink: boolean;
@@ -18,6 +22,7 @@ export interface AuthContextValue {
   login: (token: string, user: AuthUser) => void;
   logout: () => Promise<void>;
   refreshUser: () => Promise<string | null>;
+  setUser: (user: AuthUser) => void;
   authFetch: (input: string, init?: RequestInit) => Promise<Response>;
 }
 

@@ -45,9 +45,13 @@ function UserPage() {
     <Box className="font-lateef min-h-screen bg-cream-main flex flex-col">
       <NavBar />
 
-      <div className="relative bg-stripes-olive h-40 sm:h-56 lg:h-64">
+      <div
+        className={`relative h-40 sm:h-56 lg:h-64 ${user.bannerUrl ? '' : 'bg-stripes-olive'}`}
+        style={user.bannerUrl ? { backgroundImage: `url(${user.bannerUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}
+      >
         <Button
           startIcon={<SettingsOutlinedIcon />}
+          onClick={() => navigate('/profile/edit')}
           className="!absolute !top-3 !right-3 sm:!top-5 sm:!right-6 !bg-olive-light/80 !text-cream-soft !text-base sm:!text-lg !normal-case !rounded-md !px-3 !py-1.5 hover:!bg-olive-light"
         >
           Edit profile
@@ -56,7 +60,9 @@ function UserPage() {
 
       <div className="flex flex-col lg:flex-row flex-1">
         <aside className="relative lg:w-[34%] xl:w-[30%] px-6 sm:px-10 pt-20 pb-10 lg:border-r lg:border-olive-main/15">
-          <div className="absolute -top-14 left-6 sm:-top-16 sm:left-10 w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-stripes-olive ring-4 ring-cream-main overflow-hidden">
+          <div
+            className={`absolute -top-14 left-6 sm:-top-16 sm:left-10 w-28 h-28 sm:w-32 sm:h-32 rounded-full ring-4 ring-cream-main overflow-hidden ${user.avatarUrl ? 'bg-cream-main' : 'bg-stripes-olive'}`}
+          >
             {user.avatarUrl ? (
               <img src={user.avatarUrl} alt={user.name} className="w-full h-full object-cover" />
             ) : null}
@@ -69,7 +75,7 @@ function UserPage() {
           <ul className="mt-6 space-y-2 text-olive-main text-xl sm:text-2xl">
             <li className="flex items-center gap-2">
               <LocationOnOutlinedIcon className="!text-[22px]" />
-              <span>Lisbon, Portugal</span>
+              <span>{user.city ?? 'Add a location'}</span>
             </li>
             <li className="flex items-center gap-2">
               <GrassOutlinedIcon className="!text-[22px]" />
@@ -87,8 +93,8 @@ function UserPage() {
 
           <hr className="my-6 border-olive-main/20" />
 
-          <p className="text-olive-main text-xl sm:text-2xl leading-relaxed">
-            Tell people about your garden. Your bio will show up here.
+          <p className="text-olive-main text-xl sm:text-2xl leading-relaxed whitespace-pre-line">
+            {user.bio ?? 'Tell people about your garden. Your bio will show up here.'}
           </p>
         </aside>
 
