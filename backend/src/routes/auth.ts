@@ -142,6 +142,7 @@ function toPublicUser(u: {
   password: string | null;
   googleId: string | null;
   appleId: string | null;
+  createdAt: Date;
 }) {
   return {
     id: u.id,
@@ -152,6 +153,7 @@ function toPublicUser(u: {
     bannerUrl: u.bannerUrl,
     bio: u.bio,
     city: u.city,
+    createdAt: u.createdAt.toISOString(),
     emailVerified: u.emailVerifiedAt !== null,
     hasPassword: u.password !== null,
     hasGoogleLink: u.googleId !== null,
@@ -707,88 +709,6 @@ router.post('/link-google', oauthLimiter, authMiddleware, requireVerified, async
   } catch (err) {
     req.log.error({ err }, 'Link Google error');
     res.status(500).json({ error: 'Failed to link Google account' });
-  }
-});
-
-// ─── Sessions management ─────────────────────────────────
-
-router.get('/sessions', authMiddleware, async (req: Request, res: Response) => {
-  try {
-    const rows = await getPrisma().session.findMany({
-      where: {
-        userId: req.user!.userId,
-        revokedAt: null,
-        expiresAt: { gt: new Date() },
-      },
-      orderBy: { createdAt: 'desc' },
-      select: {
-        id: true,
-        userAgent: true,
-        ip: true,
-        createdAt: true,
-        updatedAt: true,
-        expiresAt: true,
-      },
-    });
-    const currentId = req.user!.sessionId;
-    res.json({
-      sessions: rows.map((r) => ({ ...r, isCurrent: r.id === currentId })),
-    });
-  } catch (err) {
-    req.log.error({ err }, 'List sessions error');
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-router.delete('/sessions/:id', authMiddleware, async (req: Request, res: Response) => {
-  try {
-    const id = req.params.id;
-    const userId = req.user!.userId;
-    if (typeof id !== 'string' || !id) {
-      res.status(400).json({ error: 'Invalid session id' });
-      return;
-    }
-
-    const result = await getPrisma().session.updateMany({
-      where: { id, userId, revokedAt: null },
-      data: { revokedAt: new Date() },
-    });
-    if (result.count === 0) {
-      res.status(404).json({ error: 'Session not found' });
-      return;
-    }
-
-    // If the user revoked the session they're currently on, also clear the cookie.
-    if (id === req.user!.sessionId) {
-      clearRefreshCookie(res);
-    }
-    res.status(204).end();
-  } catch (err) {
-    req.log.error({ err }, 'Revoke session error');
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-router.post('/logout-all', authMiddleware, async (req: Request, res: Response) => {
-  try {
-    const keepCurrent = req.body?.keepCurrent !== false; // default true
-    const userId = req.user!.userId;
-    const currentId = req.user!.sessionId;
-
-    await getPrisma().session.updateMany({
-      where: {
-        userId,
-        revokedAt: null,
-        ...(keepCurrent ? { NOT: { id: currentId } } : {}),
-      },
-      data: { revokedAt: new Date() },
-    });
-
-    if (!keepCurrent) clearRefreshCookie(res);
-    res.status(204).end();
-  } catch (err) {
-    req.log.error({ err }, 'Logout-all error');
-    res.status(500).json({ error: 'Internal server error' });
   }
 });
 

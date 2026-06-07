@@ -7,10 +7,10 @@ import Typography from '@mui/material/Typography';
 import Alert from '@mui/material/Alert';
 import Autocomplete from '@mui/material/Autocomplete';
 import PhotoCameraOutlinedIcon from '@mui/icons-material/PhotoCameraOutlined';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlined';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/useAuth';
-import NavBar from '../../components/NavBar';
 import { uploadImage } from '../../api/uploads';
 import { searchCities, type CitySuggestion } from '../../lib/geocoding';
 
@@ -51,7 +51,7 @@ const fieldSx = {
 
 function EditProfilePage() {
   const navigate = useNavigate();
-  const { user, loading, setUser, authFetch } = useAuth();
+  const { user, setUser, authFetch } = useAuth();
   const avatarInputRef = useRef<HTMLInputElement | null>(null);
   const bannerInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -64,10 +64,6 @@ function EditProfilePage() {
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<Field, string>>>({});
   const [cityOptions, setCityOptions] = useState<CitySuggestion[]>([]);
   const [cityLoading, setCityLoading] = useState(false);
-
-  useEffect(() => {
-    if (!loading && !user) navigate('/login', { replace: true });
-  }, [loading, user, navigate]);
 
   useEffect(() => {
     if (user && !form) {
@@ -105,9 +101,9 @@ function EditProfilePage() {
     };
   }, [cityQuery]);
 
-  if (loading || !user || !form) {
+  if (!user || !form) {
     return (
-      <Box className="min-h-screen bg-cream-main flex items-center justify-center">
+      <Box className="flex-1 flex items-center justify-center">
         <CircularProgress />
       </Box>
     );
@@ -179,10 +175,7 @@ function EditProfilePage() {
   };
 
   return (
-    <Box className="font-lateef min-h-screen bg-cream-main flex flex-col">
-      <NavBar />
-
-      <main className="flex-1 px-4 sm:px-6 lg:px-10 py-6 max-w-4xl w-full mx-auto">
+    <main className="flex-1 px-4 sm:px-6 lg:px-10 py-6 max-w-4xl w-full mx-auto">
         <div className="flex items-center justify-between mb-6">
           <Button
             startIcon={<ArrowBackIcon />}
@@ -208,14 +201,28 @@ function EditProfilePage() {
             className={`relative h-40 sm:h-52 ${bannerUrl ? '' : 'bg-stripes-olive'}`}
             style={bannerUrl ? { backgroundImage: `url(${bannerUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}
           >
-            <Button
-              startIcon={<PhotoCameraOutlinedIcon />}
-              onClick={() => bannerInputRef.current?.click()}
-              disabled={uploading === 'banner'}
-              className="!absolute !top-3 !right-3 sm:!top-4 sm:!right-4 !bg-olive-light/80 !text-cream-soft !text-base !normal-case !rounded-md !px-3 !py-1.5 hover:!bg-olive-light"
-            >
-              {uploading === 'banner' ? 'Uploading…' : bannerUrl ? 'Change banner' : 'Add banner'}
-            </Button>
+            <div className="absolute top-3 right-3 sm:top-4 sm:right-4 flex items-center gap-2">
+              {bannerUrl ? (
+                <button
+                  type="button"
+                  onClick={() => setBannerUrl(null)}
+                  disabled={uploading === 'banner'}
+                  aria-label="Remove banner image"
+                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-olive-light/80 text-cream-soft flex items-center justify-center shadow-md hover:bg-olive-light transition-colors disabled:opacity-60"
+                >
+                  <DeleteOutlineIcon className="!text-[16px] sm:!text-[18px]" />
+                </button>
+              ) : null}
+              <button
+                type="button"
+                onClick={() => bannerInputRef.current?.click()}
+                disabled={uploading === 'banner'}
+                aria-label={bannerUrl ? 'Change banner image' : 'Add banner image'}
+                className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-olive-light/80 text-cream-soft flex items-center justify-center shadow-md hover:bg-olive-light transition-colors disabled:opacity-60"
+              >
+                <PhotoCameraOutlinedIcon className="!text-[16px] sm:!text-[18px]" />
+              </button>
+            </div>
             <input
               ref={bannerInputRef}
               type="file"
@@ -227,21 +234,37 @@ function EditProfilePage() {
 
           <div className="relative pt-16 sm:pt-20 px-6 sm:px-10 pb-6">
             <div className="absolute -top-12 left-6 sm:-top-14 sm:left-10">
-              <div
-                className={`relative w-24 h-24 sm:w-28 sm:h-28 rounded-full ring-4 ring-cream-soft overflow-hidden ${avatarUrl ? '' : 'bg-stripes-olive'}`}
-              >
-                {avatarUrl ? (
-                  <img src={avatarUrl} alt={user.name} className="w-full h-full object-cover" />
-                ) : null}
+              <div className="relative">
+                <div
+                  className={`w-24 h-24 sm:w-28 sm:h-28 rounded-full ring-4 ring-cream-soft overflow-hidden ${avatarUrl ? 'bg-cream-main' : 'bg-stripes-olive'}`}
+                >
+                  {avatarUrl ? (
+                    <img src={avatarUrl} alt={user.name} className="w-full h-full object-cover" />
+                  ) : null}
+                </div>
+                {/* Always-visible camera badge sits outside the clipped circle so
+                    the affordance is discoverable on mobile (no hover) and at a
+                    glance on desktop. */}
                 <button
                   type="button"
                   onClick={() => avatarInputRef.current?.click()}
                   disabled={uploading === 'avatar'}
-                  aria-label="Change avatar"
-                  className="absolute inset-0 flex items-center justify-center bg-olive-main/40 opacity-0 hover:opacity-100 focus:opacity-100 transition-opacity"
+                  aria-label="Change profile picture"
+                  className="absolute -bottom-1 -right-1 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-olive-light/80 text-cream-soft flex items-center justify-center ring-2 ring-cream-soft shadow-md hover:bg-olive-light transition-colors disabled:opacity-60"
                 >
-                  <PhotoCameraOutlinedIcon className="!text-cream-soft" />
+                  <PhotoCameraOutlinedIcon className="!text-[14px] sm:!text-[16px]" />
                 </button>
+                {avatarUrl ? (
+                  <button
+                    type="button"
+                    onClick={() => setAvatarUrl(null)}
+                    disabled={uploading === 'avatar'}
+                    aria-label="Remove profile picture"
+                    className="absolute -bottom-1 -left-1 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-olive-light/80 text-cream-soft flex items-center justify-center ring-2 ring-cream-soft shadow-md hover:bg-olive-light transition-colors disabled:opacity-60"
+                  >
+                    <DeleteOutlineIcon className="!text-[14px] sm:!text-[16px]" />
+                  </button>
+                ) : null}
                 <input
                   ref={avatarInputRef}
                   type="file"
@@ -250,9 +273,9 @@ function EditProfilePage() {
                   onChange={onAvatarChange}
                 />
               </div>
-              {uploading === 'avatar' ? (
-                <Typography className="!text-olive-light !text-sm !mt-1">Uploading…</Typography>
-              ) : null}
+              <Typography className="!text-olive-light !text-sm !mt-2">
+                {uploading === 'avatar' ? 'Uploading…' : 'Tap the camera to change'}
+              </Typography>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
@@ -387,7 +410,6 @@ function EditProfilePage() {
           </div>
         </section>
       </main>
-    </Box>
   );
 }
 

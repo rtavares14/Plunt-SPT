@@ -1,7 +1,5 @@
 import { useEffect, useState, type ElementType } from 'react';
-import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import CircularProgress from '@mui/material/CircularProgress';
 import Typography from '@mui/material/Typography';
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined';
@@ -14,14 +12,12 @@ import GroupAddOutlinedIcon from '@mui/icons-material/GroupAddOutlined';
 import AddIcon from '@mui/icons-material/Add';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/useAuth';
-import NavBar from '../../components/NavBar';
 
 type TabKey = 'plants' | 'planters' | 'qa' | 'friends';
 
 interface Tab {
   key: TabKey;
   label: string;
-  count: number;
   cta: string;
   emptyTitle: string;
   emptyDescription: string;
@@ -32,7 +28,6 @@ const TABS: Tab[] = [
   {
     key: 'plants',
     label: 'Plants',
-    count: 0,
     cta: 'Create a plant',
     emptyTitle: 'Plant your first one',
     emptyDescription:
@@ -42,7 +37,6 @@ const TABS: Tab[] = [
   {
     key: 'planters',
     label: 'Planters',
-    count: 0,
     cta: 'Create a planter',
     emptyTitle: 'Set up a planter',
     emptyDescription:
@@ -52,7 +46,6 @@ const TABS: Tab[] = [
   {
     key: 'qa',
     label: 'Q&A',
-    count: 0,
     cta: 'Wanna ask something',
     emptyTitle: 'Got a plant question?',
     emptyDescription:
@@ -62,7 +55,6 @@ const TABS: Tab[] = [
   {
     key: 'friends',
     label: 'Friends',
-    count: 0,
     cta: 'Looking for a friend',
     emptyTitle: 'Find your plant people',
     emptyDescription:
@@ -73,28 +65,49 @@ const TABS: Tab[] = [
 
 function UserPage() {
   const navigate = useNavigate();
-  const { user, loading } = useAuth();
+  const { user, authFetch } = useAuth();
   const [activeTab, setActiveTab] = useState<TabKey>('plants');
+  const [stats, setStats] = useState<{ plantCount: number; planterCount: number } | null>(null);
 
   useEffect(() => {
-    if (!loading && !user) navigate('/login', { replace: true });
-  }, [loading, user, navigate]);
+    if (!user) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await authFetch('/api/users/me/stats');
+        if (!res.ok) return;
+        const data = (await res.json()) as { plantCount: number; planterCount: number };
+        if (!cancelled) setStats(data);
+      } catch {
+        // ignore, leaves stats null which renders zeros
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [user, authFetch]);
 
-  if (loading || !user) {
-    return (
-      <Box className="min-h-screen bg-cream-main flex items-center justify-center">
-        <CircularProgress />
-      </Box>
-    );
-  }
+  if (!user) return null;
+
+  const plantCount = stats?.plantCount ?? 0;
+  const planterCount = stats?.planterCount ?? 0;
+  const tabCounts: Record<TabKey, number> = {
+    plants: plantCount,
+    planters: planterCount,
+    qa: 0,
+    friends: 0,
+  };
+
+  const joinedLabel = new Date(user.createdAt).toLocaleDateString('en-US', {
+    month: 'short',
+    year: 'numeric',
+  });
 
   const active = TABS.find((t) => t.key === activeTab) ?? TABS[0];
   const ActiveIcon = active.Icon;
 
   return (
-    <Box className="font-lateef min-h-screen bg-cream-main flex flex-col">
-      <NavBar />
-
+    <>
       <div
         className={`relative h-40 sm:h-56 lg:h-64 ${user.bannerUrl ? '' : 'bg-stripes-olive'}`}
         style={user.bannerUrl ? { backgroundImage: `url(${user.bannerUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}
@@ -121,6 +134,9 @@ function UserPage() {
           <Typography className="!text-olive-main !text-3xl sm:!text-5xl lg:!text-6xl !font-semibold !leading-tight">
             {user.name}
           </Typography>
+          <Typography className="!text-olive-light !text-lg sm:!text-xl !leading-tight !mt-1">
+            @{user.username}
+          </Typography>
 
           <ul className="mt-6 space-y-2 text-olive-main text-xl sm:text-2xl">
             <li className="flex items-center gap-2">
@@ -129,7 +145,10 @@ function UserPage() {
             </li>
             <li className="flex items-center gap-2">
               <GrassOutlinedIcon className="!text-[22px]" />
-              <span>0 Plants, 0 Planters</span>
+              <span>
+                {plantCount} {plantCount === 1 ? 'Plant' : 'Plants'}, {planterCount}{' '}
+                {planterCount === 1 ? 'Planter' : 'Planters'}
+              </span>
             </li>
             <li className="flex items-center gap-2">
               <TroubleshootOutlinedIcon className="!text-[22px]" />
@@ -137,7 +156,7 @@ function UserPage() {
             </li>
             <li className="flex items-center gap-2">
               <HistoryToggleOffOutlinedIcon className="!text-[22px]" />
-              <span>Growing since today</span>
+              <span>Growing since {joinedLabel}</span>
             </li>
           </ul>
 
@@ -170,7 +189,7 @@ function UserPage() {
                     <span className="flex items-baseline gap-1.5 sm:gap-2">
                       <span className="text-lg sm:text-2xl leading-tight whitespace-nowrap">{t.label}</span>
                       <span className="text-sm sm:text-2xl leading-tight opacity-70 sm:opacity-100">
-                        {t.count}
+                        {tabCounts[t.key]}
                       </span>
                     </span>
                     {isActive ? (
@@ -205,7 +224,7 @@ function UserPage() {
           </div>
         </section>
       </div>
-    </Box>
+    </>
   );
 }
 

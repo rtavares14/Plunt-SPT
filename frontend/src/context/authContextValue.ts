@@ -9,6 +9,7 @@ export interface AuthUser {
   bannerUrl?: string | null;
   bio?: string | null;
   city?: string | null;
+  createdAt: string;
   emailVerified: boolean;
   hasPassword: boolean;
   hasGoogleLink: boolean;
