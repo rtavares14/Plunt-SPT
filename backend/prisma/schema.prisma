@@ -18,6 +18,7 @@ model User {
   googleId        String?   @unique
   appleId         String?   @unique
   avatarUrl       String?
+  bannerUrl       String?
   bio             String?
   city            String?
   emailVerifiedAt DateTime?

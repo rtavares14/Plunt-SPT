@@ -1,6 +1,6 @@
 type Fetcher = (input: string, init?: RequestInit) => Promise<Response>;
 
-export type UploadKind = 'plant' | 'planter';
+export type UploadKind = 'plant' | 'planter' | 'avatar' | 'banner';
 
 interface SignaturePayload {
   signature: string;

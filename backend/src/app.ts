@@ -9,6 +9,7 @@ import plantRoutes from './routes/plants';
 import planterRoutes from './routes/planters';
 import speciesRoutes from './routes/species';
 import uploadRoutes from './routes/uploads';
+import userRoutes from './routes/users';
 import { getPrisma } from './lib/prisma';
 import { logger } from './lib/logger';
 
@@ -78,6 +79,7 @@ export function createApp() {
   app.use('/api/planters', planterRoutes);
   app.use('/api/species', speciesRoutes);
   app.use('/api/uploads', uploadRoutes);
+  app.use('/api/users', userRoutes);
 
   // Safety net for any throw that escapes a route handler.
   app.use((err: Error, req: express.Request, res: express.Response, _next: express.NextFunction) => {

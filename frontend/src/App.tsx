@@ -10,6 +10,10 @@ import ForgotPasswordPage from './pages/auth/ForgotPasswordPage';
 import ResetPasswordPage from './pages/auth/ResetPasswordPage';
 import VerifyEmailPage from './pages/auth/VerifyEmailPage';
 import FeedPage from './pages/app/FeedPage';
+import UserPage from './pages/app/profile/UserPage';
+import EditProfilePage from './pages/app/profile/EditProfilePage';
+import ComingSoonPage from './pages/app/ComingSoonPage';
+import ProtectedLayout from './components/ProtectedLayout';
 import { AuthProvider } from './context/AuthContext';
 // Mirror of the colors in tailwind.config.js — update both together if a color changes
 const theme = createTheme({
@@ -39,8 +43,39 @@ function App() {
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
             <Route path="/auth" element={<Navigate to="/login" replace />} />
-            <Route path="/feed" element={<FeedPage />} />
             <Route path="/verify-email" element={<VerifyEmailPage />} />
+            <Route element={<ProtectedLayout />}>
+              <Route path="/feed" element={<FeedPage />} />
+              <Route path="/profile" element={<UserPage />} />
+              <Route path="/profile/edit" element={<EditProfilePage />} />
+              <Route
+                path="/garden"
+                element={
+                  <ComingSoonPage
+                    title="My garden"
+                    description="Your plants and planters will live here, all in one place."
+                  />
+                }
+              />
+              <Route
+                path="/friends"
+                element={
+                  <ComingSoonPage
+                    title="Friends"
+                    description="Connect with your plant people, share collections, and send watering reminders."
+                  />
+                }
+              />
+              <Route
+                path="/notifications"
+                element={
+                  <ComingSoonPage
+                    title="Notifications"
+                    description="Watering reminders, friend requests, and garden updates will show up here."
+                  />
+                }
+              />
+            </Route>
           </Routes>
         </AuthProvider>
       </ThemeProvider>

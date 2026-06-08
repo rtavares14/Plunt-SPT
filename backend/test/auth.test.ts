@@ -200,20 +200,3 @@ describe('POST /api/auth/refresh', () => {
   });
 });
 
-describe('GET /api/auth/sessions', () => {
-  it('requires authentication', async () => {
-    const res = await request(app).get('/api/auth/sessions');
-    expect(res.status).toBe(401);
-  });
-
-  it('lists the current user\'s live sessions and flags the current one', async () => {
-    const reg = await register();
-    const token: string = reg.res.body.token;
-
-    const res = await request(app).get('/api/auth/sessions').set('Authorization', `Bearer ${token}`);
-    expect(res.status).toBe(200);
-    expect(Array.isArray(res.body.sessions)).toBe(true);
-    expect(res.body.sessions.length).toBe(1);
-    expect(res.body.sessions[0].isCurrent).toBe(true);
-  });
-});

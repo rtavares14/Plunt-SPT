@@ -133,17 +133,27 @@ function toPublicUser(u: {
   id: string;
   email: string;
   name: string;
+  username: string;
   avatarUrl: string | null;
+  bannerUrl: string | null;
+  bio: string | null;
+  city: string | null;
   emailVerifiedAt: Date | null;
   password: string | null;
   googleId: string | null;
   appleId: string | null;
+  createdAt: Date;
 }) {
   return {
     id: u.id,
     email: u.email,
     name: u.name,
+    username: u.username,
     avatarUrl: u.avatarUrl,
+    bannerUrl: u.bannerUrl,
+    bio: u.bio,
+    city: u.city,
+    createdAt: u.createdAt.toISOString(),
     emailVerified: u.emailVerifiedAt !== null,
     hasPassword: u.password !== null,
     hasGoogleLink: u.googleId !== null,
@@ -544,6 +554,99 @@ router.post('/reset-password', resetPasswordLimiter, async (req: Request, res: R
   }
 });
 
+// ─── Update profile (PATCH /me) ──────────────────────────
+
+router.patch('/me', authMiddleware, requireVerified, async (req: Request, res: Response) => {
+  try {
+    const userId = req.user!.userId;
+    const errors: Record<string, string> = {};
+    const data: Prisma.UserUpdateInput = {};
+
+    if (req.body.name !== undefined) {
+      if (typeof req.body.name !== 'string') {
+        errors.name = 'Name must be a string';
+      } else {
+        const trimmed = req.body.name.trim();
+        if (!trimmed || trimmed.length > 80) errors.name = 'Name is required (max 80 characters)';
+        else data.name = trimmed;
+      }
+    }
+
+    if (req.body.username !== undefined) {
+      const normalized = normalizeUsername(req.body.username);
+      if (!normalized) {
+        errors.username =
+          'Username must be 3–20 characters (letters, numbers, underscore) and not reserved';
+      } else {
+        data.username = normalized;
+      }
+    }
+
+    if (req.body.bio !== undefined) {
+      if (req.body.bio === null || req.body.bio === '') {
+        data.bio = null;
+      } else if (typeof req.body.bio !== 'string') {
+        errors.bio = 'Bio must be a string';
+      } else if (req.body.bio.length > 500) {
+        errors.bio = 'Bio must be 500 characters or fewer';
+      } else {
+        data.bio = req.body.bio;
+      }
+    }
+
+    if (req.body.city !== undefined) {
+      if (req.body.city === null || req.body.city === '') {
+        data.city = null;
+      } else if (typeof req.body.city !== 'string') {
+        errors.city = 'Location must be a string';
+      } else {
+        const trimmed = req.body.city.trim();
+        if (trimmed.length > 100) errors.city = 'Location must be 100 characters or fewer';
+        else data.city = trimmed || null;
+      }
+    }
+
+    if (req.body.avatarUrl !== undefined) {
+      const v = req.body.avatarUrl;
+      if (v === null || v === '') data.avatarUrl = null;
+      else if (typeof v !== 'string' || v.length > 1024 || !v.startsWith('https://'))
+        errors.avatarUrl = 'avatarUrl must be an https URL';
+      else data.avatarUrl = v;
+    }
+
+    if (req.body.bannerUrl !== undefined) {
+      const v = req.body.bannerUrl;
+      if (v === null || v === '') data.bannerUrl = null;
+      else if (typeof v !== 'string' || v.length > 1024 || !v.startsWith('https://'))
+        errors.bannerUrl = 'bannerUrl must be an https URL';
+      else data.bannerUrl = v;
+    }
+
+    if (Object.keys(errors).length > 0) {
+      res.status(400).json({ error: 'Invalid input', errors });
+      return;
+    }
+    if (Object.keys(data).length === 0) {
+      res.status(400).json({ error: 'No fields to update' });
+      return;
+    }
+
+    try {
+      const updated = await getPrisma().user.update({ where: { id: userId }, data });
+      res.json({ user: toPublicUser(updated) });
+    } catch (err) {
+      if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
+        res.status(409).json({ error: 'Username already taken' });
+        return;
+      }
+      throw err;
+    }
+  } catch (err) {
+    req.log.error({ err }, 'Update profile error');
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // ─── Link Google to the currently signed-in account ──────
 
 router.post('/link-google', oauthLimiter, authMiddleware, requireVerified, async (req: Request, res: Response) => {
@@ -606,88 +709,6 @@ router.post('/link-google', oauthLimiter, authMiddleware, requireVerified, async
   } catch (err) {
     req.log.error({ err }, 'Link Google error');
     res.status(500).json({ error: 'Failed to link Google account' });
-  }
-});
-
-// ─── Sessions management ─────────────────────────────────
-
-router.get('/sessions', authMiddleware, async (req: Request, res: Response) => {
-  try {
-    const rows = await getPrisma().session.findMany({
-      where: {
-        userId: req.user!.userId,
-        revokedAt: null,
-        expiresAt: { gt: new Date() },
-      },
-      orderBy: { createdAt: 'desc' },
-      select: {
-        id: true,
-        userAgent: true,
-        ip: true,
-        createdAt: true,
-        updatedAt: true,
-        expiresAt: true,
-      },
-    });
-    const currentId = req.user!.sessionId;
-    res.json({
-      sessions: rows.map((r) => ({ ...r, isCurrent: r.id === currentId })),
-    });
-  } catch (err) {
-    req.log.error({ err }, 'List sessions error');
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-router.delete('/sessions/:id', authMiddleware, async (req: Request, res: Response) => {
-  try {
-    const id = req.params.id;
-    const userId = req.user!.userId;
-    if (typeof id !== 'string' || !id) {
-      res.status(400).json({ error: 'Invalid session id' });
-      return;
-    }
-
-    const result = await getPrisma().session.updateMany({
-      where: { id, userId, revokedAt: null },
-      data: { revokedAt: new Date() },
-    });
-    if (result.count === 0) {
-      res.status(404).json({ error: 'Session not found' });
-      return;
-    }
-
-    // If the user revoked the session they're currently on, also clear the cookie.
-    if (id === req.user!.sessionId) {
-      clearRefreshCookie(res);
-    }
-    res.status(204).end();
-  } catch (err) {
-    req.log.error({ err }, 'Revoke session error');
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-router.post('/logout-all', authMiddleware, async (req: Request, res: Response) => {
-  try {
-    const keepCurrent = req.body?.keepCurrent !== false; // default true
-    const userId = req.user!.userId;
-    const currentId = req.user!.sessionId;
-
-    await getPrisma().session.updateMany({
-      where: {
-        userId,
-        revokedAt: null,
-        ...(keepCurrent ? { NOT: { id: currentId } } : {}),
-      },
-      data: { revokedAt: new Date() },
-    });
-
-    if (!keepCurrent) clearRefreshCookie(res);
-    res.status(204).end();
-  } catch (err) {
-    req.log.error({ err }, 'Logout-all error');
-    res.status(500).json({ error: 'Internal server error' });
   }
 });
 

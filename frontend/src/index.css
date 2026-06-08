@@ -43,3 +43,29 @@
   max-width: 100%;
 }
 
+/* Diagonal striped pattern used by the profile banner and the avatar fallback.
+   Cannot be expressed as a Tailwind utility cleanly because it interleaves
+   four shades of green at a fixed angle. */
+.bg-stripes-olive {
+  background-color: theme('colors.olive-main');
+  background-image: repeating-linear-gradient(
+    135deg,
+    theme('colors.olive-main') 0,
+    theme('colors.olive-main') 14px,
+    theme('colors.olive-light') 14px,
+    theme('colors.olive-light') 28px,
+    theme('colors.olive-main') 28px,
+    theme('colors.olive-main') 42px,
+    theme('colors.olive-opac') 42px,
+    theme('colors.olive-opac') 56px
+  );
+}
+
+/* Hide scrollbar while keeping scroll behaviour — used by the tab bar on mobile */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}

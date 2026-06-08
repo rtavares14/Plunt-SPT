@@ -66,7 +66,9 @@ function NavBar() {
             <IconButton aria-label="Notifications" className="!text-cream-soft">
               <NotificationsNoneIcon />
             </IconButton>
-            <Avatar name={user?.name ?? '?'} src={user?.avatarUrl} />
+            <Link to="/profile" aria-label="Profile" className="flex items-center">
+              <Avatar name={user?.name ?? '?'} src={user?.avatarUrl} />
+            </Link>
           </div>
 
           <IconButton

@@ -19,8 +19,10 @@ function configure() {
 }
 
 const FOLDERS: Record<string, string | undefined> = {
-  plant: process.env.CLOUDINARY_PLANT_FOLDER,
-  planter: process.env.CLOUDINARY_PLANTER_FOLDER,
+  plant: process.env.CLOUDINARY_USERS_PLANTS_FOLDER,
+  planter: process.env.CLOUDINARY_USERS_PLANTERS_FOLDER,
+  avatar: process.env.CLOUDINARY_USERS_AVATARS_FOLDER,
+  banner: process.env.CLOUDINARY_USERS_BANNERS_FOLDER,
 };
 
 const ALLOWED_FORMATS = 'jpg,jpeg,png,webp';
@@ -38,7 +40,7 @@ router.post('/signature', (req: Request, res: Response) => {
     const kind = String(req.body?.kind ?? '');
     const folder = FOLDERS[kind];
     if (!folder) {
-      res.status(400).json({ error: "kind must be 'plant' or 'planter'" });
+      res.status(400).json({ error: "kind must be 'plant', 'planter', 'avatar', or 'banner'" });
       return;
     }
 
