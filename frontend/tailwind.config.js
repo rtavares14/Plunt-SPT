@@ -15,6 +15,7 @@ export default {
         'olive-opac': 'rgba(91, 105, 82, 0.5)',
         'accent-red': '#DC2626',
         'accent-green': '#16A34A',
+        'accent-clay': '#B0543C',
       },
       fontFamily: {
         lateef: ['Lateef', 'Georgia', 'serif'],
