@@ -10,12 +10,29 @@ import {
   optionalUrl,
   trimmedString,
 } from '../lib/validate';
+import { isKnownCity } from '../lib/geocoding';
 
 const router = Router();
 
 router.use(authMiddleware, requireVerified);
 
 const SUNLIGHT_VALUES: Sunlight[] = [Sunlight.HIGH, Sunlight.MEDIUM, Sunlight.LOW];
+
+/**
+ * Confirms a non-empty city is a real place per the geocoder, mirroring the
+ * frontend's CityAutocomplete. Skipped under test to keep the suite offline and
+ * deterministic. Fails open on geocoder outage so a third-party hiccup can't
+ * block plant creation (the UI has already validated by this point).
+ */
+async function cityIsAcceptable(city: string, req: Request): Promise<boolean> {
+  if (process.env.NODE_ENV === 'test') return true;
+  try {
+    return await isKnownCity(city);
+  } catch {
+    req.log.warn('City geocoding check skipped: geocoder unavailable');
+    return true;
+  }
+}
 
 router.get('/', async (req: Request, res: Response) => {
   try {
@@ -36,15 +53,31 @@ router.get('/', async (req: Request, res: Response) => {
 
 router.post('/', async (req: Request, res: Response) => {
   try {
-    const name = trimmedString(req.body?.name, 80);
+    const name = trimmedString(req.body?.name, 50);
     if (!name) {
-      res.status(400).json({ error: 'Name is required (max 80 characters)' });
+      res.status(400).json({ error: 'Name is required (max 50 characters)' });
       return;
     }
 
-    const species = optionalString(req.body?.species, 120);
+    const species = optionalString(req.body?.species, 70);
     if (species === INVALID) {
       res.status(400).json({ error: 'Species is invalid' });
+      return;
+    }
+
+    const notes = optionalString(req.body?.notes, 200);
+    if (notes === INVALID) {
+      res.status(400).json({ error: 'Notes are invalid' });
+      return;
+    }
+
+    const city = optionalString(req.body?.city, 100);
+    if (city === INVALID) {
+      res.status(400).json({ error: 'City is invalid' });
+      return;
+    }
+    if (city && !(await cityIsAcceptable(city, req))) {
+      res.status(400).json({ error: 'Pick a real city from the suggestions' });
       return;
     }
 
@@ -110,6 +143,8 @@ router.post('/', async (req: Request, res: Response) => {
         planterId: planterId ?? null,
         name,
         species: species ?? null,
+        notes: notes ?? null,
+        city: city ?? null,
         wateringIntervalDays: wateringIntervalDays ?? 7,
         sunlight: (sunlightValue as Sunlight | undefined) ?? Sunlight.MEDIUM,
         minTemp: minTemp ?? null,
@@ -147,21 +182,43 @@ router.patch('/:id', async (req: Request, res: Response) => {
     const data: Record<string, unknown> = {};
 
     if (req.body?.name !== undefined) {
-      const name = trimmedString(req.body.name, 80);
+      const name = trimmedString(req.body.name, 50);
       if (!name) {
-        res.status(400).json({ error: 'Name is required (max 80 characters)' });
+        res.status(400).json({ error: 'Name is required (max 50 characters)' });
         return;
       }
       data.name = name;
     }
 
     if (req.body?.species !== undefined) {
-      const species = optionalString(req.body.species, 120);
+      const species = optionalString(req.body.species, 70);
       if (species === INVALID) {
         res.status(400).json({ error: 'Species is invalid' });
         return;
       }
       data.species = species;
+    }
+
+    if (req.body?.notes !== undefined) {
+      const notes = optionalString(req.body.notes, 200);
+      if (notes === INVALID) {
+        res.status(400).json({ error: 'Notes are invalid' });
+        return;
+      }
+      data.notes = notes;
+    }
+
+    if (req.body?.city !== undefined) {
+      const city = optionalString(req.body.city, 100);
+      if (city === INVALID) {
+        res.status(400).json({ error: 'City is invalid' });
+        return;
+      }
+      if (city && !(await cityIsAcceptable(city, req))) {
+        res.status(400).json({ error: 'Pick a real city from the suggestions' });
+        return;
+      }
+      data.city = city;
     }
 
     if (req.body?.wateringIntervalDays !== undefined) {

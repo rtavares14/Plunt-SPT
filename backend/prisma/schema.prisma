@@ -27,6 +27,7 @@ model User {
 
   plants     Plant[]
   planters   Planter[]
+  questions  Question[]
   sessions   Session[]
   authTokens AuthToken[]
 
@@ -104,6 +105,8 @@ model Plant {
   planterId            String?
   name                 String
   species              String?
+  notes                String?
+  city                 String?
   isDead               Boolean   @default(false)
   wateringIntervalDays Int       @default(7)
   sunlight             Sunlight  @default(MEDIUM)
@@ -193,6 +196,33 @@ model Friendship {
 
   @@unique([requesterId, addresseeId])
   @@map("friendships")
+}
+
+// ─── Q&A (post-it notes) ─────────────────────────────────
+
+enum NoteColor {
+  YELLOW
+  PINK
+  BLUE
+  GREEN
+
+  @@map("note_color")
+}
+
+model Question {
+  id        String    @id @default(uuid())
+  authorId  String
+  title     String?
+  body      String
+  color     NoteColor @default(YELLOW)
+  resolved  Boolean   @default(false)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([authorId])
+  @@map("questions")
 }
 
 // ─── User Blocks ─────────────────────────────────────────
