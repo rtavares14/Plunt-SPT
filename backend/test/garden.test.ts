@@ -196,3 +196,199 @@ describe('Plant temperature validation', () => {
     expect(res.body.plant.wateringIntervalDays).toBe(7);
   });
 });
+
+describe('Plant notes/city fields', () => {
+  it('persists notes and city on creation and on update', async () => {
+    const a = await registerVerified();
+
+    const created = await request(app)
+      .post('/api/plants')
+      .set('Authorization', `Bearer ${a.token}`)
+      .send({
+        name: 'Vera the slow Monstera',
+        species: 'Monstera deliciosa',
+        notes: 'Found at a flea market in Alfama',
+        city: 'Lisbon',
+        sunlight: 'MEDIUM',
+      });
+    expect(created.status).toBe(201);
+    expect(created.body.plant.notes).toBe('Found at a flea market in Alfama');
+    expect(created.body.plant.city).toBe('Lisbon');
+
+    const id: string = created.body.plant.id;
+    const updated = await request(app)
+      .patch(`/api/plants/${id}`)
+      .set('Authorization', `Bearer ${a.token}`)
+      .send({ city: 'Porto', notes: null });
+    expect(updated.status).toBe(200);
+    expect(updated.body.plant.city).toBe('Porto');
+    expect(updated.body.plant.notes).toBeNull();
+  });
+});
+
+describe('Plant creation (all fields and defaults)', () => {
+  it('persists every field when all are supplied', async () => {
+    const a = await registerVerified();
+
+    const planterRes = await request(app)
+      .post('/api/planters')
+      .set('Authorization', `Bearer ${a.token}`)
+      .send({ name: 'Kitchen window', isIndoor: true });
+    expect(planterRes.status).toBe(201);
+    const planterId: string = planterRes.body.planter.id;
+
+    const lastWateredAt = '2026-06-01T00:00:00.000Z';
+    const dateAcquired = '2026-05-15T00:00:00.000Z';
+
+    const res = await request(app)
+      .post('/api/plants')
+      .set('Authorization', `Bearer ${a.token}`)
+      .send({
+        name: 'Vera the slow Monstera',
+        species: 'Monstera deliciosa',
+        notes: 'Found at a flea market in Alfama',
+        city: 'Lisbon, Portugal',
+        sunlight: 'HIGH',
+        wateringIntervalDays: 10,
+        minTemp: 12,
+        maxTemp: 30,
+        lastWateredAt,
+        dateAcquired,
+        planterId,
+        imageUrl: 'https://example.com/vera.jpg',
+      });
+
+    expect(res.status).toBe(201);
+    const plant = res.body.plant;
+    expect(plant.id).toBeTruthy();
+    expect(plant.ownerId).toBe(a.userId);
+    expect(plant.name).toBe('Vera the slow Monstera');
+    expect(plant.species).toBe('Monstera deliciosa');
+    expect(plant.notes).toBe('Found at a flea market in Alfama');
+    expect(plant.city).toBe('Lisbon, Portugal');
+    expect(plant.sunlight).toBe('HIGH');
+    expect(plant.wateringIntervalDays).toBe(10);
+    expect(plant.minTemp).toBe(12);
+    expect(plant.maxTemp).toBe(30);
+    expect(plant.isDead).toBe(false);
+    expect(new Date(plant.lastWateredAt).toISOString()).toBe(lastWateredAt);
+    expect(new Date(plant.dateAcquired).toISOString()).toBe(dateAcquired);
+    expect(plant.planterId).toBe(planterId);
+    expect(plant.planter).toMatchObject({ id: planterId, name: 'Kitchen window', isIndoor: true });
+    expect(plant.images).toHaveLength(1);
+    expect(plant.images[0].url).toBe('https://example.com/vera.jpg');
+  });
+
+  it('applies defaults when only the required name is supplied', async () => {
+    const a = await registerVerified();
+
+    const res = await request(app)
+      .post('/api/plants')
+      .set('Authorization', `Bearer ${a.token}`)
+      .send({ name: 'Just a name' });
+
+    expect(res.status).toBe(201);
+    const plant = res.body.plant;
+    expect(plant.name).toBe('Just a name');
+    expect(plant.species).toBeNull();
+    expect(plant.notes).toBeNull();
+    expect(plant.city).toBeNull();
+    expect(plant.sunlight).toBe('MEDIUM');
+    expect(plant.wateringIntervalDays).toBe(7);
+    expect(plant.minTemp).toBeNull();
+    expect(plant.maxTemp).toBeNull();
+    expect(plant.isDead).toBe(false);
+    expect(plant.lastWateredAt).toBeNull();
+    expect(plant.planterId).toBeNull();
+    expect(plant.planter).toBeNull();
+    expect(plant.images).toEqual([]);
+    expect(plant.dateAcquired).toBeTruthy();
+  });
+
+  it('rejects creation with no name', async () => {
+    const a = await registerVerified();
+    const res = await request(app)
+      .post('/api/plants')
+      .set('Authorization', `Bearer ${a.token}`)
+      .send({ species: 'Monstera deliciosa' });
+    expect(res.status).toBe(400);
+    expect(res.body.error).toMatch(/name/i);
+  });
+
+  it('rejects a name longer than 50 characters', async () => {
+    const a = await registerVerified();
+    const res = await request(app)
+      .post('/api/plants')
+      .set('Authorization', `Bearer ${a.token}`)
+      .send({ name: 'x'.repeat(51) });
+    expect(res.status).toBe(400);
+    expect(res.body.error).toMatch(/name/i);
+  });
+
+  it('rejects a scientific name longer than 70 characters', async () => {
+    const a = await registerVerified();
+    const res = await request(app)
+      .post('/api/plants')
+      .set('Authorization', `Bearer ${a.token}`)
+      .send({ name: 'Long species', species: 'x'.repeat(71) });
+    expect(res.status).toBe(400);
+    expect(res.body.error).toMatch(/species/i);
+  });
+
+  it('rejects notes longer than 200 characters', async () => {
+    const a = await registerVerified();
+    const res = await request(app)
+      .post('/api/plants')
+      .set('Authorization', `Bearer ${a.token}`)
+      .send({ name: 'Long notes', notes: 'x'.repeat(201) });
+    expect(res.status).toBe(400);
+    expect(res.body.error).toMatch(/notes/i);
+  });
+
+  it('rejects an invalid sunlight value', async () => {
+    const a = await registerVerified();
+    const res = await request(app)
+      .post('/api/plants')
+      .set('Authorization', `Bearer ${a.token}`)
+      .send({ name: 'Bad light', sunlight: 'BLAZING' });
+    expect(res.status).toBe(400);
+    expect(res.body.error).toMatch(/sunlight/i);
+  });
+
+  it('rejects a watering interval outside 1-365', async () => {
+    const a = await registerVerified();
+    const res = await request(app)
+      .post('/api/plants')
+      .set('Authorization', `Bearer ${a.token}`)
+      .send({ name: 'Bad interval', wateringIntervalDays: 0 });
+    expect(res.status).toBe(400);
+    expect(res.body.error).toMatch(/wateringIntervalDays/i);
+  });
+
+  it('rejects creation when minTemp is greater than maxTemp', async () => {
+    const a = await registerVerified();
+    const res = await request(app)
+      .post('/api/plants')
+      .set('Authorization', `Bearer ${a.token}`)
+      .send({ name: 'Bad temps', minTemp: 25, maxTemp: 10 });
+    expect(res.status).toBe(400);
+    expect(res.body.error).toMatch(/minTemp/i);
+  });
+
+  it("rejects a planterId belonging to another user", async () => {
+    const a = await registerVerified();
+    const b = await registerVerified();
+    const bPlanter = await request(app)
+      .post('/api/planters')
+      .set('Authorization', `Bearer ${b.token}`)
+      .send({ name: "B's planter", isIndoor: false });
+    expect(bPlanter.status).toBe(201);
+
+    const res = await request(app)
+      .post('/api/plants')
+      .set('Authorization', `Bearer ${a.token}`)
+      .send({ name: 'Cross tenant', planterId: bPlanter.body.planter.id });
+    expect(res.status).toBe(400);
+    expect(res.body.error).toMatch(/planter/i);
+  });
+});
