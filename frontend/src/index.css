@@ -61,6 +61,19 @@
   );
 }
 
+/* Lined-paper backdrop for the plant creation journal panel. Faint cream-main
+   rules on cream-soft, mirroring a notebook. Tokens only, kept here because the
+   repeating gradient cannot be expressed as a Tailwind utility. */
+.bg-journal {
+  background-color: theme('colors.cream-soft');
+  background-image: repeating-linear-gradient(
+    theme('colors.cream-soft') 0px,
+    theme('colors.cream-soft') 31px,
+    theme('colors.cream-main') 31px,
+    theme('colors.cream-main') 32px
+  );
+}
+
 /* Hide scrollbar while keeping scroll behaviour — used by the tab bar on mobile */
 .scrollbar-hide {
   -ms-overflow-style: none;
