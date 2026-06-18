@@ -20,11 +20,14 @@ function QuestionCard({ question, onDelete }: QuestionCardProps) {
       {onDelete ? (
         <IconButton
           aria-label="Delete question"
-          onClick={() => onDelete(question)}
-          className="!absolute !top-1.5 !right-1.5 !text-olive-main/60 hover:!text-accent-clay"
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete(question);
+          }}
+          className="!absolute !top-2 !right-2 !z-10 !bg-cream-soft/80 !text-accent-clay hover:!bg-cream-soft"
           size="small"
         >
-          <DeleteOutlineIcon className="!text-lg" />
+          <DeleteOutlineIcon className="!text-xl" />
         </IconButton>
       ) : null}
 

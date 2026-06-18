@@ -2,7 +2,6 @@ import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import WaterDropOutlinedIcon from '@mui/icons-material/WaterDropOutlined';
 import RepeatIcon from '@mui/icons-material/Repeat';
-import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlined';
 import type { PlantSummary } from '../api/plants';
 
@@ -60,18 +59,19 @@ function PlantCard({ plant, onClick, onDelete }: PlantCardProps) {
         <Typography className="!text-olive-main !text-xl sm:!text-2xl !font-semibold !leading-tight truncate">
           {plant.name}
         </Typography>
-        <p className="text-olive-light text-base sm:text-lg leading-tight mt-0.5">
-          {wateringLabel(plant)}
-        </p>
         {plant.notes ? (
-          <p className="text-olive-light text-base leading-snug mt-1.5 line-clamp-2">
+          <p className="text-olive-light text-base leading-snug mt-1 line-clamp-2">
             {plant.notes}
           </p>
         ) : null}
-        <div className="flex items-center gap-4 text-olive-light mt-auto pt-3">
-          <WaterDropOutlinedIcon className="!text-xl" />
-          <RepeatIcon className="!text-xl" />
-          <BookmarkBorderIcon className="!text-xl" />
+        <div className="flex items-center justify-between text-olive-light mt-auto pt-3">
+          <div className="flex items-center gap-4">
+            <WaterDropOutlinedIcon className="!text-xl" />
+            <RepeatIcon className="!text-xl" />
+          </div>
+          <span className="text-base sm:text-lg leading-tight">
+            {wateringLabel(plant)}
+          </span>
         </div>
       </div>
     </div>

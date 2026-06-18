@@ -307,6 +307,7 @@ function CreatePlantPage() {
                     onChange={(e) => setPlanterId(e.target.value)}
                     fullWidth
                     sx={fieldSx}
+                    slotProps={{ select: { displayEmpty: true } }}
                     helperText={
                       planters.length === 0
                         ? 'Create a planter first to group plants by where they live.'
