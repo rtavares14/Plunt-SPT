@@ -1,8 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
-import AddIcon from '@mui/icons-material/Add';
+import Tooltip from '@mui/material/Tooltip';
 import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
 import WbSunnyOutlinedIcon from '@mui/icons-material/WbSunnyOutlined';
 import GrassOutlinedIcon from '@mui/icons-material/GrassOutlined';
@@ -11,6 +10,8 @@ import WaterDropOutlinedIcon from '@mui/icons-material/WaterDropOutlined';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutlineOutlined';
 import RepeatIcon from '@mui/icons-material/Repeat';
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
+import PhotoCameraOutlinedIcon from '@mui/icons-material/PhotoCameraOutlined';
+import HelpCenterOutlinedIcon from '@mui/icons-material/HelpCenterOutlined';
 import { useAuth } from '../../context/useAuth';
 import {
   listPlants,
@@ -19,6 +20,8 @@ import {
   type PlanterSummary,
 } from '../../api/plants';
 import { listQuestions, NOTE_BG, type QuestionSummary } from '../../api/questions';
+import WeatherSidebar from '../../components/WeatherSidebar';
+import FeedLeftSidebar, { type FeedFilter } from '../../components/FeedLeftSidebar';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -48,10 +51,12 @@ type FeedItem =
 
 function FeedPage() {
   const { user, authFetch } = useAuth();
+  const navigate = useNavigate();
   const [plants, setPlants] = useState<PlantSummary[]>([]);
   const [planters, setPlanters] = useState<PlanterSummary[]>([]);
   const [questions, setQuestions] = useState<QuestionSummary[]>([]);
   const [loaded, setLoaded] = useState(false);
+  const [filter, setFilter] = useState<FeedFilter>('all');
 
   useEffect(() => {
     if (!user) return;
@@ -95,6 +100,13 @@ function FeedPage() {
     })),
   ].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
+  const visibleItems = items.filter((item) => {
+    if (filter === 'photos') return item.kind === 'plant' || item.kind === 'planter';
+    if (filter === 'questions') return item.kind === 'question';
+    if (filter === 'watering') return false; // coming soon
+    return true;
+  });
+
   const avatar = user.avatarUrl ? (
     <img
       src={user.avatarUrl}
@@ -107,30 +119,70 @@ function FeedPage() {
     </span>
   );
 
-  if (loaded && items.length === 0) {
-    return (
-      <main className="flex-1 flex flex-col items-center justify-center px-6 text-center">
-        <Typography className="!text-olive-main !text-4xl sm:!text-5xl !font-semibold !mb-3">
-          Welcome, {user.name}.
-        </Typography>
-        <Typography className="!text-olive-light !text-xl sm:!text-2xl !max-w-xl !mb-6">
-          Your feed is quiet. Plant your first one and it shows up right here.
-        </Typography>
-        <Button
-          component={Link}
-          to="/plants/new"
-          startIcon={<AddIcon />}
-          className="!bg-olive-main !text-cream-soft !text-lg sm:!text-xl !normal-case !rounded-lg !px-5 !py-2.5 hover:!bg-olive-light"
-        >
-          Create a plant
-        </Button>
-      </main>
-    );
-  }
+  const quickActionBar = (
+    <div className="rounded-2xl border border-olive-main/15 bg-cream-soft shadow-sm px-4 sm:px-5 py-3.5 flex items-center gap-3">
+      {avatar}
 
-  return (
-    <main className="flex-1 w-full max-w-2xl mx-auto px-4 sm:px-6 py-8 space-y-6">
-      {items.map((item) => {
+      <span className="flex-1 text-olive-light/70 text-base sm:text-lg select-none">
+        Share an update with your friends...
+      </span>
+
+      <div className="flex items-center gap-4 text-olive-light">
+        <Tooltip title="New plant" placement="top" arrow>
+          <button
+            type="button"
+            onClick={() => navigate('/plants/new')}
+            className="flex items-center justify-center hover:text-olive-main transition-colors"
+          >
+            <GrassOutlinedIcon className="!text-2xl" />
+          </button>
+        </Tooltip>
+
+        <Tooltip title="Coming soon" placement="top" arrow>
+          <span className="flex items-center justify-center opacity-40 cursor-not-allowed">
+            <PhotoCameraOutlinedIcon className="!text-2xl" />
+          </span>
+        </Tooltip>
+
+        <Tooltip title="Coming soon" placement="top" arrow>
+          <span className="flex items-center justify-center opacity-40 cursor-not-allowed">
+            <WaterDropOutlinedIcon className="!text-2xl" />
+          </span>
+        </Tooltip>
+
+        <Tooltip title="New Q&A" placement="top" arrow>
+          <button
+            type="button"
+            onClick={() => navigate('/questions/new')}
+            className="flex items-center justify-center hover:text-olive-main transition-colors"
+          >
+            <HelpCenterOutlinedIcon className="!text-2xl" />
+          </button>
+        </Tooltip>
+      </div>
+    </div>
+  );
+
+  const feedContent =
+    loaded && visibleItems.length === 0 ? (
+      <div className="flex flex-col items-center justify-center py-20 text-center">
+        {items.length === 0 ? (
+          <>
+            <Typography className="!text-olive-main !text-3xl sm:!text-4xl !font-semibold !mb-2">
+              Welcome, {user.name}.
+            </Typography>
+            <Typography className="!text-olive-light !text-lg sm:!text-xl !max-w-md">
+              Your feed is quiet. Hit a quick-action icon above to get started.
+            </Typography>
+          </>
+        ) : (
+          <Typography className="!text-olive-light !text-lg">
+            Nothing here with that filter yet.
+          </Typography>
+        )}
+      </div>
+    ) : (
+      visibleItems.map((item) => {
         if (item.kind === 'plant') {
           return (
             <FeedCard
@@ -210,7 +262,30 @@ function FeedPage() {
             }
           />
         );
-      })}
+      })
+    );
+
+  return (
+    <main className="flex-1 w-full flex min-h-[calc(100vh-4rem)]">
+      {/* Left sidebar — friends + filter */}
+      <aside className="w-56 flex-none hidden xl:flex bg-cream-soft px-5 py-8">
+        <div className="sticky top-8 w-full">
+          <FeedLeftSidebar filter={filter} onFilter={setFilter} />
+        </div>
+      </aside>
+
+      {/* Center — feed */}
+      <div className="flex-1 min-w-0 space-y-5 px-4 sm:px-6 py-8">
+        {quickActionBar}
+        {feedContent}
+      </div>
+
+      {/* Right sidebar — weather + up next */}
+      <aside className="w-64 flex-none hidden xl:flex bg-cream-soft px-5 py-8">
+        <div className="sticky top-8 w-full">
+          <WeatherSidebar city={user.city} plants={plants} />
+        </div>
+      </aside>
     </main>
   );
 }
