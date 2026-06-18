@@ -11,6 +11,12 @@ interface CityAutocompleteProps {
   error?: boolean;
   helperText?: string;
   label?: string;
+  /**
+   * Fires whenever the current value's geocoding status changes. A value is
+   * "valid" only when it exactly matches a city the Photon / OSM API returned
+   * (the initial value is trusted as already-validated). Empty counts as valid.
+   */
+  onValidityChange?: (valid: boolean) => void;
 }
 
 /**
@@ -24,9 +30,15 @@ function CityAutocomplete({
   error,
   helperText = 'Powered by Photon / OpenStreetMap',
   label = 'Location',
+  onValidityChange,
 }: CityAutocompleteProps) {
   const [options, setOptions] = useState<CitySuggestion[]>([]);
   const [loading, setLoading] = useState(false);
+  // Labels the API has actually returned this session. Seeded with the initial
+  // value so a pre-filled (already-validated) city isn't flagged on mount.
+  const [validLabels, setValidLabels] = useState<Set<string>>(() =>
+    value.trim() ? new Set([value.trim()]) : new Set(),
+  );
 
   useEffect(() => {
     if (value.trim().length < 2) {
@@ -38,7 +50,15 @@ function CityAutocomplete({
     setLoading(true);
     const handle = window.setTimeout(async () => {
       try {
-        setOptions(await searchCities(value, ctrl.signal));
+        const results = await searchCities(value, ctrl.signal);
+        setOptions(results);
+        if (results.length) {
+          setValidLabels((prev) => {
+            const next = new Set(prev);
+            for (const r of results) next.add(r.label);
+            return next;
+          });
+        }
       } catch {
         // ignore: aborted or network error, keep last options
       } finally {
@@ -50,6 +70,11 @@ function CityAutocomplete({
       ctrl.abort();
     };
   }, [value]);
+
+  useEffect(() => {
+    const trimmed = value.trim();
+    onValidityChange?.(trimmed === '' || validLabels.has(trimmed));
+  }, [value, validLabels, onValidityChange]);
 
   return (
     <Autocomplete

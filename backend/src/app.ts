@@ -7,6 +7,7 @@ import authRoutes from './routes/auth';
 import waitlistRoutes from './routes/waitlist';
 import plantRoutes from './routes/plants';
 import planterRoutes from './routes/planters';
+import questionRoutes from './routes/questions';
 import speciesRoutes from './routes/species';
 import uploadRoutes from './routes/uploads';
 import userRoutes from './routes/users';
@@ -77,6 +78,7 @@ export function createApp() {
   app.use('/api/waitlist', waitlistRoutes);
   app.use('/api/plants', plantRoutes);
   app.use('/api/planters', planterRoutes);
+  app.use('/api/questions', questionRoutes);
   app.use('/api/species', speciesRoutes);
   app.use('/api/uploads', uploadRoutes);
   app.use('/api/users', userRoutes);

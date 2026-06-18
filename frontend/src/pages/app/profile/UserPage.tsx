@@ -10,10 +10,34 @@ import BalconyOutlinedIcon from '@mui/icons-material/BalconyOutlined';
 import HelpOutlineOutlinedIcon from '@mui/icons-material/HelpOutlineOutlined';
 import GroupAddOutlinedIcon from '@mui/icons-material/GroupAddOutlined';
 import AddIcon from '@mui/icons-material/Add';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../../context/useAuth';
+import {
+  listPlants,
+  deletePlant,
+  listPlanters,
+  deletePlanter,
+  type PlantSummary,
+  type PlanterSummary,
+} from '../../../api/plants';
+import {
+  listQuestions,
+  deleteQuestion,
+  type QuestionSummary,
+} from '../../../api/questions';
+import PlantCard from '../../../components/PlantCard';
+import PlanterCard from '../../../components/PlanterCard';
+import QuestionCard from '../../../components/QuestionCard';
 
 type TabKey = 'plants' | 'planters' | 'qa' | 'friends';
+
+// Where each tab's "create" CTA navigates. Tabs without a flow yet stay null.
+const NEW_ROUTES: Record<TabKey, string | null> = {
+  plants: '/plants/new',
+  planters: '/planters/new',
+  qa: '/questions/new',
+  friends: null,
+};
 
 interface Tab {
   key: TabKey;
@@ -65,9 +89,18 @@ const TABS: Tab[] = [
 
 function UserPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const initialTab = (location.state as { tab?: TabKey } | null)?.tab ?? 'plants';
   const { user, authFetch } = useAuth();
-  const [activeTab, setActiveTab] = useState<TabKey>('plants');
-  const [stats, setStats] = useState<{ plantCount: number; planterCount: number } | null>(null);
+  const [activeTab, setActiveTab] = useState<TabKey>(initialTab);
+  const [stats, setStats] = useState<{
+    plantCount: number;
+    planterCount: number;
+    questionCount: number;
+  } | null>(null);
+  const [plants, setPlants] = useState<PlantSummary[]>([]);
+  const [planters, setPlanters] = useState<PlanterSummary[]>([]);
+  const [questions, setQuestions] = useState<QuestionSummary[]>([]);
 
   useEffect(() => {
     if (!user) return;
@@ -76,10 +109,38 @@ function UserPage() {
       try {
         const res = await authFetch('/api/users/me/stats');
         if (!res.ok) return;
-        const data = (await res.json()) as { plantCount: number; planterCount: number };
+        const data = (await res.json()) as {
+          plantCount: number;
+          planterCount: number;
+          questionCount: number;
+        };
         if (!cancelled) setStats(data);
       } catch {
         // ignore, leaves stats null which renders zeros
+      }
+    })();
+    (async () => {
+      try {
+        const list = await listPlants(authFetch);
+        if (!cancelled) setPlants(list);
+      } catch {
+        // ignore, leaves the empty state visible
+      }
+    })();
+    (async () => {
+      try {
+        const list = await listPlanters(authFetch);
+        if (!cancelled) setPlanters(list);
+      } catch {
+        // ignore, leaves the empty state visible
+      }
+    })();
+    (async () => {
+      try {
+        const list = await listQuestions(authFetch);
+        if (!cancelled) setQuestions(list);
+      } catch {
+        // ignore, leaves the empty state visible
       }
     })();
     return () => {
@@ -87,14 +148,54 @@ function UserPage() {
     };
   }, [user, authFetch]);
 
+  async function handleDelete(plant: PlantSummary) {
+    if (!window.confirm(`Delete ${plant.name}? This can't be undone.`)) return;
+    try {
+      await deletePlant(authFetch, plant.id);
+      setPlants((prev) => prev.filter((p) => p.id !== plant.id));
+      setStats((prev) =>
+        prev ? { ...prev, plantCount: Math.max(0, prev.plantCount - 1) } : prev,
+      );
+    } catch {
+      // ignore: leaves the plant in place if the delete failed
+    }
+  }
+
+  async function handleDeletePlanter(planter: PlanterSummary) {
+    if (!window.confirm(`Delete ${planter.name}? This can't be undone.`)) return;
+    try {
+      await deletePlanter(authFetch, planter.id);
+      setPlanters((prev) => prev.filter((p) => p.id !== planter.id));
+      setStats((prev) =>
+        prev ? { ...prev, planterCount: Math.max(0, prev.planterCount - 1) } : prev,
+      );
+    } catch {
+      // ignore: leaves the planter in place if the delete failed
+    }
+  }
+
+  async function handleDeleteQuestion(question: QuestionSummary) {
+    if (!window.confirm("Delete this question? This can't be undone.")) return;
+    try {
+      await deleteQuestion(authFetch, question.id);
+      setQuestions((prev) => prev.filter((q) => q.id !== question.id));
+      setStats((prev) =>
+        prev ? { ...prev, questionCount: Math.max(0, prev.questionCount - 1) } : prev,
+      );
+    } catch {
+      // ignore: leaves the question in place if the delete failed
+    }
+  }
+
   if (!user) return null;
 
-  const plantCount = stats?.plantCount ?? 0;
-  const planterCount = stats?.planterCount ?? 0;
+  const plantCount = stats?.plantCount ?? plants.length;
+  const planterCount = stats?.planterCount ?? planters.length;
+  const questionCount = stats?.questionCount ?? questions.length;
   const tabCounts: Record<TabKey, number> = {
     plants: plantCount,
     planters: planterCount,
-    qa: 0,
+    qa: questionCount,
     friends: 0,
   };
 
@@ -203,28 +304,79 @@ function UserPage() {
             <div className="pointer-events-none absolute top-0 right-0 h-full w-10 bg-gradient-to-l from-cream-main to-transparent sm:hidden" />
           </div>
 
-          <div className="mt-8 sm:mt-12 flex justify-center">
-            <div className="w-full max-w-md rounded-2xl border border-olive-main/15 bg-cream-soft px-6 py-8 sm:px-10 sm:py-10 flex flex-col items-center text-center shadow-sm">
-              <div className="relative w-28 h-28 sm:w-36 sm:h-36 rounded-full bg-stripes-olive ring-4 ring-cream-soft mb-5 flex items-center justify-center">
-                <ActiveIcon className="!text-cream-soft !text-6xl sm:!text-7xl" />
-              </div>
-              <Typography className="!text-olive-main !text-2xl sm:!text-3xl !font-semibold !mb-2">
-                {active.emptyTitle}
-              </Typography>
-              <p className="text-olive-light text-lg sm:text-xl max-w-sm mb-6 leading-snug">
-                {active.emptyDescription}
-              </p>
-              <Button
-                startIcon={<AddIcon />}
-                className="!bg-olive-main !text-cream-soft !text-lg sm:!text-xl !normal-case !rounded-lg !px-5 !py-2.5 hover:!bg-olive-light"
-              >
-                {active.cta}
-              </Button>
+          {activeTab === 'plants' && plants.length > 0 ? (
+            <div className="mt-8 sm:mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+              {plants.map((plant) => (
+                <PlantCard key={plant.id} plant={plant} onDelete={handleDelete} />
+              ))}
+              <AddCard label="Add a new plant" onClick={() => navigate('/plants/new')} />
             </div>
-          </div>
+          ) : activeTab === 'planters' && planters.length > 0 ? (
+            <div className="mt-8 sm:mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+              {planters.map((planter) => (
+                <PlanterCard
+                  key={planter.id}
+                  planter={planter}
+                  onDelete={handleDeletePlanter}
+                />
+              ))}
+              <AddCard label="Add a new planter" onClick={() => navigate('/planters/new')} />
+            </div>
+          ) : activeTab === 'qa' && questions.length > 0 ? (
+            <div className="mt-8 sm:mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-5 gap-y-8 sm:gap-x-6">
+              {questions.map((question) => (
+                <QuestionCard
+                  key={question.id}
+                  question={question}
+                  onDelete={handleDeleteQuestion}
+                />
+              ))}
+              <AddCard label="Ask a question" onClick={() => navigate('/questions/new')} />
+            </div>
+          ) : (
+            <div className="mt-8 sm:mt-12 flex justify-center">
+              <div className="w-full max-w-md rounded-2xl border border-olive-main/15 bg-cream-soft px-6 py-8 sm:px-10 sm:py-10 flex flex-col items-center text-center shadow-sm">
+                <div className="relative w-28 h-28 sm:w-36 sm:h-36 rounded-full bg-stripes-olive ring-4 ring-cream-soft mb-5 flex items-center justify-center">
+                  <ActiveIcon className="!text-cream-soft !text-6xl sm:!text-7xl" />
+                </div>
+                <Typography className="!text-olive-main !text-2xl sm:!text-3xl !font-semibold !mb-2">
+                  {active.emptyTitle}
+                </Typography>
+                <p className="text-olive-light text-lg sm:text-xl max-w-sm mb-6 leading-snug">
+                  {active.emptyDescription}
+                </p>
+                <Button
+                  startIcon={<AddIcon />}
+                  onClick={
+                    NEW_ROUTES[active.key]
+                      ? () => navigate(NEW_ROUTES[active.key]!)
+                      : undefined
+                  }
+                  className="!bg-olive-main !text-cream-soft !text-lg sm:!text-xl !normal-case !rounded-lg !px-5 !py-2.5 hover:!bg-olive-light"
+                >
+                  {active.cta}
+                </Button>
+              </div>
+            </div>
+          )}
         </section>
       </div>
     </>
+  );
+}
+
+function AddCard({ label, onClick }: { label: string; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex flex-col items-center justify-center gap-3 min-h-[14rem] rounded-2xl border-2 border-dashed border-olive-main/25 text-olive-light hover:border-olive-light hover:text-olive-main transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-olive-light"
+    >
+      <span className="flex items-center justify-center w-14 h-14 rounded-full border border-current">
+        <AddIcon className="!text-3xl" />
+      </span>
+      <span className="text-lg sm:text-xl">{label}</span>
+    </button>
   );
 }
 

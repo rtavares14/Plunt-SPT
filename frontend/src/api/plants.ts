@@ -18,6 +18,7 @@ export interface PlantSummary {
   planterId: string | null;
   name: string;
   species: string | null;
+  notes: string | null;
   isDead: boolean;
   wateringIntervalDays: number;
   sunlight: Sunlight;
@@ -108,6 +109,7 @@ export async function listPlants(fetcher: Fetcher): Promise<PlantSummary[]> {
 export interface CreatePlantInput {
   name: string;
   species?: string | null;
+  notes?: string | null;
   planterId?: string | null;
   wateringIntervalDays?: number;
   sunlight?: Sunlight;

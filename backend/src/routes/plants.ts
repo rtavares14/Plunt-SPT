@@ -10,7 +10,6 @@ import {
   optionalUrl,
   trimmedString,
 } from '../lib/validate';
-
 const router = Router();
 
 router.use(authMiddleware, requireVerified);
@@ -36,15 +35,21 @@ router.get('/', async (req: Request, res: Response) => {
 
 router.post('/', async (req: Request, res: Response) => {
   try {
-    const name = trimmedString(req.body?.name, 80);
+    const name = trimmedString(req.body?.name, 50);
     if (!name) {
-      res.status(400).json({ error: 'Name is required (max 80 characters)' });
+      res.status(400).json({ error: 'Name is required (max 50 characters)' });
       return;
     }
 
-    const species = optionalString(req.body?.species, 120);
+    const species = optionalString(req.body?.species, 70);
     if (species === INVALID) {
       res.status(400).json({ error: 'Species is invalid' });
+      return;
+    }
+
+    const notes = optionalString(req.body?.notes, 200);
+    if (notes === INVALID) {
+      res.status(400).json({ error: 'Notes are invalid' });
       return;
     }
 
@@ -110,6 +115,7 @@ router.post('/', async (req: Request, res: Response) => {
         planterId: planterId ?? null,
         name,
         species: species ?? null,
+        notes: notes ?? null,
         wateringIntervalDays: wateringIntervalDays ?? 7,
         sunlight: (sunlightValue as Sunlight | undefined) ?? Sunlight.MEDIUM,
         minTemp: minTemp ?? null,
@@ -147,21 +153,30 @@ router.patch('/:id', async (req: Request, res: Response) => {
     const data: Record<string, unknown> = {};
 
     if (req.body?.name !== undefined) {
-      const name = trimmedString(req.body.name, 80);
+      const name = trimmedString(req.body.name, 50);
       if (!name) {
-        res.status(400).json({ error: 'Name is required (max 80 characters)' });
+        res.status(400).json({ error: 'Name is required (max 50 characters)' });
         return;
       }
       data.name = name;
     }
 
     if (req.body?.species !== undefined) {
-      const species = optionalString(req.body.species, 120);
+      const species = optionalString(req.body.species, 70);
       if (species === INVALID) {
         res.status(400).json({ error: 'Species is invalid' });
         return;
       }
       data.species = species;
+    }
+
+    if (req.body?.notes !== undefined) {
+      const notes = optionalString(req.body.notes, 200);
+      if (notes === INVALID) {
+        res.status(400).json({ error: 'Notes are invalid' });
+        return;
+      }
+      data.notes = notes;
     }
 
     if (req.body?.wateringIntervalDays !== undefined) {

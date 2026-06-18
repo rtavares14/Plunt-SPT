@@ -10,6 +10,9 @@ import ForgotPasswordPage from './pages/auth/ForgotPasswordPage';
 import ResetPasswordPage from './pages/auth/ResetPasswordPage';
 import VerifyEmailPage from './pages/auth/VerifyEmailPage';
 import FeedPage from './pages/app/FeedPage';
+import CreatePlantPage from './pages/app/CreatePlantPage';
+import CreatePlanterPage from './pages/app/CreatePlanterPage';
+import CreateQuestionPage from './pages/app/CreateQuestionPage';
 import UserPage from './pages/app/profile/UserPage';
 import EditProfilePage from './pages/app/profile/EditProfilePage';
 import ComingSoonPage from './pages/app/ComingSoonPage';
@@ -46,6 +49,9 @@ function App() {
             <Route path="/verify-email" element={<VerifyEmailPage />} />
             <Route element={<ProtectedLayout />}>
               <Route path="/feed" element={<FeedPage />} />
+              <Route path="/plants/new" element={<CreatePlantPage />} />
+              <Route path="/planters/new" element={<CreatePlanterPage />} />
+              <Route path="/questions/new" element={<CreateQuestionPage />} />
               <Route path="/profile" element={<UserPage />} />
               <Route path="/profile/edit" element={<EditProfilePage />} />
               <Route
