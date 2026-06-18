@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import AddIcon from '@mui/icons-material/Add';
-import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined';
 import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
 import WbSunnyOutlinedIcon from '@mui/icons-material/WbSunnyOutlined';
 import GrassOutlinedIcon from '@mui/icons-material/GrassOutlined';
@@ -143,14 +142,7 @@ function FeedPage() {
               createdAt={item.createdAt}
               image={item.plant.images?.[0]?.url ?? null}
               placeholder={`<photo: ${item.plant.species ?? 'your plant'}>`}
-              meta={
-                item.plant.city ? (
-                  <span className="flex items-center gap-1 text-base">
-                    <LocationOnOutlinedIcon className="!text-lg" />
-                    {item.plant.city}
-                  </span>
-                ) : null
-              }
+              meta={null}
             />
           );
         }

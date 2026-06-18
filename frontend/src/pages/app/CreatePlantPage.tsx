@@ -13,7 +13,6 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { useAuth } from '../../context/useAuth';
 import { uploadImage } from '../../api/uploads';
 import { createPlant, listPlanters, type Sunlight, type PlanterSummary } from '../../api/plants';
-import CityAutocomplete from '../../components/CityAutocomplete';
 import { fieldSx } from '../../lib/fieldSx';
 
 interface Step {
@@ -45,8 +44,6 @@ function CreatePlantPage() {
   const [species, setSpecies] = useState('');
   const [sunlight, setSunlight] = useState<Sunlight>('MEDIUM');
   const [notes, setNotes] = useState('');
-  const [city, setCity] = useState(user?.city ?? '');
-  const [cityValid, setCityValid] = useState(true);
   const [planterId, setPlanterId] = useState('');
   const [planters, setPlanters] = useState<PlanterSummary[]>([]);
   const [wateringIntervalDays, setWateringIntervalDays] = useState('7');
@@ -114,10 +111,6 @@ function CreatePlantPage() {
       setStepIndex(1);
       return;
     }
-    if (city.trim() && !cityValid) {
-      setError('Pick a city from the suggestions so we can match the weather.');
-      return;
-    }
     const interval = Number(wateringIntervalDays);
     if (!Number.isInteger(interval) || interval < 1 || interval > 365) {
       setError('Watering interval must be between 1 and 365 days.');
@@ -130,7 +123,6 @@ function CreatePlantPage() {
         name: name.trim(),
         species: species.trim() || null,
         notes: notes.trim() || null,
-        city: city.trim() || null,
         planterId: planterId || null,
         sunlight,
         wateringIntervalDays: interval,
@@ -270,24 +262,9 @@ function CreatePlantPage() {
                     Where does it live?
                   </Typography>
                   <p className="text-olive-light text-xl mt-1">
-                    We use the city for weather-aware reminders.
+                    Set a planter and a watering schedule.
                   </p>
                 </header>
-
-                <Field label="City">
-                  <CityAutocomplete
-                    value={city}
-                    onChange={setCity}
-                    onValidityChange={setCityValid}
-                    error={!!city.trim() && !cityValid}
-                    helperText={
-                      !!city.trim() && !cityValid
-                        ? 'Pick a city from the suggestions.'
-                        : 'Powered by Photon / OpenStreetMap'
-                    }
-                    label=""
-                  />
-                </Field>
 
                 <Field label="Water every (days)">
                   <TextField
@@ -337,7 +314,7 @@ function CreatePlantPage() {
               {isLast ? (
                 <Button
                   onClick={submit}
-                  disabled={submitting || uploading || (!!city.trim() && !cityValid)}
+                  disabled={submitting || uploading}
                   className="!bg-olive-main !text-cream-soft !text-lg !normal-case !rounded-lg !px-6 !py-2.5 hover:!bg-olive-light disabled:!opacity-60"
                 >
                   {submitting ? 'Planting…' : 'Plant it'}
@@ -375,7 +352,7 @@ function CreatePlantPage() {
               ) : null}
             </div>
             <p className="text-center text-accent-clay text-xl mt-4 italic">
-              {name.trim() || 'your plant'} · day 1 · {city.trim() || 'somewhere'}
+              {name.trim() || 'your plant'} · day 1
             </p>
           </div>
         </section>

@@ -106,7 +106,6 @@ model Plant {
   name                 String
   species              String?
   notes                String?
-  city                 String?
   isDead               Boolean   @default(false)
   wateringIntervalDays Int       @default(7)
   sunlight             Sunlight  @default(MEDIUM)

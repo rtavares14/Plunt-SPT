@@ -19,7 +19,6 @@ export interface PlantSummary {
   name: string;
   species: string | null;
   notes: string | null;
-  city: string | null;
   isDead: boolean;
   wateringIntervalDays: number;
   sunlight: Sunlight;
@@ -111,7 +110,6 @@ export interface CreatePlantInput {
   name: string;
   species?: string | null;
   notes?: string | null;
-  city?: string | null;
   planterId?: string | null;
   wateringIntervalDays?: number;
   sunlight?: Sunlight;
