@@ -49,8 +49,10 @@ interface WeatherData {
 }
 
 async function fetchWeather(city: string): Promise<WeatherData | null> {
+  // DB stores the full autocomplete label ("Deventer, Netherlands"); use only the city part for geocoding.
+  const cityName = city.split(',')[0].trim();
   const geoRes = await fetch(
-    `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=en&format=json`,
+    `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(cityName)}&count=1&language=en&format=json`,
   );
   if (!geoRes.ok) return null;
   const geo = await geoRes.json() as { results?: { latitude: number; longitude: number; name: string }[] };

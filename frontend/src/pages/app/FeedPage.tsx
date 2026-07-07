@@ -21,7 +21,7 @@ import {
 } from '../../api/plants';
 import { listQuestions, NOTE_BG, type QuestionSummary } from '../../api/questions';
 import WeatherSidebar from '../../components/WeatherSidebar';
-import FeedLeftSidebar, { type FeedFilter } from '../../components/FeedLeftSidebar';
+import FeedLeftSidebar, { FILTERS, type FeedFilter } from '../../components/FeedLeftSidebar';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -268,20 +268,40 @@ function FeedPage() {
   return (
     <main className="flex-1 w-full flex min-h-[calc(100vh-4rem)]">
       {/* Left sidebar — friends + filter */}
-      <aside className="w-56 flex-none hidden xl:flex bg-cream-soft px-5 py-8">
+      <aside className="w-64 flex-none hidden lg:flex bg-cream-soft px-5 py-8">
         <div className="sticky top-8 w-full">
           <FeedLeftSidebar filter={filter} onFilter={setFilter} />
         </div>
       </aside>
 
       {/* Center — feed */}
-      <div className="flex-1 min-w-0 space-y-5 px-4 sm:px-6 py-8">
+      <div className="flex-1 min-w-0 px-4 sm:px-6 py-8">
+        <div className="max-w-xl mx-auto space-y-5">
         {quickActionBar}
-        {feedContent}
+
+        {/* Horizontal filter chips — visible below lg where the left sidebar is hidden */}
+        <div className="flex gap-2 overflow-x-auto pb-0.5 lg:hidden -mx-1 px-1">
+          {FILTERS.map(({ key, label }) => (
+            <button
+              key={key}
+              type="button"
+              onClick={() => setFilter(key)}
+              className={`flex-none px-4 py-1.5 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${filter === key
+                ? 'bg-olive-opac text-olive-main'
+                : 'bg-olive-main/8 text-olive-light hover:bg-olive-main/15'
+                }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
+          {feedContent}
+        </div>
       </div>
 
       {/* Right sidebar — weather + up next */}
-      <aside className="w-64 flex-none hidden xl:flex bg-cream-soft px-5 py-8">
+      <aside className="w-64 flex-none hidden lg:flex bg-cream-soft px-5 py-8">
         <div className="sticky top-8 w-full">
           <WeatherSidebar city={user.city} plants={plants} />
         </div>
@@ -328,9 +348,8 @@ function FeedCard({
 
       {content ?? (
         <div
-          className={`relative aspect-[16/10] w-full flex items-center justify-center ${
-            image ? '' : 'bg-stripes-olive'
-          }`}
+          className={`relative aspect-[16/7] w-full flex items-center justify-center ${image ? '' : 'bg-stripes-olive'
+            }`}
           style={
             image
               ? { backgroundImage: `url(${image})`, backgroundSize: 'cover', backgroundPosition: 'center' }

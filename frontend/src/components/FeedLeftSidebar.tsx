@@ -1,6 +1,6 @@
 export type FeedFilter = 'all' | 'photos' | 'questions' | 'watering';
 
-const FILTERS: { key: FeedFilter; label: string }[] = [
+export const FILTERS: { key: FeedFilter; label: string }[] = [
   { key: 'all', label: 'All updates' },
   { key: 'photos', label: 'Plant photos' },
   { key: 'questions', label: 'Questions' },
@@ -32,6 +32,8 @@ export default function FeedLeftSidebar({ filter, onFilter }: Props) {
           </span>
         </button>
       </section>
+
+      <hr className="border-olive-main/15" />
 
       {/* Filter */}
       <section className="space-y-1">
