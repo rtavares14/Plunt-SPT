@@ -21,7 +21,8 @@ import {
 } from '../../api/plants';
 import { listQuestions, NOTE_BG, type QuestionSummary } from '../../api/questions';
 import WeatherSidebar from '../../components/WeatherSidebar';
-import FeedLeftSidebar, { FILTERS, type FeedFilter } from '../../components/FeedLeftSidebar';
+import FeedLeftSidebar from '../../components/FeedLeftSidebar';
+import { FILTERS, type FeedFilter } from '../../lib/feedFilters';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
