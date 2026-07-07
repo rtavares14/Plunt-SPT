@@ -193,6 +193,8 @@ function FeedPage() {
               subject={item.plant.name}
               createdAt={item.createdAt}
               image={item.plant.images?.[0]?.url ?? null}
+              focalX={item.plant.images?.[0]?.focalX}
+              focalY={item.plant.images?.[0]?.focalY}
               placeholder={`<photo: ${item.plant.species ?? 'your plant'}>`}
               meta={null}
             />
@@ -268,43 +270,39 @@ function FeedPage() {
   return (
     <main className="flex-1 w-full flex min-h-[calc(100vh-4rem)]">
       {/* Left sidebar — friends + filter */}
-      <aside className="w-64 flex-none hidden lg:flex bg-cream-soft px-5 py-8">
-        <div className="sticky top-8 w-full">
-          <FeedLeftSidebar filter={filter} onFilter={setFilter} />
-        </div>
+      <aside className="w-80 flex-none hidden lg:block sticky top-16 h-[calc(100vh-4rem)] overflow-hidden bg-cream-soft px-5 py-8">
+        <FeedLeftSidebar filter={filter} onFilter={setFilter} />
       </aside>
 
       {/* Center — feed */}
-      <div className="flex-1 min-w-0 px-4 sm:px-6 py-8">
-        <div className="max-w-xl mx-auto space-y-5">
-        {quickActionBar}
+      <div className="flex-1 min-w-0 px-4 sm:px-6 py-8 overflow-y-auto">
+        <div className="max-w-[500px] mx-auto space-y-5">
+          {quickActionBar}
 
-        {/* Horizontal filter chips — visible below lg where the left sidebar is hidden */}
-        <div className="flex gap-2 overflow-x-auto pb-0.5 lg:hidden -mx-1 px-1">
-          {FILTERS.map(({ key, label }) => (
-            <button
-              key={key}
-              type="button"
-              onClick={() => setFilter(key)}
-              className={`flex-none px-4 py-1.5 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${filter === key
-                ? 'bg-olive-opac text-olive-main'
-                : 'bg-olive-main/8 text-olive-light hover:bg-olive-main/15'
-                }`}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
+          {/* Horizontal filter chips — visible below lg where the left sidebar is hidden */}
+          <div className="flex gap-2 overflow-x-auto pb-0.5 lg:hidden -mx-1 px-1">
+            {FILTERS.map(({ key, label }) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setFilter(key)}
+                className={`flex-none px-4 py-1.5 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${filter === key
+                  ? 'bg-olive-opac text-olive-main'
+                  : 'bg-olive-main/8 text-olive-light hover:bg-olive-main/15'
+                  }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
 
           {feedContent}
         </div>
       </div>
 
       {/* Right sidebar — weather + up next */}
-      <aside className="w-64 flex-none hidden lg:flex bg-cream-soft px-5 py-8">
-        <div className="sticky top-8 w-full">
-          <WeatherSidebar city={user.city} plants={plants} />
-        </div>
+      <aside className="w-80 flex-none hidden lg:block sticky top-16 h-[calc(100vh-4rem)] overflow-hidden bg-cream-soft px-5 py-8">
+        <WeatherSidebar city={user.city} plants={plants} />
       </aside>
     </main>
   );
@@ -317,6 +315,8 @@ interface FeedCardProps {
   subject?: string;
   createdAt: string;
   image?: string | null;
+  focalX?: number;
+  focalY?: number;
   placeholder?: string;
   /** Replaces the image area entirely (used by the Q&A post-it). */
   content?: ReactNode;
@@ -330,6 +330,8 @@ function FeedCard({
   subject,
   createdAt,
   image,
+  focalX = 50,
+  focalY = 50,
   placeholder,
   content,
   meta,
@@ -347,21 +349,15 @@ function FeedCard({
       </div>
 
       {content ?? (
-        <div
-          className={`relative aspect-[16/7] w-full flex items-center justify-center ${image ? '' : 'bg-stripes-olive'
-            }`}
-          style={
-            image
-              ? { backgroundImage: `url(${image})`, backgroundSize: 'cover', backgroundPosition: 'center' }
-              : undefined
-          }
-        >
-          {!image ? (
+        image ? (
+          <FeedImage src={image} focalX={focalX} focalY={focalY} />
+        ) : (
+          <div className="relative aspect-[1/1] w-full flex items-center justify-center bg-stripes-olive">
             <span className="font-mono text-sm text-cream-soft bg-olive-main/80 px-3 py-1.5 rounded">
               {placeholder}
             </span>
-          ) : null}
-        </div>
+          </div>
+        )
       )}
 
       <div className="flex items-center justify-between px-4 sm:px-5 py-3 text-olive-light">
@@ -374,6 +370,28 @@ function FeedCard({
         {meta}
       </div>
     </article>
+  );
+}
+
+function FeedImage({ src, focalX, focalY }: { src: string; focalX: number; focalY: number }) {
+  const [portrait, setPortrait] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const img = new Image();
+    img.onload = () => setPortrait(img.naturalHeight > img.naturalWidth);
+    img.src = src;
+    return () => { img.onload = null; };
+  }, [src]);
+
+  return (
+    <div className={`w-full overflow-hidden ${portrait ? 'aspect-[4/5]' : 'aspect-[1/1]'}`}>
+      <img
+        src={src}
+        alt=""
+        className="w-full h-full object-cover"
+        style={{ objectPosition: `${focalX}% ${focalY}%` }}
+      />
+    </div>
   );
 }
 
