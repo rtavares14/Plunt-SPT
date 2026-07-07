@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import CircularProgress from '@mui/material/CircularProgress';
 import WbSunnyOutlinedIcon from '@mui/icons-material/WbSunnyOutlined';
 import WbCloudyOutlinedIcon from '@mui/icons-material/WbCloudyOutlined';
 import CloudOutlinedIcon from '@mui/icons-material/CloudOutlined';
@@ -138,7 +137,7 @@ function WeatherWidget({ city }: { city: string }) {
       <div className="rounded-2xl border border-olive-main/15 bg-cream-soft p-4 shadow-sm">
         {data === 'loading' ? (
           <div className="h-20 flex items-center justify-center">
-            <CircularProgress size={28} className="!text-olive-main" />
+            <span className="text-olive-light text-lg">Loading weather...</span>
           </div>
         ) : data === 'error' || data === null ? (
           <div className="h-20 flex items-center justify-center">
@@ -147,7 +146,7 @@ function WeatherWidget({ city }: { city: string }) {
         ) : (
           <div className="flex items-start justify-between gap-3">
             <div className="space-y-1">
-              <p className="text-olive-main text-base font-bold leading-tight">{data.condition}</p>
+              <p className="text-olive-main text-2xlma font-bold leading-tight">{data.condition}</p>
               <p className="text-olive-main text-4xl font-bold leading-none">
                 {data.tempMax}°
                 <span className="text-olive-light font-semibold"> / {data.tempMin}°</span>
