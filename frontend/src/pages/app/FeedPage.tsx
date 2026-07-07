@@ -61,18 +61,34 @@ function FeedPage() {
   useEffect(() => {
     if (!user) return;
     let cancelled = false;
+    setLoaded(false);
+    setPlants([]);
+    setPlanters([]);
+    setQuestions([]);
     (async () => {
       try {
-        const [plantList, planterList, questionList] = await Promise.all([
-          listPlants(authFetch),
-          listPlanters(authFetch),
-          listQuestions(authFetch),
-        ]);
-        if (!cancelled) {
-          setPlants(plantList);
-          setPlanters(planterList);
-          setQuestions(questionList);
+        if (filter === 'all') {
+          const [plantList, planterList, questionList] = await Promise.all([
+            listPlants(authFetch),
+            listPlanters(authFetch),
+            listQuestions(authFetch),
+          ]);
+          if (!cancelled) {
+            setPlants(plantList);
+            setPlanters(planterList);
+            setQuestions(questionList);
+          }
+        } else if (filter === 'photos') {
+          const plantList = await listPlants(authFetch);
+          if (!cancelled) setPlants(plantList);
+        } else if (filter === 'planters') {
+          const planterList = await listPlanters(authFetch);
+          if (!cancelled) setPlanters(planterList);
+        } else if (filter === 'questions') {
+          const questionList = await listQuestions(authFetch);
+          if (!cancelled) setQuestions(questionList);
         }
+        // watering: coming soon — stays empty
       } catch {
         // ignore, renders the empty state
       } finally {
@@ -82,7 +98,7 @@ function FeedPage() {
     return () => {
       cancelled = true;
     };
-  }, [user, authFetch]);
+  }, [user, authFetch, filter]);
 
   if (!user) return null;
 
@@ -100,12 +116,7 @@ function FeedPage() {
     })),
   ].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
-  const visibleItems = items.filter((item) => {
-    if (filter === 'photos') return item.kind === 'plant' || item.kind === 'planter';
-    if (filter === 'questions') return item.kind === 'question';
-    if (filter === 'watering') return false; // coming soon
-    return true;
-  });
+  const visibleItems = items;
 
   const avatar = user.avatarUrl ? (
     <img

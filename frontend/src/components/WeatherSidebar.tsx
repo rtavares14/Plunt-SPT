@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import CircularProgress from '@mui/material/CircularProgress';
 import WbSunnyOutlinedIcon from '@mui/icons-material/WbSunnyOutlined';
 import WbCloudyOutlinedIcon from '@mui/icons-material/WbCloudyOutlined';
 import CloudOutlinedIcon from '@mui/icons-material/CloudOutlined';
@@ -29,7 +30,7 @@ function wmoLabel(code: number): { label: string; icon: WeatherIcon } {
 }
 
 function WeatherIconEl({ icon }: { icon: WeatherIcon }) {
-  const cls = '!text-4xl';
+  const cls = '!text-2xl';
   if (icon === 'sunny') return <WbSunnyOutlinedIcon className={`${cls} !text-amber-500`} />;
   if (icon === 'partly-cloudy') return <WbCloudyOutlinedIcon className={`${cls} !text-olive-light`} />;
   if (icon === 'cloudy') return <CloudOutlinedIcon className={`${cls} !text-olive-light`} />;
@@ -61,8 +62,8 @@ async function fetchWeather(city: string): Promise<WeatherData | null> {
 
   const wxRes = await fetch(
     `https://api.open-meteo.com/v1/forecast?latitude=${place.latitude}&longitude=${place.longitude}` +
-      `&daily=temperature_2m_max,temperature_2m_min,weathercode&current_weather=true` +
-      `&timezone=auto&temperature_unit=celsius&forecast_days=7`,
+    `&daily=temperature_2m_max,temperature_2m_min,weathercode&current_weather=true` +
+    `&timezone=auto&temperature_unit=celsius&forecast_days=7`,
   );
   if (!wxRes.ok) return null;
   const wx = await wxRes.json() as {
@@ -130,28 +131,28 @@ function WeatherWidget({ city }: { city: string }) {
 
   return (
     <section className="space-y-3">
-      <p className="text-xs font-semibold tracking-widest text-olive-light uppercase">
+      <p className="text-base font-semibold tracking-widest text-olive-light uppercase">
         This week in {cityDisplay}
       </p>
 
       <div className="rounded-2xl border border-olive-main/15 bg-cream-soft p-4 shadow-sm">
         {data === 'loading' ? (
           <div className="h-20 flex items-center justify-center">
-            <span className="text-olive-light text-sm">Loading weather...</span>
+            <CircularProgress size={28} className="!text-olive-main" />
           </div>
         ) : data === 'error' || data === null ? (
           <div className="h-20 flex items-center justify-center">
-            <span className="text-olive-light text-sm">Weather unavailable</span>
+            <span className="text-olive-light text-lg">Weather unavailable</span>
           </div>
         ) : (
           <div className="flex items-start justify-between gap-3">
             <div className="space-y-1">
-              <p className="text-olive-main text-lg font-bold leading-tight">{data.condition}</p>
+              <p className="text-olive-main text-base font-bold leading-tight">{data.condition}</p>
               <p className="text-olive-main text-4xl font-bold leading-none">
                 {data.tempMax}°
                 <span className="text-olive-light font-semibold"> / {data.tempMin}°</span>
               </p>
-              <p className="text-olive-light text-sm mt-2">
+              <p className="text-olive-light text-lg mt-2">
                 {data.frostDaysAhead === null
                   ? 'No frost risk for 7 days'
                   : data.frostDaysAhead === 0
@@ -174,21 +175,20 @@ function UpNextWidget({ plants }: { plants: PlantSummary[] }) {
 
   return (
     <section className="space-y-3">
-      <p className="text-xs font-semibold tracking-widest text-olive-light uppercase">Up next</p>
+      <p className="text-base font-semibold tracking-widest text-olive-light uppercase">Up next</p>
 
       <div className="space-y-0">
         {items.map((item, i) => (
           <div
             key={item.id}
-            className={`flex items-center gap-3 py-3.5 ${
-              i < items.length - 1 ? 'border-b border-dashed border-olive-main/20' : ''
-            }`}
+            className={`flex items-center gap-3 py-3.5 ${i < items.length - 1 ? 'border-b border-dashed border-olive-main/20' : ''
+              }`}
           >
             <span className="flex-none w-2 h-2 rounded-full bg-olive-main" />
-            <span className="flex-1 text-olive-main text-base font-medium leading-snug">
+            <span className="flex-1 text-olive-main text-xl font-medium leading-snug">
               {item.label}
             </span>
-            <span className="flex-none text-olive-light text-sm">{relativeDay(item.daysAhead)}</span>
+            <span className="flex-none text-olive-light text-lg">{relativeDay(item.daysAhead)}</span>
           </div>
         ))}
       </div>
@@ -211,7 +211,7 @@ export default function WeatherSidebar({ city, plants }: WeatherSidebarProps) {
           <p className="text-xs font-semibold tracking-widest text-olive-light uppercase mb-3">
             Weather
           </p>
-          <p className="text-olive-light text-sm">
+          <p className="text-olive-light text-lg">
             Set your city in your profile to see local weather.
           </p>
         </section>

@@ -1,8 +1,9 @@
-export type FeedFilter = 'all' | 'photos' | 'questions' | 'watering';
+export type FeedFilter = 'all' | 'photos' | 'planters' | 'questions' | 'watering';
 
 export const FILTERS: { key: FeedFilter; label: string }[] = [
   { key: 'all', label: 'All updates' },
   { key: 'photos', label: 'Plant photos' },
+  { key: 'planters', label: 'Planters' },
   { key: 'questions', label: 'Questions' },
   { key: 'watering', label: 'Watering logs' },
 ];
@@ -17,7 +18,7 @@ export default function FeedLeftSidebar({ filter, onFilter }: Props) {
     <div className="space-y-8">
       {/* Friends — placeholder until friends feature is built */}
       <section className="space-y-3">
-        <p className="text-xs font-semibold tracking-widest text-olive-light uppercase">
+        <p className="text-base font-semibold tracking-widest text-olive-light uppercase">
           Friends
         </p>
         <button
@@ -27,7 +28,7 @@ export default function FeedLeftSidebar({ filter, onFilter }: Props) {
           <span className="flex-none flex items-center justify-center w-8 h-8 rounded-full border-2 border-dashed border-olive-main/40 text-olive-main/50 text-lg font-light group-hover:border-olive-main/70 group-hover:text-olive-main transition-colors">
             +
           </span>
-          <span className="flex-1 text-olive-main text-sm font-medium leading-tight">
+          <span className="flex-1 text-olive-main text-lg font-medium leading-tight">
             Add your first friend
           </span>
         </button>
@@ -37,7 +38,7 @@ export default function FeedLeftSidebar({ filter, onFilter }: Props) {
 
       {/* Filter */}
       <section className="space-y-1">
-        <p className="text-xs font-semibold tracking-widest text-olive-light uppercase mb-3">
+        <p className="text-base font-semibold tracking-widest text-olive-light uppercase mb-3">
           Filter
         </p>
         {FILTERS.map(({ key, label }) => (
@@ -45,7 +46,7 @@ export default function FeedLeftSidebar({ filter, onFilter }: Props) {
             key={key}
             type="button"
             onClick={() => onFilter(key)}
-            className={`w-full text-left px-3 py-2 rounded-lg text-base transition-colors ${
+            className={`w-full text-left px-3 py-2 rounded-lg text-xl transition-colors ${
               filter === key
                 ? 'bg-olive-opac text-olive-main font-semibold'
                 : 'text-olive-main hover:bg-olive-main/8'
