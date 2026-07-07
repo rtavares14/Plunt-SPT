@@ -29,7 +29,7 @@ export interface PlantSummary {
   createdAt: string;
   updatedAt: string;
   planter?: { id: string; name: string; isIndoor: boolean } | null;
-  images?: { id: string; url: string }[];
+  images?: { id: string; url: string; focalX: number; focalY: number }[];
 }
 
 export interface SpeciesSearchResult {
