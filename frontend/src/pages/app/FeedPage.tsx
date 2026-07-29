@@ -2,6 +2,8 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Typography from '@mui/material/Typography';
 import Tooltip from '@mui/material/Tooltip';
+import Button from '@mui/material/Button';
+import AddIcon from '@mui/icons-material/Add';
 import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
 import WbSunnyOutlinedIcon from '@mui/icons-material/WbSunnyOutlined';
 import GrassOutlinedIcon from '@mui/icons-material/GrassOutlined';
@@ -183,9 +185,27 @@ function FeedPage() {
             <Typography className="!text-olive-main !text-3xl sm:!text-4xl !font-semibold !mb-2">
               Welcome, {user.name}.
             </Typography>
-            <Typography className="!text-olive-light !text-lg sm:!text-xl !max-w-md">
-              Your feed is quiet. Hit a quick-action icon above to get started.
+            <Typography className="!text-olive-light !text-lg sm:!text-xl !max-w-md !mb-8">
+              Your feed is quiet. Get started below.
             </Typography>
+            <div className="w-full max-w-md rounded-2xl border border-olive-main/15 bg-cream-soft px-6 py-8 sm:px-10 sm:py-10 flex flex-col items-center text-center shadow-sm">
+              <div className="relative w-28 h-28 sm:w-36 sm:h-36 rounded-full bg-stripes-olive ring-4 ring-cream-soft mb-5 flex items-center justify-center">
+                <GrassOutlinedIcon className="!text-cream-soft !text-6xl sm:!text-7xl" />
+              </div>
+              <Typography className="!text-olive-main !text-2xl sm:!text-3xl !font-semibold !mb-2">
+                Ohh no, no plants!
+              </Typography>
+              <p className="text-olive-light text-lg sm:text-xl max-w-sm mb-6 leading-snug">
+                Start by adding one, track watering, log how it grows, and let friends nudge you when it gets thirsty.
+              </p>
+              <Button
+                startIcon={<AddIcon />}
+                onClick={() => navigate('/plants/new')}
+                className="!bg-olive-main !text-cream-soft !text-lg sm:!text-xl !normal-case !rounded-lg !px-5 !py-2.5 hover:!bg-olive-light"
+              >
+                Create a plant
+              </Button>
+            </div>
           </>
         ) : (
           <Typography className="!text-olive-light !text-lg">
